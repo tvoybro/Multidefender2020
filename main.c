@@ -1,6 +1,4 @@
-//this example code shows how to put some text in nametable
-//it assumes that you have ASCII-encoded font in the CHR tiles $00-$3f
-//it also shows how to detect PAL/NTSC video system
+// Multimatograf 2020 invitro
 
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
