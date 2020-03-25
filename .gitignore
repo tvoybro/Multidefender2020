@@ -1,0 +1,8 @@
+cc65
+*.o
+*.deb
+*.db
+*.nes
+labels.txt
+*.bat
+*.exe
