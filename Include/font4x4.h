@@ -35,7 +35,7 @@ const unsigned char char_5[2*2]={
 
 const unsigned char char_6[2*2]={
 	0x0e,0x0f,
-	0x1e,0x1f
+	0x00,0x1f
 };
 
 const unsigned char char_7[2*2]={
@@ -80,7 +80,7 @@ const unsigned char char_E[2*2]={
 
 const unsigned char char_F[2*2]={
 	0x40,0x41,
-	0x50,0x51
+	0x50,0x00
 };
 
 const unsigned char char_G[2*2]={
@@ -109,7 +109,7 @@ const unsigned char char_K[2*2]={
 };
 
 const unsigned char char_L[2*2]={
-	0x4c,0x4d,
+	0x4c,0x00,
 	0x5c,0x5d
 };
 

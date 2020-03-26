@@ -266,7 +266,7 @@ sounds_data:
 
 
 .segment "CHR1"
-	.incbin "NESst/chr_page1_BigFont.chr"
+	.incbin "NESst/chr_bank1_BigFont_logo_eq.chr"
 	
 .segment "CHR2"
 	;.incbin "tileset2.chr"

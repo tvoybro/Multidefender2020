@@ -4,6 +4,9 @@
 #include "Include/nesdoug.h"
 #include "Include/font4x4.h"
 
+#include "Gfx/NAM_multi_logo_A.h"
+#include "Gfx/NAM_multi_logo_B.h"
+
 extern char scrollText[];
 
 extern unsigned int FT_MUSPOS;
@@ -13,7 +16,7 @@ unsigned char pad_t;
 unsigned char tileset;
 unsigned int muspos;
 
-const unsigned char palette[16]={ 0x0f,0x13,0x22,0x31,0x0f,0x00,0x10,0x30,0x0f,0x06,0x16,0x26,0x0f,0x09,0x19,0x29 };
+const unsigned char palette[16]={ 0x0c,0x05,0x0f,0x16,0x0c,0x13,0x22,0x31,0x0c,0x2c,0x11,0x2a,0x0c,0x0f,0x0f,0x0f };
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
 
@@ -77,7 +80,7 @@ void fx_SplitScroll(void)
 		multi_vram_buffer_horz(tbl_alphabet[_fs]+2, 2, scrollerAddr+32);
 		scrollerCharPos = (scrollerCharPos + 1) & 31;
 	}
-	scroll(scrollerPos, 0);
+	split(scrollerPos, 0);
 	scrollerPos = (scrollerPos + 1) & 511;
 }
 
@@ -91,6 +94,12 @@ void main(void)
 	tileset = 0;
 	
 	cnrom_set_bank(tileset);
+	bank_spr(1);
+
+	vram_adr(NAMETABLE_A);
+	vram_unrle(NAM_multi_logo_A);
+	vram_adr(NAMETABLE_B);
+	vram_unrle(NAM_multi_logo_B);
 	
 	ppu_on_all();//enable rendering
 
@@ -99,6 +108,7 @@ void main(void)
 	while(1)
 	{
 		// muspos = get_mus_pos();
+		oam_spr(15*8, 189, 0x01, 1 /*| OAM_BEHIND*/, 0);
 
 		fx_SplitScroll();
 
