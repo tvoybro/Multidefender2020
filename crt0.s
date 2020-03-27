@@ -27,8 +27,6 @@ FT_SFX_STREAMS = 4			        ;number of sound effects played at once, 1..4
 	.import NES_MAPPER,NES_PRG_BANKS,NES_CHR_BANKS,NES_MIRRORING
     .include "zeropage.inc"
 
-
-
 FT_BASE_ADR		=$0100	;page in RAM, should be $xx00
 
 .define FT_THREAD       1	;undefine if you call sound effects in the same thread as sound update

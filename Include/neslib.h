@@ -11,8 +11,6 @@
 // 060414 - many fixes and improvements, including sequental VRAM updates
 // previous versions were created since mid-2011, there were many updates
 
-
-
 unsigned int __fastcall__ get_mus_pos(void);
 
 //set bg and spr palettes, data is 32 bytes array
