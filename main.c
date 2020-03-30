@@ -70,12 +70,10 @@ unsigned int nt_Offset;
 unsigned char i, eq_Tile;
 
 const unsigned int eq_pulse1_approx[15] = {
-//	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
 	0x00, 0x00, 0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05, 0x06, 0x06
 };
 
 const unsigned int eq_noise_approx[15] = {
-//	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
 	0x00, 0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05, 0x06, 0x06, 0x06
 };
 
@@ -89,12 +87,19 @@ const unsigned int eq_Noise_NT[6] = {
 	NAMETABLE_A+0x28c, NAMETABLE_A+0x24c, NAMETABLE_A+0x20c, NAMETABLE_A+0x1cc, NAMETABLE_A+0x18c, NAMETABLE_A+0x14c
 };
 
-const unsigned int eq_Pulse1_NT[7] = {
+const unsigned int eq_Pulse1left_NT[7] = {
 	NAMETABLE_A+0x28a, NAMETABLE_A+0x24a, NAMETABLE_A+0x20a, NAMETABLE_A+0x1ca, NAMETABLE_A+0x18a, NAMETABLE_A+0x14a, NAMETABLE_A+0x10a
 };
+const unsigned int eq_Pulse1right_NT[7] = {
+	NAMETABLE_A+0x294, NAMETABLE_A+0x254, NAMETABLE_A+0x214, NAMETABLE_A+0x1d4, NAMETABLE_A+0x194, NAMETABLE_A+0x154, NAMETABLE_A+0x114
+};
 
-const unsigned int eq_Pulse2_NT[7] = {
+const unsigned int eq_Pulse2left_NT[7] = {
 	NAMETABLE_A+0x248, NAMETABLE_A+0x208, NAMETABLE_A+0x1c8, NAMETABLE_A+0x188, NAMETABLE_A+0x148, NAMETABLE_A+0x108, NAMETABLE_A+0x0c8
+};
+
+const unsigned int eq_Pulse2right_NT[7] = {
+	NAMETABLE_A+0x248+14, NAMETABLE_A+0x208+14, NAMETABLE_A+0x1c8+14, NAMETABLE_A+0x188+14, NAMETABLE_A+0x148+14, NAMETABLE_A+0x108+14, NAMETABLE_A+0x0c8+14
 };
 
 
@@ -109,6 +114,10 @@ void fx_EQ(void)
 	if (FT_BUF[6] & 0b00000001)
 		eq_Triangle_Volume = 5;
 
+	eq_Noise_Volume = eq_noise_approx[FT_BUF[9] & 0x0f];
+	eq_Pulse1_Volume = eq_pulse1_approx[FT_BUF[0] & 0x0f];
+	eq_Pulse2_Volume = eq_pulse1_approx[FT_BUF[3] & 0x0f];
+
 	for (i=0; i<5; ++i){
 		eq_Tile = 0x04d;
 		if (i>=eq_Triangle_Volume) 
@@ -120,10 +129,6 @@ void fx_EQ(void)
 		++nt_Offset;
 		one_vram_buffer(eq_Tile, nt_Offset);
 
-	}
-
-	eq_Noise_Volume = eq_noise_approx[FT_BUF[9] & 0x0f];
-	for (i=0; i<5; ++i){
 		eq_Tile = 0x04d;
 		if (i>=eq_Noise_Volume) 
 			eq_Tile = 0x030;
@@ -133,29 +138,22 @@ void fx_EQ(void)
 		nt_Offset += 6;
 		one_vram_buffer(eq_Tile, nt_Offset);
 
-	}
-
-	eq_Pulse1_Volume = eq_pulse1_approx[FT_BUF[0] & 0x0f];
-	eq_Pulse2_Volume = eq_pulse1_approx[FT_BUF[3] & 0x0f];
-
-	for (i=0; i<5; ++i){
 		eq_Tile = 0x04d;
 		if (i>=eq_Pulse1_Volume)
 			eq_Tile = 0x030;
 
-		nt_Offset = eq_Pulse1_NT[i];
+		nt_Offset = eq_Pulse1left_NT[i];
 		one_vram_buffer(eq_Tile, nt_Offset);
-		nt_Offset += 10;
+		nt_Offset = eq_Pulse1right_NT[i];
 		one_vram_buffer(eq_Tile, nt_Offset);
 
 		eq_Tile = 0x04d;
 		if (i>=eq_Pulse2_Volume)
 			eq_Tile = 0x030;
-		nt_Offset = eq_Pulse2_NT[i];
+		nt_Offset = eq_Pulse2left_NT[i];
 		one_vram_buffer(eq_Tile, nt_Offset);
-		nt_Offset += 14;
+		nt_Offset = eq_Pulse2right_NT[i];
 		one_vram_buffer(eq_Tile, nt_Offset);
-
 	}
 
 }
@@ -190,28 +188,8 @@ void fx_SplitScroll(void)
 
 const unsigned int sine_Table_Shake[]={
 65532, 65534, 1, 3, 6, 8, 11, 13, 15, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 37, 39, 40, 41, 43, 44, 44, 45, 46, 47, 47, 47, 47, 48, 47, 47, 47, 47, 46, 45, 44, 44, 43, 41, 40, 39, 37, 36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 15, 13, 11, 8, 6, 3, 1, 65534, 65532, 65529, 65526, 65524, 65521, 65519, 65516, 65514, 65512, 65509, 65507, 65505, 65503, 65501, 65499, 65497, 65495, 65493, 65491, 65490, 65488, 65487, 65486, 65484, 65483, 65483, 65482, 65481, 65480, 65480, 65480, 65480, 65480, 65480, 65480, 65480, 65480, 65481, 65482, 65483, 65483, 65484, 65486, 65487, 65488, 65490, 65491, 65493, 65495, 65497, 65499, 65501, 65503, 65505, 65507, 65509, 65512, 65514, 65516, 65519, 65521, 65524, 65526, 65529
+//493, 527, 529, 521, 513, 507, 503, 501, 501, 501, 503, 505, 507, 509, 511, 514, 516, 549, 551, 543, 534, 527, 523, 520, 519, 518, 519, 519, 521, 522, 523, 525, 526, 558, 558, 549, 539, 531, 525, 521, 519, 517, 516, 516, 516, 516, 516, 516, 516, 547, 547, 536, 525, 516, 509, 504, 501, 498, 497, 496, 495, 494, 494, 494, 493, 524, 523, 512, 500, 491, 484, 479, 476, 473, 472, 471, 470, 470, 470, 470, 470, 501, 501, 490, 480, 471, 465, 461, 458, 457, 456, 456, 456, 457, 458, 459, 461, 493, 493, 484, 475, 467, 463, 460, 458, 458, 458, 460, 461, 463, 465, 468, 470, 503, 505, 497, 489, 482, 478, 476, 476, 476, 478, 480, 482, 485, 488, 490
 };
-
-// EQ (logo) first point X1 array
-const unsigned char eq_X1_array[]={
-	8, 10, 12, 14, 16, 18, 20, 22
-};
-
-// EQ (logo) first point X2 array 
-const unsigned char eq_X2_array[]={
-	8, 10, 12, 14, 16, 18, 20, 22
-};
-
-// EQ (logo) first point Y1 array
-const unsigned char eq_Y1_array[]={
-	18, 20, 20, 20, 20, 20, 20, 18
-};
-
-// EQ (logo) first point Y2 array
-const unsigned char eq_Y2_array[]={
-	6, 8, 10, 12, 12, 10, 8, 6
-};
-
 
 void main(void)
 {
@@ -246,8 +224,6 @@ void main(void)
 		oam_spr(15*8, 189, 0x01, 1 | OAM_BEHIND, 0);
 
 
-		fx_EQ();
-		fx_SplitScroll();
 
 		if (nesclock&1) {
 			++logoPos;
@@ -255,6 +231,8 @@ void main(void)
 				logoPos=0;
 		}
 
+		fx_EQ();
+		fx_SplitScroll();
 		++nesclock;
 
 		ppu_wait_nmi();

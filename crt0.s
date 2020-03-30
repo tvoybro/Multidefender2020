@@ -49,7 +49,7 @@ CTRL_PORT2			=$4017
 
 OAM_BUF				=$0200
 PAL_BUF				=$01c0
-VRAM_BUF			=$0700
+VRAM_BUF			=$0600
 
 
 .segment "ZEROPAGE"
