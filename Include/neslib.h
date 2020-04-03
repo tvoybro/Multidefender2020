@@ -11,6 +11,9 @@
 // 060414 - many fixes and improvements, including sequental VRAM updates
 // previous versions were created since mid-2011, there were many updates
 
+void __fastcall__ set_nmi_user_call_on(void);
+void __fastcall__ set_nmi_user_call_off(void);
+
 unsigned int __fastcall__ get_mus_pos(void);
 
 //set bg and spr palettes, data is 32 bytes array

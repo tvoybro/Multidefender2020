@@ -1,6 +1,7 @@
 ;written by Doug Fraker 2018
 ;v 1.01
 
+.export _set_nmi_user_call_on, _set_nmi_user_call_off
 .export _set_vram_buffer, _multi_vram_buffer_horz, _multi_vram_buffer_vert, _one_vram_buffer
 .export _clear_vram_buffer, _get_pad_new, _get_frame_count, _set_music_speed
 

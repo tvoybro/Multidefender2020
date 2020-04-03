@@ -39,6 +39,12 @@ nmi:
 	tya
 	pha
 
+	lda <NMI_USER_CALL
+	and #%11111111
+	beq nmiUserCallRet
+	jmp	nmiUserCall
+nmiUserCallRet:
+
 	lda <PPU_MASK_VAR	;if rendering is disabled, do not access the VRAM at all
 	and #%00011000
 	bne @doUpdate
@@ -174,7 +180,17 @@ pal_copy:
 
 	rts
 
+;void __fastcall__ set_nmi_user_call_on(void);
+_set_nmi_user_call_on:
+	lda	#1
+	sta <NMI_USER_CALL
+	rts
 
+;void __fastcall__ set_nmi_user_call_off(void);
+_set_nmi_user_call_off:
+	lda	#0
+	sta <NMI_USER_CALL
+	rts
 
 ;void __fastcall__ pal_bg(const char *data);
 
@@ -1227,6 +1243,176 @@ _delay:
 	bne @1
 
 	rts
+	
+EQ_ADR = $036C;
+nmiUserCall:
+	lda <PPU_CTRL_VAR
+	and #%11111011
+	adc #04
+	sta PPU_CTRL
+
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$6E
+	sta	PPU_ADDR
+	
+	lda	EQ_ADR + 0
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4
+	sta	PPU_DATA
+	
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$70
+	sta	PPU_ADDR
+	
+	lda	EQ_ADR + 0
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4
+	sta	PPU_DATA
+	
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$6C
+	sta	PPU_ADDR
+
+	lda	EQ_ADR + 0 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4 + 5
+	sta	PPU_DATA
+	
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$72
+	sta	PPU_ADDR
+
+	lda	EQ_ADR + 0 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3 + 5
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4 + 5
+	sta	PPU_DATA
+
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$6A
+	sta	PPU_ADDR
+	
+	lda	EQ_ADR + 0 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4 + 10
+	sta	PPU_DATA
+
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$74
+	sta	PPU_ADDR
+	
+	lda	EQ_ADR + 0 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3 + 10
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4 + 10
+	sta	PPU_DATA
+
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$28
+	sta	PPU_ADDR
+	
+	lda	EQ_ADR + 0 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4 + 15
+	sta	PPU_DATA
+
+	lda	#$21
+	sta	PPU_ADDR
+	lda	#$36
+	sta	PPU_ADDR
+	
+	lda	EQ_ADR + 0 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 1 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 2 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 3 + 15
+	sta	PPU_DATA
+	lda	PPU_DATA
+	lda	EQ_ADR + 4 + 15
+	sta	PPU_DATA
+
+	jmp nmiUserCallRet
+	
 
 
 
