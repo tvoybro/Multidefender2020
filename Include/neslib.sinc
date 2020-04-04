@@ -669,6 +669,13 @@ _split:
 	lda <PPU_CTRL_VAR1
 	sta PPU_CTRL
 
+	;lda  #$3F
+ 	;sta  PPU_ADDR
+ 	;lda  #$00
+ 	;sta  PPU_ADDR
+ 	;lda  #1
+ 	;sta  PPU_DATA
+
 	rts
 
 
