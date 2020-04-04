@@ -161,6 +161,7 @@ void __fastcall__ scroll(unsigned int x,unsigned int y);
 
 void __fastcall__ split(unsigned int x,unsigned int y);
 
+void __fastcall__ xy_split(unsigned int x, unsigned int y);
 
 //select current chr bank for sprites, 0..1
 

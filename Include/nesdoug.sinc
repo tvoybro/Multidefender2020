@@ -169,6 +169,3 @@ _seed_rng:
 	lda <FRAME_CNT1
 	sta <RAND_SEED
 	rts
-	
-	
-	

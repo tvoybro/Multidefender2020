@@ -25,7 +25,6 @@ void __fastcall__ multi_vram_buffer_horz(const char * data, unsigned char len, i
 void __fastcall__ multi_vram_buffer_vert(const char * data, unsigned char len, int ppu_address);
 // to push multiple writes as one sequential vertical write to the vram_buffer
 
-
 void clear_vram_buffer(void);
 // just sets the index into the vram buffer to zero
 // this should be done at the beginning of each frame, if using the vram_buffer

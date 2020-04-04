@@ -157,9 +157,9 @@ void fx_SplitScroll(void)
 		} else
 			++scrollerCharIndex;
 		if (scrollerCharPos & 0x10)
-			scrollerAddr = NAMETABLE_A + 32*26;
+			scrollerAddr = NAMETABLE_A + 32*27;
 		else
-			scrollerAddr = NAMETABLE_B + 32*26;
+			scrollerAddr = NAMETABLE_B + 32*27;
 
 		scrollerAddr += (scrollerCharPos & 15) << 1;
 
@@ -175,7 +175,8 @@ void fx_SplitScroll(void)
 	if (FT_BUF[0x0a]==6 && !eq_Noise_Val)
 		eq_Noise_Val = 7;
 
-	split(scrollerPos - eq_Noise_Val, 0);
+	xy_split(scrollerPos, 210 - 3 - eq_Noise_Val);
+
 	if (eq_Noise_Val && scrollerPos&1)
 		--eq_Noise_Val;
 	scrollerPos = (scrollerPos + 1) & 511;

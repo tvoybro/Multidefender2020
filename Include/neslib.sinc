@@ -20,7 +20,7 @@
 	.export _rand8,_rand16,_set_rand
 	.export _vram_adr,_vram_put,_vram_fill,_vram_inc,_vram_unrle
 	.export _set_vram_update,_flush_vram_update
-	.export _memcpy,_memfill,_delay
+	.export _memcpy,_memfill,_delay, _xy_split
 
 	.export _get_mus_pos
 
@@ -1235,6 +1235,68 @@ _memfill:
 
 	rts
 
+;void __fastcall__ xy_split(unsigned int x, unsigned int y);
+_xy_split:
+	;Nametable number << 2 (that is: $00, $04, $08, or $0C) to $2006
+	;Y to $2005
+	;X to $2005
+	;Low byte of nametable address to $2006, which is ((Y & $F8) << 2) | (X >> 3)
+
+	sta <TEMP+2 ;y low
+	stx <TEMP+3
+	jsr popax
+	sta <TEMP ;x low
+	stx <TEMP+1
+	
+;push to stack in reverse order	
+	lda <TEMP+2 ;low y
+	and #$f8
+	asl a
+	asl a
+	sta <TEMP+4
+	lda <TEMP ;low x
+	lsr a
+	lsr a
+	lsr a
+	ora <TEMP+4
+	pha
+	
+	lda <TEMP ;low x
+	pha
+	
+	lda <TEMP+2 ;low y
+	pha
+
+	lda <TEMP+3 ;y high
+	and #$01
+	asl a
+	sta <TEMP+4
+	lda <TEMP+1 ;x high
+	and #$01
+	ora <TEMP+4
+	asl a
+	asl a
+	pha
+
+@3:
+
+	bit PPU_STATUS
+	bvs @3
+
+@4:
+
+	bit PPU_STATUS
+	bvc @4
+
+	pla
+	sta $2006
+	pla
+	sta $2005
+	pla
+	sta $2005
+	pla
+	sta $2006
+	rts	
 
 
 ;void __fastcall__ delay(unsigned char frames);
