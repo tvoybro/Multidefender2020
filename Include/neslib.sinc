@@ -23,6 +23,7 @@
 	.export _memcpy,_memfill,_delay, _xy_split
 
 	.export _get_mus_pos
+	.export _roll_scroll_colors
 
 ;unsigned int __fastcall__ get_mus_pos(void);
 _get_mus_pos:
@@ -1288,6 +1289,14 @@ _xy_split:
 	bit PPU_STATUS
 	bvc @4
 
+	;--- set back color = text palette roll
+	lda  #$3F
+ 	sta  PPU_ADDR
+ 	lda  #$00
+ 	sta  PPU_ADDR
+ 	lda  <NMI_SCROLL_TEXT_COLOR
+ 	sta  PPU_DATA
+
 	pla
 	sta $2006
 	pla
@@ -1296,6 +1305,8 @@ _xy_split:
 	sta $2005
 	pla
 	sta $2006
+	
+
 	rts	
 
 
@@ -1312,12 +1323,44 @@ _delay:
 	bne @1
 
 	rts
+
+
+;void __fastcall__ roll_scroll_colors(unsigned char c1, unsigned char c2, unsigned char c3);
+_roll_scroll_colors:
+	sta	<NMI_SCROLL_TEXT_COLOR+0
+	jsr popax
+	sta	<NMI_SCROLL_TEXT_COLOR+1
+	stx	<NMI_SCROLL_TEXT_COLOR+2
+	rts
 	
 nmiUserCall:
 	lda <PPU_CTRL_VAR
 	and #%11111011
 	adc #04
 	sta PPU_CTRL
+
+	;--- restore bg color = white
+	lda  #$3F
+ 	sta  PPU_ADDR
+ 	lda  #$00
+ 	sta  PPU_ADDR
+ 	lda  #$30
+ 	sta  PPU_DATA
+	
+	;--- text palette roll
+	lda  #$3F
+ 	sta  PPU_ADDR
+ 	lda  #$0D
+ 	sta  PPU_ADDR
+	lda	 <NMI_SCROLL_TEXT_COLOR+1
+	sta  PPU_DATA
+	lda  #$3F
+ 	sta  PPU_ADDR
+ 	lda  #$0E
+ 	sta  PPU_ADDR
+	lda	 <NMI_SCROLL_TEXT_COLOR+2
+	sta  PPU_DATA
+
 
 	lda	#$21
 	sta	PPU_ADDR
