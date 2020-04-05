@@ -38,11 +38,32 @@ const unsigned char palette_spr[16]={
 };
 
 unsigned char palRollId = 1;
-const unsigned char palRollList[12] = {
-	0x3A, 0x2A, 0x1B,
-	0x3A, 0x2A, 0x1B,
-	0x3A, 0x2A, 0x1B,
-	0x3A, 0x2A, 0x1B,
+const unsigned char palRollList[25] = {
+0x11,
+0x12,
+0x12,
+0x13,
+0x13,
+0x14,
+0x14,
+0x15,
+0x15,
+0x16,
+0x16,
+0x17,
+0x17,
+0x18,
+0x18,
+0x19,
+0x19,
+0x1A,
+0x1A,
+0x1B,
+0x1B,
+0x1C,
+0x1C,
+0x11,
+0x12
 };
 
 const unsigned char palNesdev[15][16] = {
@@ -549,9 +570,9 @@ void main(void)
 				logoPos=0;
 		}
 
-		if (!(nesclock&3)) {
+		if ((nesclock&7) == 0) {
 			if (--palRollId == 0) {
-				palRollId = 9;
+				palRollId = 23;
 			}
 			roll_scroll_colors(palRollList[palRollId], palRollList[palRollId+1], palRollList[palRollId+2]);
 		}
