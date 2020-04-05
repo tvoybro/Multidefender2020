@@ -46,7 +46,7 @@ const unsigned char spr_covid_19[]={
 
 
 
-const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
+const char scrollerData[] = "HELLO REVISON! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
 
 //put a string into the nametable
 void put_str(unsigned int adr,const char *str)
@@ -163,6 +163,8 @@ void fx_EQ(void)
 	set_nmi_user_call_on();
 }
 
+const unsigned char huita[]={ 5, 10, 5, 10, 5, 9, 5, 8,  4, 3, 3, 3, 2, 2, 1, 0 };
+
 void fx_SplitScroll(void)
 {
 	if (!(scrollerPos&15)) {
@@ -188,17 +190,16 @@ void fx_SplitScroll(void)
 		scrollerCharPos = (scrollerCharPos + 1) & 31;
 	}
 
-	if (FT_BUF[0x0a]==6 && !eq_Noise_Val) {
-		eq_Noise_Val_prev = FT_BUF[0x0a];
+	if ((FT_BUF[9] & 0x0f)>9 && !eq_Noise_Val) {
 		eq_Noise_Val = 7;
 	}
 		
 
-	xy_split(scrollerPos, 210 - eq_Noise_Val);
+	xy_split(scrollerPos, 210 - 1 - eq_Noise_Val/* - 2 - eq_Noise_Val*/);
 
-	if (eq_Noise_Val && FT_BUF[0x0a]<eq_Noise_Val_prev)
+	if (eq_Noise_Val)
 		--eq_Noise_Val;
-	scrollerPos = (scrollerPos + 1) & 511;
+	scrollerPos = (scrollerPos + 2) & 511;
 
 
 }
