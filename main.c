@@ -79,6 +79,7 @@ unsigned char eq_Pulse2_Volume = 0;		// FT_BUF[3]&0b00001111 -> 00 min 0f max
 unsigned char eq_Triangle_Volume = 0;			// FT_BUF[6]&0b00001111 -> 0f enabled 00 disabled
 unsigned char eq_Noise_Volume = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
 unsigned char eq_Noise_Val = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
+unsigned char eq_Noise_Val_prev = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
 unsigned int nt_Offset;
 unsigned char i, eq_Tile;
 unsigned char eqValues[4][5]={
@@ -172,14 +173,19 @@ void fx_SplitScroll(void)
 		scrollerCharPos = (scrollerCharPos + 1) & 31;
 	}
 
-	if (FT_BUF[0x0a]==6 && !eq_Noise_Val)
+	if (FT_BUF[0x0a]==6 && !eq_Noise_Val) {
+		eq_Noise_Val_prev = FT_BUF[0x0a];
 		eq_Noise_Val = 7;
+	}
+		
 
-	xy_split(scrollerPos, 210 - 3 - eq_Noise_Val);
+	xy_split(scrollerPos, 210 - eq_Noise_Val);
 
-	if (eq_Noise_Val && scrollerPos&1)
+	if (eq_Noise_Val && FT_BUF[0x0a]<eq_Noise_Val_prev)
 		--eq_Noise_Val;
 	scrollerPos = (scrollerPos + 1) & 511;
+
+
 }
 
 const unsigned int sine_Table_Shake[] = {
