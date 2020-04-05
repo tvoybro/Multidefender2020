@@ -25,6 +25,35 @@
 	.export _get_mus_pos
 	.export _roll_scroll_colors
 
+	.export shouldbealigned
+	.export shouldbealigned_eof
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; Delays A clocks + overhead
+; Clobbers A. Preserves X,Y.
+; Time: A+25 clocks (including JSR)
+;;;;;;;;;;;;;;;;;;;;;;;;
+                  ;       Cycles              Accumulator         Carry flag
+                  ; 0  1  2  3  4  5  6          (hex)           0 1 2 3 4 5 6
+                  ;
+                  ; 6  6  6  6  6  6  6   00 01 02 03 04 05 06
+shouldbealigned:
+:      sbc #7     ; carry set by CMP
+_delay_a_25_clocks:
+       cmp #7     ; 2  2  2  2  2  2  2   00 01 02 03 04 05 06   0 0 0 0 0 0 0
+       bcs :-     ; 2  2  2  2  2  2  2   00 01 02 03 04 05 06   0 0 0 0 0 0 0
+       lsr        ; 2  2  2  2  2  2  2   00 00 01 01 02 02 03   0 1 0 1 0 1 0
+       bcs *+2    ; 2  3  2  3  2  3  2   00 00 01 01 02 02 03   0 1 0 1 0 1 0
+       beq :+     ; 3  3  2  2  2  2  2   00 00 01 01 02 02 03   0 1 0 1 0 1 0
+       lsr        ;       2  2  2  2  2         00 00 01 01 01       1 1 0 0 1
+       beq @rts   ;       3  3  2  2  2         00 00 01 01 01       1 1 0 0 1
+       bcc @rts   ;             3  3  2               01 01 01           0 0 1
+:      bne @rts   ; 2  2              3   00 00             01   0 1         0
+@rts:  rts        ; 6  6  6  6  6  6  6   00 00 00 00 01 01 01   0 1 1 1 0 0 1
+; Total cycles:    25 26 27 28 29 30 31
+shouldbealigned_eof:
+
+
 ;unsigned int __fastcall__ get_mus_pos(void);
 _get_mus_pos:
 	lda FT_TEMP+3
@@ -1289,6 +1318,7 @@ _xy_split:
 	bit PPU_STATUS
 	bvc @4
 
+
 	;--- set back color = text palette roll
 	lda  #$3F
  	sta  PPU_ADDR
@@ -1296,6 +1326,9 @@ _xy_split:
  	sta  PPU_ADDR
  	lda  <NMI_SCROLL_TEXT_COLOR
  	sta  PPU_DATA
+
+	lda #7
+	jsr _delay_a_25_clocks
 
 	pla
 	sta $2006

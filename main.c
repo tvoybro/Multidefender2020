@@ -306,8 +306,6 @@ void fx_EQ(void)
 	set_nmi_user_call_on();
 }
 
-const unsigned char huita[]={ 5, 10, 5, 10, 5, 9, 5, 8,  4, 3, 3, 3, 2, 2, 1, 0 };
-
 void fx_SplitScroll(void)
 {
 	if (!(scrollerPos&15)) {
@@ -546,7 +544,7 @@ void main(void)
 				bullet_y = 0;
 		}
 
-		oam_spr(15*8, 200, 0x01, 1 | OAM_BEHIND, 0);
+		oam_spr(20*8, 201-4, 0x01, 1 | OAM_BEHIND, 0);
 
 //		if (muspos==192)
 //			pal_col(0,21);
