@@ -493,27 +493,21 @@ void main(void)
 			starship_state &= (255 ^ STARSHIP_AUTOPILOT);
 
 		if (starship_state&STARSHIP_AUTOPILOT) {
-			starship_state = 1 | STARSHIP_AUTOPILOT;
 			if (rand8()>127) {
 				--starship_x;
 				--starship_x;
-				starship_state = 0 | STARSHIP_AUTOPILOT;
 			} else {
 				++starship_x;
 				++starship_x;
-				starship_state = 2 | STARSHIP_AUTOPILOT;
 			}
 		} else {
-			starship_state = 1;
 			if (pad&PAD_LEFT) {
 				--starship_x;
 				--starship_x;
-				starship_state = 0;
 			}
 			if (pad&PAD_RIGHT) {
 				++starship_x;
 				++starship_x;
-				starship_state = 2;
 			}
 			if (pad&(PAD_A|PAD_B) && !bullet_y) {
 				bullet_x = starship_x-4;
@@ -544,7 +538,7 @@ void main(void)
 				bullet_y = 0;
 		}
 
-		oam_spr(20*8, 201-4, 0x01, 1 | OAM_BEHIND, 0);
+		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
 
 //		if (muspos==192)
 //			pal_col(0,21);
@@ -555,7 +549,7 @@ void main(void)
 				logoPos=0;
 		}
 
-		if ((nesclock&3) == 0) {
+		if (!(nesclock&3)) {
 			if (--palRollId == 0) {
 				palRollId = 9;
 			}
