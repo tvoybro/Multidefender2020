@@ -29,6 +29,20 @@ const unsigned char palette[16]={
 	0x30,0x2A,0x1A,0x01
 };
 
+const unsigned char palette_spr[16]={ 0x0f,0x00,0x06,0x10,0x0f,0x12,0x22,0x32,0x0f,0x13,0x23,0x33,0x0f,0x14,0x24,0x34 };
+
+const unsigned char spr_covid_19[]={
+	-12,-12,0x02,0,
+	- 4,-12,0x03,0,
+	  4,-12,0x04,0,
+	-12,- 4,0x12,0,
+	- 4,- 4,0x13,0,
+	  4,- 4,0x14,0,
+	-12,  4,0x22,0,
+	- 4,  4,0x23,0,
+	  4,  4,0x24,0,
+	128
+};
 
 
 
@@ -80,6 +94,7 @@ unsigned char eq_Triangle_Volume = 0;			// FT_BUF[6]&0b00001111 -> 0f enabled 00
 unsigned char eq_Noise_Volume = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
 unsigned char eq_Noise_Val = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
 unsigned char eq_Noise_Val_prev = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
+unsigned char spr;
 unsigned int nt_Offset;
 unsigned char i, eq_Tile;
 unsigned char eqValues[4][5]={
@@ -198,6 +213,7 @@ void main(void)
 	clear_vram_buffer();
 
 	pal_bg(palette);
+	pal_spr(palette_spr);
 	
 	tileset = 0;
 	
@@ -218,11 +234,15 @@ void main(void)
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
+		spr = 4;
+
 		scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 
 		scroll(scrollpos, 0);
 
 		oam_spr(15*8, 200, 0x01, 1 | OAM_BEHIND, 0);
+
+		spr=oam_meta_spr(100, 100, spr, spr_covid_19);
 
 //		if (muspos==192)
 //			pal_col(0,21);

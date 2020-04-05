@@ -4,7 +4,7 @@
 
 ;v050517
 
-
+	.import _eqValues
 
 	.export _pal_all,_pal_bg,_pal_spr,_pal_col,_pal_clear
 	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
@@ -1313,7 +1313,6 @@ _delay:
 
 	rts
 	
-EQ_ADR = $036C;
 nmiUserCall:
 	lda <PPU_CTRL_VAR
 	and #%11111011
@@ -1325,19 +1324,19 @@ nmiUserCall:
 	lda	#$6E
 	sta	PPU_ADDR
 	
-	lda	EQ_ADR + 0
+	lda	_eqValues + 0
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1
+	lda	_eqValues + 1
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2
+	lda	_eqValues + 2
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3
+	lda	_eqValues + 3
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4
+	lda	_eqValues + 4
 	sta	PPU_DATA
 	
 	lda	#$21
@@ -1345,19 +1344,19 @@ nmiUserCall:
 	lda	#$70
 	sta	PPU_ADDR
 	
-	lda	EQ_ADR + 0
+	lda	_eqValues + 0
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1
+	lda	_eqValues + 1
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2
+	lda	_eqValues + 2
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3
+	lda	_eqValues + 3
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4
+	lda	_eqValues + 4
 	sta	PPU_DATA
 	
 	lda	#$21
@@ -1365,19 +1364,19 @@ nmiUserCall:
 	lda	#$6C
 	sta	PPU_ADDR
 
-	lda	EQ_ADR + 0 + 5
+	lda	_eqValues + 0 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1 + 5
+	lda	_eqValues + 1 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2 + 5
+	lda	_eqValues + 2 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3 + 5
+	lda	_eqValues + 3 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4 + 5
+	lda	_eqValues + 4 + 5
 	sta	PPU_DATA
 	
 	lda	#$21
@@ -1385,19 +1384,19 @@ nmiUserCall:
 	lda	#$72
 	sta	PPU_ADDR
 
-	lda	EQ_ADR + 0 + 5
+	lda	_eqValues + 0 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1 + 5
+	lda	_eqValues + 1 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2 + 5
+	lda	_eqValues + 2 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3 + 5
+	lda	_eqValues + 3 + 5
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4 + 5
+	lda	_eqValues + 4 + 5
 	sta	PPU_DATA
 
 	lda	#$21
@@ -1405,19 +1404,19 @@ nmiUserCall:
 	lda	#$6A
 	sta	PPU_ADDR
 	
-	lda	EQ_ADR + 0 + 10
+	lda	_eqValues + 0 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1 + 10
+	lda	_eqValues + 1 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2 + 10
+	lda	_eqValues + 2 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3 + 10
+	lda	_eqValues + 3 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4 + 10
+	lda	_eqValues + 4 + 10
 	sta	PPU_DATA
 
 	lda	#$21
@@ -1425,19 +1424,19 @@ nmiUserCall:
 	lda	#$74
 	sta	PPU_ADDR
 	
-	lda	EQ_ADR + 0 + 10
+	lda	_eqValues + 0 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1 + 10
+	lda	_eqValues + 1 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2 + 10
+	lda	_eqValues + 2 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3 + 10
+	lda	_eqValues + 3 + 10
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4 + 10
+	lda	_eqValues + 4 + 10
 	sta	PPU_DATA
 
 	lda	#$21
@@ -1445,19 +1444,19 @@ nmiUserCall:
 	lda	#$28
 	sta	PPU_ADDR
 	
-	lda	EQ_ADR + 0 + 15
+	lda	_eqValues + 0 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1 + 15
+	lda	_eqValues + 1 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2 + 15
+	lda	_eqValues + 2 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3 + 15
+	lda	_eqValues + 3 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4 + 15
+	lda	_eqValues + 4 + 15
 	sta	PPU_DATA
 
 	lda	#$21
@@ -1465,19 +1464,19 @@ nmiUserCall:
 	lda	#$36
 	sta	PPU_ADDR
 	
-	lda	EQ_ADR + 0 + 15
+	lda	_eqValues + 0 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 1 + 15
+	lda	_eqValues + 1 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 2 + 15
+	lda	_eqValues + 2 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 3 + 15
+	lda	_eqValues + 3 + 15
 	sta	PPU_DATA
 	lda	PPU_DATA
-	lda	EQ_ADR + 4 + 15
+	lda	_eqValues + 4 + 15
 	sta	PPU_DATA
 
 	jmp nmiUserCallRet
