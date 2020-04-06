@@ -5,6 +5,10 @@
 ;v050517
 
 	.import _eqValues
+	.import _krujFill
+	.import _krujFillAdr
+	.import _krujFillVal1
+	.import _krujFillVal2
 
 	.export _pal_all,_pal_bg,_pal_spr,_pal_col,_pal_clear
 	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
@@ -1394,7 +1398,44 @@ nmiUserCall2:
 	tax
 	sta banktable, x
 
+	lda _krujFill
+	beq @1
+	
+	lda <PPU_CTRL_VAR
+	and #%11111011
+	sta PPU_CTRL
+
+	lda _krujFillAdr
+	clc
+	adc #$D8
+	tax
+	lda _krujFillVal1
+	jsr krujFillProc
+
+	lda #$e1
+	clc
+	sbc _krujFillAdr
+	tax
+	lda _krujFillVal2
+	jsr krujFillProc	
+	
+	
+@1:
 	jmp	nmiUserCallRet
+krujFillProc:
+	ldy #$23
+	sty PPU_ADDR
+	stx PPU_ADDR
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	sta PPU_DATA
+	rts
+	
 
 nmiUserCall:
 	lda <PPU_CTRL_VAR

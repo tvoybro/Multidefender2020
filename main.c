@@ -29,6 +29,15 @@ unsigned char pad_t;
 unsigned char tileset;
 unsigned int muspos;
 
+
+const unsigned char palBlink[16]={
+	0x30,0x30,0x30,0x30,
+	0x30,0x30,0x30,0x30,
+	0x30,0x30,0x30,0x30,
+	0x30,0x30,0x30,0x30
+};
+
+
 const unsigned char palette[16]={
 	0x30,0x22,0x13,0x01,
 	0x30,0x16,0x13,0x22,
@@ -36,8 +45,8 @@ const unsigned char palette[16]={
 	0x30,0x2A,0x1A,0x01
 };
 
-unsigned char k1 = 0;
-unsigned char k2 = 0;
+unsigned char i = 0;
+unsigned char j = 0;
 
 unsigned char palRollId1 = 0;
 unsigned char palRollId2 = 1;
@@ -661,18 +670,22 @@ void fx_NesDev(void)
 unsigned char krujWait = 0;
 unsigned char krujFrm = 0;
 unsigned char krujPalId = 0;
+unsigned char krujBgPalId = 0;
+unsigned char krujWait2 = 0;
 
-const unsigned char krujBgPal[16] = {
-	0x0F,0x0F,0x20,0x30,
-	0x0F,0x20,0x20,0x30,
-	0x0F,0x20,0x20,0x30,
-	0x0F,0x20,0x20,0x30
+const unsigned char krujBgPal[6][8] = {
+	{0x0F,0x0F,0x20,0x30,	0x0F,0x20,0x20,0x30},
+	{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
+	{0x0F,0x0F,0x22,0x22,	0x0F,0x22,0x22,0x22},
+	{0x0F,0x0F,0x12,0x12,	0x0F,0x12,0x12,0x12},
+	{0x0F,0x0F,0x02,0x02,	0x0F,0x02,0x02,0x02},
+	{0x0F,0x0F,0x0F,0x0F,	0x0F,0x0F,0x0F,0x0F},
 };
 const unsigned char krujSprPal[16] = {
 	0x0F,0x30,0x0F,0x0F,
 	0x0F,0x30,0x30,0x0F,
 	0x0F,0x30,0x30,0x30,
-	0x0F,0x26,0x26,0x26
+	0x0F,0x0F,0x0F,0x0F
 };
 
 unsigned char krujAnimaId = 0;
@@ -698,9 +711,14 @@ unsigned char krujX = 0;
 unsigned char krujY = 0;
 unsigned char krujAttr = 0;
 
+unsigned char krujFill = 0;
+unsigned char krujFillAdr = 0;
+unsigned char krujFillVal1 = 0b01010101;
+unsigned char krujFillVal2 = 0b01010101;
+
 void fx_Krujeva(void)
 {
-	pal_bg(krujBgPal);
+	pal_bg(krujBgPal[0]);
 	pal_spr(krujSprPal);
 	cnrom_set_bank(3);
 	bank_spr(1);
@@ -714,8 +732,16 @@ void fx_Krujeva(void)
 	isNtsc = ppu_system() == 0 ? 0 : 1;
 	while (krujFrm < (isNtsc ? 48 : 46))
 	{
+		++nesclock;
 		ppu_wait_nmi();
 		clear_vram_buffer();
+		
+		if (krujFrm > 44 && krujBgPalId < 5) {
+			if ((nesclock&3) == 0) {
+				++krujBgPalId;
+				pal_bg(krujBgPal[krujBgPalId]);
+			}
+		}
 
 		if (++krujWait >= krujCheck[isNtsc][krujCheckId]) {
 			krujWait = 0;
@@ -724,12 +750,13 @@ void fx_Krujeva(void)
 				krujFrm++;
 				//do spr
 				if (krujAnimaLenId < 43) {
-					for (k1 = krujAnimaLen[krujAnimaLenId]; k1; k1--) {
+					j = krujAnimaLen[krujAnimaLenId];
+					for (i = 0; i < j; i++) {
 						krujChr = krujAnimaChr[krujAnimaId][2];
 						if (krujChr != 0) {
 							krujHi = 256 * krujAnimaChr[krujAnimaId][0];
 							krujLo = krujAnimaChr[krujAnimaId][1];
-							
+
 							one_vram_buffer(krujChr, krujHi + krujLo);
 							one_vram_buffer(krujChr, krujHi + krujLo + 13);
 							krujX = krujAnimaSpr[krujAnimaId][3];
@@ -749,32 +776,60 @@ void fx_Krujeva(void)
 			krujCheckId ^= 1;
 		}
 
-		split_krujeva();
-
-		if (krujWait == 1 && krujAnimaLenId < 43) {
-			oam_spr(256-8, 118, 0x01, 3 | OAM_BEHIND, 0);
-			spr = 4;
-			for (i = 0; i < krujAnimaLen[krujAnimaLenId]; i++) {
-				// +0=y +1=spr +2=attr +3=x
-				// oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
-				krujY = krujAnimaSpr[krujAnimaId+i][0] - 1;
-				krujChr = krujAnimaSpr[krujAnimaId+i][1];
-				krujX = krujAnimaSpr[krujAnimaId+i][3];
-				krujAttr = krujPalId + krujAnimaSpr[krujAnimaId+i][2];
-				spr = oam_spr(krujX, krujY, krujChr, krujAttr, spr);
-				spr = oam_spr(krujX + 104, krujY, krujChr, krujAttr, spr);
-				if (krujX <= 256-8-208) {
-					spr = oam_spr(krujX + 208, krujY, krujChr, krujAttr, spr);
+		// fill bg attr
+		krujFill = 0;
+		if (krujWait == 2 && krujFrm > 26) {
+			if (++krujWait2 == 3) {
+				krujWait2 = 0;
+				krujFillVal1 ^= 0b01010000;
+				krujFillVal2 ^= 0b00000101;
+				if (krujFillVal1 == 0b00000101) {
+					if (krujFillAdr <= 8*4) {
+						krujFillAdr += 8;
+					}
 				}
-				if (krujX >= 13*8) {
-					spr = oam_spr(krujX - 13*8, krujY, krujChr, krujAttr, spr);
+				if (krujFillAdr <= 8*4) {
+					krujFill = 1;
+				} else {
+					krujFillAdr = 128;
 				}
 			}
 		}
 
+		split_krujeva();
+
+		if (krujWait == 1) {
+			if (krujAnimaLenId < 43) {
+				spr = 4;
+				j = krujAnimaLen[krujAnimaLenId];
+				for (i = 0; i < j; i++) {
+					// +0=y +1=spr +2=attr +3=x
+					// oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
+					krujChr = krujAnimaSpr[krujAnimaId+i][1];
+					if (krujChr != 0) {
+						krujY = krujAnimaSpr[krujAnimaId+i][0] - 1;
+						krujX = krujAnimaSpr[krujAnimaId+i][3];
+						krujAttr = krujPalId + krujAnimaSpr[krujAnimaId+i][2];
+						spr = oam_spr(krujX, krujY, krujChr, krujAttr, spr);
+						spr = oam_spr(krujX + 104, krujY, krujChr, krujAttr, spr);
+						if (krujX <= 256-8-208) {
+							spr = oam_spr(krujX + 208, krujY, krujChr, krujAttr, spr);
+						}
+						if (krujX >= 13*8) {
+							spr = oam_spr(krujX - 13*8, krujY, krujChr, krujAttr, spr);
+						}
+					}
+				}
+			} else {
+				oam_clear();
+				oam_spr(256-8, 118, 0x01, 3 | OAM_BEHIND, 0);
+			}
+		}
 		//gray_line();
 		
 	}
+	
+	
 	ppu_off();
 	set_nmi_user_call_off();
 }
@@ -870,9 +925,9 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
 	
-	fx_NesDev();
+	//fx_NesDev();
 	
-	// fx_Krujeva();
+	fx_Krujeva();
 
 	pal_bg(palette);
 	pal_spr(palette_spr);
@@ -886,17 +941,16 @@ void main(void)
 	vram_unrle(NAM_multi_logo_A);
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_B);
-	
-	ppu_on_all();
 
 	covidsInit(0);
 	galagaInit();
 
+	ppu_on_all();
 	music_play(1);
 
 	while(1)
 	{
-		
+
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
