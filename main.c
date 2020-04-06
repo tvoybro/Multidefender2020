@@ -271,27 +271,36 @@ const unsigned char* const covid_explode[]={
 	covid_explode_0_data,
 	covid_explode_0_data,
 	covid_explode_0_data,
+	covid_explode_0_data,
+	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_2_data,
 	covid_explode_2_data,
 	covid_explode_2_data,
+	covid_explode_2_data,
+	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_4_data,
 	covid_explode_4_data,
 	covid_explode_4_data,
+	covid_explode_4_data,
+	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_6_data,
 	covid_explode_6_data,
 	covid_explode_6_data,
+	covid_explode_6_data,
 	covid_explode_7_data,
 	covid_explode_7_data,
 	covid_explode_7_data,
+	covid_explode_7_data,
+	covid_explode_8_data,
 	covid_explode_8_data,
 	covid_explode_8_data,
 	covid_explode_8_data
@@ -488,7 +497,14 @@ void fx_SplitScroll(void)
 }
 
 const unsigned int sine_Table_Shake[] = {
-65532, 65534, 1, 3, 6, 8, 11, 13, 15, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 37, 39, 40, 41, 43, 44, 44, 45, 46, 47, 47, 47, 47, 48, 47, 47, 47, 47, 46, 45, 44, 44, 43, 41, 40, 39, 37, 36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 15, 13, 11, 8, 6, 3, 1, 65534, 65532, 65529, 65526, 65524, 65521, 65519, 65516, 65514, 65512, 65509, 65507, 65505, 65503, 65501, 65499, 65497, 65495, 65493, 65491, 65490, 65488, 65487, 65486, 65484, 65483, 65483, 65482, 65481, 65480, 65480, 65480, 65480, 65480, 65480, 65480, 65480, 65480, 65481, 65482, 65483, 65483, 65484, 65486, 65487, 65488, 65490, 65491, 65493, 65495, 65497, 65499, 65501, 65503, 65505, 65507, 65509, 65512, 65514, 65516, 65519, 65521, 65524, 65526, 65529
+508, 510, 513, 515, 518, 520, 523, 525, 527, 530, 532, 534, 536, 538, 540, 542,
+544, 546, 548, 549, 551, 552, 553, 555, 556, 556, 557, 558, 559, 559, 559, 559,
+560, 559, 559, 559, 559, 558, 557, 556, 556, 555, 553, 552, 551, 549, 548, 546,
+544, 542, 540, 538, 536, 534, 532, 530, 527, 525, 523, 520, 518, 515, 513, 510,
+508, 505, 502, 500, 497, 495, 492, 490, 488, 485, 483, 481, 479, 477, 475, 473,
+471, 469, 467, 466, 464, 463, 462, 460, 459, 459, 458, 457, 456, 456, 456, 456,
+456, 456, 456, 456, 456, 457, 458, 459, 459, 460, 462, 463, 464, 466, 467, 469,
+471, 473, 475, 477, 479, 481, 483, 485, 488, 490, 492, 495, 497, 500, 502, 505
 };
 
 // ---------------------------------------
@@ -795,11 +811,11 @@ void fx_galaga() {
 			spr=oam_meta_spr(covid_x, covid_y, spr, spr_covid_19);
 			covids_pointers[i] = (covid_pointer + 1) & 511;
 		} else {
-			if (covids_states[i]<27) {
+			if (covids_states[i]<27+9) {
 				spr=oam_meta_spr(covid_x, covid_y, spr, covid_explode[covids_states[i]]);
 				++covids_states[i];
 			} else {
-				if (covids_states[i]==27) {
+				if (covids_states[i]==27+9) {
 					++covids_hit;
 					if (covids_hit==COVIDS_MAX) {
 						covids_phase = (covids_phase + 1) & 3;
@@ -830,7 +846,7 @@ void main(void)
 	
 	//fx_NesDev();
 	
-	fx_Krujeva();
+	// fx_Krujeva();
 
 	pal_bg(palette);
 	pal_spr(palette_spr);
