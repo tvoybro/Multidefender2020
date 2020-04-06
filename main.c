@@ -688,7 +688,7 @@ const unsigned char krujSprPal[16] = {
 	0x0F,0x30,0x0F,0x0F,
 	0x0F,0x30,0x30,0x0F,
 	0x0F,0x30,0x30,0x30,
-	0x0F,0x0F,0x0F,0x0F
+	0x0F,0x30,0x16,0x06
 };
 
 unsigned char krujAnimaId = 0;
@@ -719,6 +719,18 @@ unsigned char krujFillAdr = 0;
 unsigned char krujFillVal1 = 0b01010101;
 unsigned char krujFillVal2 = 0b01010101;
 
+unsigned char kmfList1[30] = { 0x8c,0x7c, 0xa8,0x7c, 0xc4,0x7c, 0xe0,0x7c, 0x8c,0x98, 0xa8,0x98, 0xc4,0x98, 0xe0,0x98, 0x8c,0xb4, 0xa8,0xb4, 0xc4,0xb4, 0xe0,0xb4, 0x8c,0xd0, 0xa8,0xd0, 0xc4,0xd0 };
+unsigned char kmfList2[30] = { 0x10,0x7c, 0x2c,0x7c, 0x48,0x7c, 0x64,0x7c, 0x10,0x98, 0x2c,0x98, 0x48,0x98, 0x64,0x98, 0x10,0xb4, 0x2c,0xb4, 0x48,0xb4, 0x64,0xb4, 0x2c,0xd0, 0x48,0xd0, 0x64,0xd0 };
+unsigned char kmfList3[20] = { 0xe0,0x0, 0xc4,0x1c, 0xe0,0x1c, 0xa8,0x38, 0xc4,0x38, 0xe0,0x38, 0x8c,0x54, 0xa8,0x54, 0xc4,0x54, 0xe0,0x54 };
+unsigned char kmfList4[20] = { 0x10,0x0, 0x10,0x1c, 0x2c,0x1c, 0x10,0x38, 0x2c,0x38, 0x48,0x38, 0x10,0x54, 0x2c,0x54, 0x48,0x54, 0x64,0x54 };
+
+unsigned char kmfDir1[30] = {0xff,0xff, 0xfe,0xff, 0xfd,0xff, 0xfc,0xff, 0xff,0xfe, 0xfe,0xfe, 0xfd,0xfe, 0xfc,0xfe, 0xff,0xfd, 0xfe,0xfd, 0xfd,0xfd, 0xfc,0xfd, 0xff,0xfc, 0xfe,0xfc, 0xfd,0xfc };
+unsigned char kmfDir2[30] = {0x4,0xff, 0x3,0xff, 0x2,0xff, 0x1,0xff, 0x4,0xfe, 0x3,0xfe, 0x2,0xfe, 0x1,0xfe, 0x4,0xfd, 0x3,0xfd, 0x2,0xfd, 0x1,0xfd, 0x3,0xfc, 0x2,0xfc, 0x1,0xfc };
+unsigned char kmfDir3[20] = {0xfc,0x4, 0xfd,0x3, 0xfc,0x3, 0xfe,0x2, 0xfd,0x2, 0xfc,0x2, 0xff,0x1, 0xfe,0x1, 0xfd,0x1, 0xfc,0x1 };
+unsigned char kmfDir4[20] = {0x4,0x4, 0x4,0x3, 0x3,0x3, 0x4,0x2, 0x3,0x2, 0x2,0x2, 0x4,0x1, 0x3,0x1, 0x2,0x1, 0x1,0x1 };
+
+unsigned char kmfStep = 12;
+
 void fx_Krujeva(void)
 {
 	pal_bg(krujBgPal[0]);
@@ -733,7 +745,8 @@ void fx_Krujeva(void)
 	oam_spr(256-8, 118, 0x01, 3 | OAM_BEHIND, 0);
 	ppu_on_all();
 	isNtsc = ppu_system() == 0 ? 0 : 1;
-	while (krujFrm < (isNtsc ? 48 : 46))
+	
+	while (krujFrm < (isNtsc ? 48 : 46)) //(isNtsc ? 48 : 46))
 	{
 		++nesclock;
 		ppu_wait_nmi();
@@ -798,6 +811,100 @@ void fx_Krujeva(void)
 				}
 			}
 		}
+		
+		//mflogo
+		if (krujFrm > 42) {
+			if (krujWait == 0) {
+				spr = 4;
+				
+				j = 0;
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+				
+				j = 0;
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
+				
+				j = 0;
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+
+				j = 0;
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+			}
+			if (krujWait == 1) {
+				if (kmfStep) {
+					j = 29;
+					while (j) {
+						kmfList1[j] += kmfDir1[j--];
+					}
+					kmfList1[j] += kmfDir1[j];
+					j = 19;
+					while (j) {
+						kmfList3[j] += kmfDir3[j--];
+					}
+					kmfList3[j] += kmfDir3[j];
+				}
+			}
+			if (krujWait == 2) {
+				if (kmfStep) {
+					j = 29;
+					while (j) {
+						kmfList2[j] += kmfDir2[j--];
+					}
+					kmfList2[j] += kmfDir2[j];
+					j = 19;
+					while (j) {
+						kmfList4[j] += kmfDir4[j--];
+					}
+					kmfList4[j] += kmfDir4[j];
+					--kmfStep;
+				}
+			}
+		}
 
 		split_krujeva();
 
@@ -823,9 +930,6 @@ void fx_Krujeva(void)
 						}
 					}
 				}
-			} else {
-				oam_clear();
-				oam_spr(256-8, 118, 0x01, 3 | OAM_BEHIND, 0);
 			}
 		}
 		//gray_line();
@@ -932,7 +1036,7 @@ void main(void)
 	clear_vram_buffer();
 	
 
-	fx_NesDev();
+	//fx_NesDev();
 	
 	fx_Krujeva();
 
