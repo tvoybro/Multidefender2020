@@ -13,6 +13,7 @@
 
 void __fastcall__ set_nmi_user_call_on(unsigned char mode);
 void __fastcall__ set_nmi_user_call_off(void);
+void __fastcall__ split_krujeva(void);
 
 unsigned int __fastcall__ get_mus_pos(void);
 

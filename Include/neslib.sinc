@@ -25,6 +25,7 @@
 
 	.export _get_mus_pos
 	.export _roll_scroll_colors
+	.export _split_krujeva
 
 	.export shouldbealigned
 	.export shouldbealigned_eof
@@ -671,6 +672,25 @@ _scroll:
 	sta <PPU_CTRL_VAR
 	rts
 
+
+
+;void __fastcall__ split_krujeva(void);
+_split_krujeva:
+	lda #%11000000
+@3:
+	bit PPU_STATUS
+	bvs @3
+
+@4:
+	bit PPU_STATUS
+	bvc @4
+
+	lda #$03
+	tax
+	sta banktable, x
+
+
+	rts
 
 
 ;;void __fastcall__ split(unsigned int x,unsigned int y);
@@ -1372,14 +1392,14 @@ _roll_scroll_colors:
 
 nmiUserCall2: 
 
-	lda #$01
+	lda #$02
 	tax
 	sta banktable, x
-	
-	;lda #$00
-	;jsr     _cnrom_set_bank
 
-	jmp	nmiUserCall
+	;lda #$04
+	;jsr _cnrom_set_bank
+
+	jmp	nmiUserCallRet
 
 	
 nmiUserCall:

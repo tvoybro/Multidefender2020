@@ -7,6 +7,8 @@
 #include "Gfx/NAM_multi_logo_A.h"
 #include "Gfx/NAM_multi_logo_B.h"
 #include "Gfx/logo_scr.h"
+#include "Gfx/kruj_nametable_full.h"
+
 
 #define EQOFFSET 0x20
 #define EQ_CHR_OFF 0xCD
@@ -638,26 +640,48 @@ void fx_NesDev(void)
 unsigned char krujWait = 0;
 unsigned char krujFrm = 0;
 unsigned char krujPalId = 0;
+
+const unsigned char krujBgPal[16] = {
+	0x0F,0x20,0x20,0x30,
+	0x0F,0x20,0x20,0x30,
+	0x0F,0x20,0x20,0x30,
+	0x0F,0x20,0x20,0x30
+};
+const unsigned char krujSprPal[16] = {
+	0x0F,0x30,0x0F,0x0F,
+	0x0F,0x30,0x30,0x0F,
+	0x0F,0x30,0x30,0x30,
+	0x0F,0x30,0x30,0x30
+};
+
 void fx_Krujeva(void)
 {
-	pal_bg(palNesdev[14]);
-	pal_spr(palNesdev[14]);
-	cnrom_set_bank(1);
+	pal_bg(krujBgPal);
+	pal_spr(krujSprPal);
+	cnrom_set_bank(3);
 	bank_spr(1);
 	vram_adr(NAMETABLE_A);
-	vram_unrle(logo_scr);
+	vram_unrle(kruj_nametable_full);
 	ppu_on_all();
-	while (krujFrm < 32)
+	music_play(1);
+	set_nmi_user_call_on(2);
+	while (krujFrm < 255)
 	{
+		
+		ppu_wait_nmi();
+		oam_clear();
+		oam_spr(256-8, 118, 0x01, 1 | OAM_BEHIND, 0);
+		spr = 1;
 		if (++krujWait == 3) {
 			krujWait = 0;
 			krujFrm++;
 		}
 		krujPalId++;
-		//ppu_wait_nmi(2);
-		ppu_wait_nmi();
+		//---
+		split_krujeva();
 	}
 	ppu_off();
+	set_nmi_user_call_off();
 }
 
 void galagaInit() {
@@ -754,7 +778,7 @@ void main(void)
 
 	//fx_NesDev();
 	
-	//fx_Krujeva();
+	fx_Krujeva();
 
 	pal_bg(palette);
 	pal_spr(palette_spr);
