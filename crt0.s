@@ -274,7 +274,7 @@ sounds_data:
 	.incbin "NESst/logo_chr.chr"
 	
 .segment "CHR3"
-	;.incbin "tileset3.chr"
+	.incbin "NESst/kruj_charset_0.chr"
 	
 .segment "CHR4"
-	;.incbin "tileset4.chr"
+	.incbin "NESst/kruj_charset_1.chr"

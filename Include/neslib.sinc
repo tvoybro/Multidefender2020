@@ -5,6 +5,7 @@
 ;v050517
 
 	.import _eqValues
+	.import _cnrom_set_bank
 
 	.export _pal_all,_pal_bg,_pal_spr,_pal_col,_pal_clear
 	.export _pal_bright,_pal_spr_bright,_pal_bg_bright
@@ -24,6 +25,7 @@
 
 	.export _get_mus_pos
 	.export _roll_scroll_colors
+	.export _split_krujeva
 
 	.export shouldbealigned
 	.export shouldbealigned_eof
@@ -70,9 +72,14 @@ nmi:
 	pha
 
 	lda <NMI_USER_CALL
-	and #%11111111
-	beq nmiUserCallRet
+	and #%00000001
+	beq nmiUserCallRet1
 	jmp	nmiUserCall
+nmiUserCallRet1:
+	lda <NMI_USER_CALL
+	and #%00000010
+	beq nmiUserCallRet
+	jmp	nmiUserCall2
 nmiUserCallRet:
 
 	lda <PPU_MASK_VAR	;if rendering is disabled, do not access the VRAM at all
@@ -210,9 +217,8 @@ pal_copy:
 
 	rts
 
-;void __fastcall__ set_nmi_user_call_on(void);
+;void __fastcall__ set_nmi_user_call_on(unsigned char mode);
 _set_nmi_user_call_on:
-	lda	#1
 	sta <NMI_USER_CALL
 	rts
 
@@ -666,6 +672,24 @@ _scroll:
 	sta <PPU_CTRL_VAR
 	rts
 
+
+
+;void __fastcall__ split_krujeva(void);
+_split_krujeva:
+	lda #%11000000
+@3:
+	bit PPU_STATUS
+	bvs @3
+
+@4:
+	bit PPU_STATUS
+	bvc @4
+
+	lda #$03
+	tax
+	sta banktable, x
+
+	rts
 
 
 ;;void __fastcall__ split(unsigned int x,unsigned int y);
@@ -1338,8 +1362,6 @@ _xy_split:
 	sta $2005
 	pla
 	sta $2006
-	
-
 	rts	
 
 
@@ -1365,6 +1387,16 @@ _roll_scroll_colors:
 	sta	<NMI_SCROLL_TEXT_COLOR+1
 	stx	<NMI_SCROLL_TEXT_COLOR+2
 	rts
+
+
+nmiUserCall2: 
+
+	lda #$02
+	tax
+	sta banktable, x
+
+	jmp	nmiUserCallRet
+
 	
 nmiUserCall:
 	lda <PPU_CTRL_VAR
@@ -1373,12 +1405,12 @@ nmiUserCall:
 	sta PPU_CTRL
 
 	;--- restore bg color = white
-	lda  #$3F
- 	sta  PPU_ADDR
- 	lda  #$00
- 	sta  PPU_ADDR
- 	lda  #$30
- 	sta  PPU_DATA
+	lda #$3F
+ 	sta PPU_ADDR
+ 	lda #$00
+ 	sta PPU_ADDR
+ 	lda #$30
+ 	sta PPU_DATA
 	
 	;--- text palette roll
 	lda  #$3F
@@ -1595,3 +1627,11 @@ palBrightTable8:
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
 
 	.include "Include/famitone2.sinc"
+	
+	
+.segment "RODATA"
+banktable:              ; Write to this table to switch banks.
+  .byte $00, $01, $02, $03
+;	lda #$01	
+;	tax
+;	sta banktable, x
