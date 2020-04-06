@@ -1,5 +1,4 @@
 // Multimatograf 2020 invitro
-//tmk test
 
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
@@ -410,22 +409,48 @@ const unsigned char burger_pathYboss[512] = {
 47, 47, 47, 46, 46, 46, 46, 45, 45, 45, 45, 44, 44, 44, 43, 43, 43, 42, 42, 42, 41, 41, 41, 40, 40, 40, 39, 39, 39, 38, 38, 38, 37, 37, 36, 36, 36, 35, 35, 35, 34, 34, 34, 34, 33, 33, 33, 32, 32, 32, 32, 31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 31, 31, 31, 31, 31, 31, 32, 32, 32, 33, 33, 33, 33, 34, 34, 34, 35, 35, 36, 36, 36, 37, 37, 37, 38, 38, 39, 39, 39, 40, 40, 40, 41, 41, 41, 42, 42, 42, 43, 43, 43, 44, 44, 44, 44, 45, 45, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 45, 45, 45, 45, 44, 44, 44, 43, 43, 42, 42, 41, 41, 40, 40, 39, 39, 38, 38, 37, 36, 36, 35, 35, 34, 33, 33, 32, 32, 31, 31, 30, 30, 29, 29, 28, 28, 27, 27, 26, 26, 26, 25, 25, 25, 25, 24, 24, 24, 24, 24, 24, 24, 24, 24, 25, 25, 25, 26, 26, 27, 27, 28, 29, 30, 31, 33, 34, 36, 38, 39, 41, 43, 46, 48, 50, 53, 55, 58, 60, 63, 66, 68, 71, 74, 77, 80, 83, 86, 89, 92, 95, 98, 101, 105, 108, 111, 114, 117, 120, 123, 125, 128, 131, 134, 137, 139, 142, 144, 147, 149, 151, 154, 156, 158, 159, 161, 163, 164, 166, 167, 168, 169, 170, 171, 171, 172, 173, 174, 174, 175, 175, 176, 176, 177, 177, 178, 178, 178, 179, 179, 179, 180, 180, 180, 180, 180, 180, 181, 181, 181, 181, 181, 181, 181, 181, 180, 180, 180, 180, 180, 180, 179, 179, 179, 179, 178, 178, 178, 177, 177, 176, 176, 175, 175, 174, 174, 173, 173, 172, 172, 171, 170, 170, 169, 168, 168, 167, 166, 165, 165, 164, 163, 162, 161, 159, 158, 157, 156, 155, 153, 152, 150, 149, 148, 146, 145, 143, 142, 140, 138, 137, 135, 134, 132, 130, 129, 127, 125, 124, 122, 120, 118, 117, 115, 114, 112, 110, 109, 107, 105, 104, 102, 101, 99, 98, 97, 95, 94, 92, 91, 90, 89, 88, 86, 85, 84, 83, 82, 82, 81, 80, 79, 79, 78, 78, 77, 77, 76, 76, 76, 76, 76, 76, 75, 75, 75, 76, 76, 76, 76, 76, 76, 77, 77, 77, 78, 78, 78, 79, 79, 80, 80, 80, 81, 81, 82, 82, 83, 83, 84, 84, 84, 85, 85, 86, 86, 86, 87, 87, 87, 88, 88, 88, 88, 88, 89, 89, 89, 89, 89, 89, 89, 88, 88, 88, 88, 87, 87, 87, 86, 86, 85, 85, 84, 84, 83, 82, 82, 81, 80, 80, 79, 78, 77, 77, 76, 75, 74, 73, 73, 72, 71, 70, 69, 68, 68, 67, 66, 65, 64, 63, 62, 62, 61, 60, 59, 58, 58, 57, 56, 55, 55, 54, 53, 53, 52, 52, 51, 51, 50, 50, 49, 49, 48, 48, 48, 47, 47
 };
 
-unsigned int nesdevPalId = 0;
-unsigned int nesdevFaze = 0;
+
+const unsigned char spr_telega[]={
+	- 8,- 8,0x52, 0,
+	  0,- 8,0x53, 0,
+	- 8,  0,0x54, 0,
+	  0,  0,0x55, 0,
+	128
+};
+
+unsigned char nesdevPalId = 0;
+unsigned char nesdevFaze = 0;
+unsigned char telegaX = 64+8+4;		//64;4
+unsigned char telegaY = 128+32-4;	//128+64;3
+unsigned char telegaPalId = 0;
+
+const unsigned char telegaPal[6][4] = {
+	{0x0F,0x0F,0x0F,0x0F},
+	{0x0F,0x02,0x02,0x02},
+	{0x0F,0x02,0x02,0x12},
+	{0x0F,0x02,0x12,0x21},
+	{0x0F,0x1C,0x21,0x31},
+	{0x0F,0x1C,0x21,0x30}
+};
+
+
 void fx_NesDev(void)
 {
 	//nesdev
 	pal_bg(palNesdev[14]);
 	pal_spr(palNesdev[14]);
-	cnrom_set_bank(1);
-	bank_spr(1);
+	tileset = 1;
+	cnrom_set_bank(tileset);
+	bank_spr(0);
 	vram_adr(NAMETABLE_A);
 	vram_unrle(logo_scr);
 	ppu_on_all();
 	while(nesdevFaze < 4)
 	{
 		ppu_wait_nmi();
-		
+		oam_clear();
+		oam_meta_spr(telegaX, telegaY, 0, spr_telega);
+
 		//wait
 		if ((nesdevFaze == 0 && nesclock == 96)) {
 			nesdevFaze = 1;
@@ -435,32 +460,51 @@ void fx_NesDev(void)
 			if (nesdevPalId < 5 && ((nesclock & 3) == 0)) {
 				++nesdevPalId;
 				pal_bg(palNesdev[nesdevPalId]);
-				pal_spr(palNesdev[nesdevPalId]);
 			}
-			if (nesclock == 160) {
+			if (nesclock == 0) {
 				nesdevFaze = 2;
+			}
+			if (nesclock > 192) {
+				// telega in
+				if (telegaX < 192+8) {
+					telegaX += 2;
+					telegaY -= 1;
+				}
+				if ((nesclock & 3) == 0 && telegaPalId < 6) {
+					++telegaPalId;
+					pal_spr(telegaPal[telegaPalId - 1]);
+				}
 			}
 		}
 		//fade in credits
 		if ((nesdevFaze == 2)) {
-			if (nesdevPalId < 9 && ((nesclock & 3) == 0)) {
-				++nesdevPalId;
-				pal_bg(palNesdev[nesdevPalId]);
-				pal_spr(palNesdev[nesdevPalId]);
+			if (nesclock > 32) {
+				if (nesdevPalId < 9 && ((nesclock & 3) == 0)) {
+					++nesdevPalId;
+					pal_bg(palNesdev[nesdevPalId]);
+				}
+				if (nesclock == 255) {
+					nesdevFaze = 3;
+				}
 			}
-			if (nesclock == 159) {
-				nesdevFaze = 3;
-			}
+
 		}
 		//fadeout
 		if (nesdevFaze == 3) {
 			if (nesdevPalId < 14 && ((nesclock & 3) == 0)) {
 				++nesdevPalId;
 				pal_bg(palNesdev[nesdevPalId]);
-				pal_spr(palNesdev[nesdevPalId]);
 			}
-			if (nesclock == 64) {
+			if (nesclock == 96) {
 				nesdevFaze = 4;
+			}
+
+			// telega out
+			telegaX += 4;
+			telegaY -= 3;
+			if ((nesclock&1) && telegaPalId > 0) {
+				--telegaPalId;
+				pal_spr(telegaPal[telegaPalId]);
 			}
 			
 		}
@@ -472,10 +516,39 @@ void fx_NesDev(void)
 	ppu_off();
 }
 
+unsigned char krujWait = 0;
+unsigned char krujFrm = 0;
+unsigned char krujPalId = 0;
+void fx_Krujeva(void)
+{
+	pal_bg(palNesdev[14]);
+	pal_spr(palNesdev[14]);
+	cnrom_set_bank(1);
+	bank_spr(1);
+	vram_adr(NAMETABLE_A);
+	vram_unrle(logo_scr);
+	ppu_on_all();
+	while (krujFrm < 32)
+	{
+		if (++krujWait == 3) {
+			krujWait = 0;
+			krujFrm++;
+		}
+		krujPalId++;
+		ppu_wait_nmi();
+	}
+	ppu_off();
+}
+
+
 void main(void)
 {
 	set_vram_buffer();
 	clear_vram_buffer();
+	
+	fx_NesDev();
+	
+	//fx_Krujeva();
 
 	pal_bg(palette);
 	pal_spr(palette_spr);
