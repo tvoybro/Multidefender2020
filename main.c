@@ -288,7 +288,7 @@ const unsigned int eq_Pulse2right_NT[7] = {
 		eqValues[3][4-i] = i>=eq_Pulse2_Volume ? EQ_CHR_ON : EQ_CHR_OFF;
 	}
 	
-	set_nmi_user_call_on();
+	set_nmi_user_call_on(1);
 }
 */
 
@@ -324,7 +324,7 @@ void fx_EQ(void)
 		eqValues[3][4-i] = i>=eq_Pulse2_Volume ? EQ_CHR_ON : EQ_CHR_OFF;
 	}
 	
-	set_nmi_user_call_on();
+	set_nmi_user_call_on(1);
 }
 
 void fx_SplitScroll(void)
@@ -420,8 +420,8 @@ const unsigned char spr_telega[]={
 
 unsigned char nesdevPalId = 0;
 unsigned char nesdevFaze = 0;
-unsigned char telegaX = 64+8+4;		//64;4
-unsigned char telegaY = 128+32-4;	//128+64;3
+unsigned char telegaX = 64;		//64+8+4;	//64;4
+unsigned char telegaY = 128+64-16;	//128+32-4;	//128+64;3
 unsigned char telegaPalId = 0;
 
 const unsigned char telegaPal[6][4] = {
@@ -439,8 +439,7 @@ void fx_NesDev(void)
 	//nesdev
 	pal_bg(palNesdev[14]);
 	pal_spr(palNesdev[14]);
-	tileset = 1;
-	cnrom_set_bank(tileset);
+	cnrom_set_bank(1);
 	bank_spr(0);
 	vram_adr(NAMETABLE_A);
 	vram_unrle(logo_scr);
@@ -467,8 +466,8 @@ void fx_NesDev(void)
 			if (nesclock > 192) {
 				// telega in
 				if (telegaX < 192+8) {
-					telegaX += 2;
-					telegaY -= 1;
+					telegaX += 4;	// 2 4
+					telegaY -= 3;	// 1 3
 				}
 				if ((nesclock & 3) == 0 && telegaPalId < 6) {
 					++telegaPalId;
@@ -508,10 +507,7 @@ void fx_NesDev(void)
 			}
 			
 		}
-		
-		
 		++nesclock;
-
 	}
 	ppu_off();
 }
@@ -535,6 +531,7 @@ void fx_Krujeva(void)
 			krujFrm++;
 		}
 		krujPalId++;
+		//ppu_wait_nmi(2);
 		ppu_wait_nmi();
 	}
 	ppu_off();
@@ -546,9 +543,9 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
 	
-	fx_NesDev();
+	//fx_NesDev();
 	
-	//fx_Krujeva();
+	fx_Krujeva();
 
 	pal_bg(palette);
 	pal_spr(palette_spr);
@@ -579,6 +576,7 @@ void main(void)
 
 	while(1)
 	{
+		
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
