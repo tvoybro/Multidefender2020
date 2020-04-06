@@ -274,27 +274,36 @@ const unsigned char* const covid_explode[]={
 	covid_explode_0_data,
 	covid_explode_0_data,
 	covid_explode_0_data,
+	covid_explode_0_data,
+	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_2_data,
 	covid_explode_2_data,
 	covid_explode_2_data,
+	covid_explode_2_data,
+	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_4_data,
 	covid_explode_4_data,
 	covid_explode_4_data,
+	covid_explode_4_data,
+	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_6_data,
 	covid_explode_6_data,
 	covid_explode_6_data,
+	covid_explode_6_data,
 	covid_explode_7_data,
 	covid_explode_7_data,
 	covid_explode_7_data,
+	covid_explode_7_data,
+	covid_explode_8_data,
 	covid_explode_8_data,
 	covid_explode_8_data,
 	covid_explode_8_data
@@ -828,11 +837,11 @@ void fx_galaga() {
 			spr=oam_meta_spr(covid_x, covid_y, spr, spr_covid_19);
 			covids_pointers[i] = (covid_pointer + 1) & 511;
 		} else {
-			if (covids_states[i]<27) {
+			if (covids_states[i]<27+9) {
 				spr=oam_meta_spr(covid_x, covid_y, spr, covid_explode[covids_states[i]]);
 				++covids_states[i];
 			} else {
-				if (covids_states[i]==27) {
+				if (covids_states[i]==27+9) {
 					++covids_hit;
 					if (covids_hit==COVIDS_MAX) {
 						covids_phase = (covids_phase + 1) & 3;
@@ -863,7 +872,7 @@ void main(void)
 	
 	fx_NesDev();
 	
-	fx_Krujeva();
+	// fx_Krujeva();
 
 	pal_bg(palette);
 	pal_spr(palette_spr);
