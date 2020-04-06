@@ -155,7 +155,7 @@ const unsigned char char_S[2*2]={
 
 const unsigned char char_T[2*2]={
 	0x0c,0x0d,
-	0x39,0x0e
+	0x3D,0x0e
 };
 
 const unsigned char char_U[2*2]={
