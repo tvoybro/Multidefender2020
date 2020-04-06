@@ -9,6 +9,9 @@
 #include "Gfx/logo_scr.h"
 #include "Gfx/kruj_nametable.h"
 
+#define SFX_SHOT 				0
+#define SFX_COVID_ELIMINATED 	1
+#define SFX_COVID_RESPAWN		2
 
 #define EQOFFSET 0x20
 #define EQ_CHR_OFF 0xCD
@@ -786,6 +789,7 @@ void galagaInit() {
 }
 
 void covidsInit(unsigned char phase) {
+	sfx_play(SFX_COVID_RESPAWN,2);
 	for(i=0;i<COVIDS_MAX;++i) {
 		covids_pointers[i] = i*24;
 		covids_states[i] = 0;
@@ -819,10 +823,12 @@ void fx_galaga() {
 			++starship_x;
 		}
 		if (pad&(PAD_A|PAD_B) && !bullet_y) {
-			bullet_x = starship_x-4;
+			sfx_play(SFX_SHOT,0);
 			bullet_y = starship_y-16;
 		}
 	}
+
+	bullet_x = starship_x-4;
 
 	for(i=0;i<COVIDS_MAX;++i)
 	{
@@ -830,6 +836,7 @@ void fx_galaga() {
 		covid_x = covidXtable[covid_pointer];
 		covid_y = covidYtable[covid_pointer];
 		if (bullet_x>covid_x && bullet_x<covid_x+24 && bullet_y>covid_y && bullet_y<covid_y+24 && !covids_states[i]) {
+			sfx_play(SFX_COVID_ELIMINATED,1);
 			covids_states[i] = 1;
 			bullet_y = 0;
 		}
@@ -864,13 +871,12 @@ void fx_galaga() {
 
 }
 
-
 void main(void)
 {
 	set_vram_buffer();
 	clear_vram_buffer();
 	
-	fx_NesDev();
+	// fx_NesDev();
 	
 	// fx_Krujeva();
 
