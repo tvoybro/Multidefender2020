@@ -689,7 +689,6 @@ _split_krujeva:
 	tax
 	sta banktable, x
 
-
 	rts
 
 
@@ -1395,9 +1394,6 @@ nmiUserCall2:
 	lda #$02
 	tax
 	sta banktable, x
-
-	;lda #$04
-	;jsr _cnrom_set_bank
 
 	jmp	nmiUserCallRet
 
