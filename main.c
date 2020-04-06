@@ -178,9 +178,9 @@ unsigned char bullet_x, bullet_y;
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
 
 
+const unsigned char bus_conflict[4]={ 0x00,0x01,0x02,0x03 };
 void cnrom_set_bank(unsigned char bank)
 {
-const unsigned char bus_conflict[4]={ 0x00,0x01,0x02,0x03 };
 	unsigned char *ptr;
 	
 	bank&=3;	//есть платы, у которых больше 4 банков, например 16, но для простоты пока так
