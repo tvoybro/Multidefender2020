@@ -14,6 +14,7 @@
 #define SFX_SHOT 				0
 #define SFX_COVID_ELIMINATED 	1
 #define SFX_COVID_RESPAWN		2
+#define SFX_TELEGA_FLY			3
 
 #define EQOFFSET 0x20
 #define EQ_CHR_OFF 0xCD
@@ -574,7 +575,7 @@ void fx_SplitScroll(void)
 		eq_Noise_Val = 7;
 	}
 
-	xy_split(scrollerPos, 210 - 1 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
+	xy_split(scrollerPos, 210 + 5 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
 
 	if (eq_Noise_Val)
 		--eq_Noise_Val;
@@ -716,6 +717,7 @@ void fx_NesDev(void)
 
 		}
 		//fadeout
+		
 		if (nesdevFaze == 3) {
 			if (nesdevPalId < 14 && ((nesclock & 3) == 0)) {
 				++nesdevPalId;
@@ -1141,7 +1143,7 @@ void main(void)
 	clear_vram_buffer();
  	
  
- 	//fx_NesDev();
+ 	fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
