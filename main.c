@@ -732,8 +732,9 @@ unsigned char krujPalId = 0;
 unsigned char krujBgPalId = 0;
 unsigned char krujWait2 = 0;
 
-const unsigned char krujBgPal[6][8] = {
+const unsigned char krujBgPal[8][8] = {
 	{0x0F,0x0F,0x20,0x30,	0x0F,0x20,0x20,0x30},
+	{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
 	{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
 	{0x0F,0x0F,0x22,0x22,	0x0F,0x22,0x22,0x22},
 	{0x0F,0x0F,0x12,0x12,	0x0F,0x12,0x12,0x12},
@@ -813,13 +814,15 @@ void fx_Krujeva(void)
 		ppu_wait_nmi();
 		clear_vram_buffer();
 		
-		if (krujFrm > 44 && krujBgPalId < 5) {
+		
+		if (krujFrm > 44 && krujBgPalId < 6) {
 			if ((nesclock&3) == 0) {
 				++krujBgPalId;
 				pal_bg(krujBgPal[krujBgPalId]);
 			}
 		}
 
+		// krujeva
 		if (++krujWait >= krujCheck[isNtsc][krujCheckId]) {
 			krujWait = 0;
 			if (++krujPalId == 3) {
@@ -996,7 +999,8 @@ void fx_Krujeva(void)
 		//gray_line();
 		
 	}
-
+	ppu_wait_nmi();
+	ppu_wait_nmi();
 	set_nmi_user_call_off();
 }
 
@@ -1109,7 +1113,7 @@ void main(void)
 
  	fx_Krujeva();
 
-	music_stop();
+	//music_stop();
 	
  	//blink
  	pal_bg(palBlink);
