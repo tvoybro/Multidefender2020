@@ -1100,22 +1100,24 @@ void main(void)
 {
 	set_vram_buffer();
 	clear_vram_buffer();
-	
+ 	
+ 
+ 	//fx_NesDev();
+ 	
+	vram_adr(NAMETABLE_B);
+	vram_unrle(NAM_multi_logo_A);
 
-	//fx_NesDev();
-	
-	//fx_Krujeva();
+ 	fx_Krujeva();
 
-	//blink
-	pal_bg(palBlink);
+	music_stop();
+	
+ 	//blink
+ 	pal_bg(palBlink);
+	scroll(256,0);
 	oam_clear();
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-
-	
-	ppu_off();
+ 	ppu_off();
+ 
+ 	vram_adr(NAMETABLE_A);	
 
 	vram_adr(NAMETABLE_A);
 	vram_unrle(NAM_multi_logo_A);
@@ -1125,11 +1127,14 @@ void main(void)
 	pal_spr(palette_spr);	
 	cnrom_set_bank(0);
 	bank_spr(1);
+	ppu_on_all();
+
+	//for (i=0; i<60; ++i)
+	//	ppu_wait_nmi();
 
 	galagaInit();
 	covidsInit(0);
 
-	ppu_on_all();
 	music_play(1);
 
 	while(1)
@@ -1150,7 +1155,7 @@ void main(void)
 //		if (muspos==192)
 //			pal_col(0,21);
 
-		if (nesclock&1) {
+		if (nesclock&1 && muspos > 1024) {
 			++logoPos;
 			if (logoPos>127)
 				logoPos=0;
