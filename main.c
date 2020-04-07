@@ -187,7 +187,7 @@ const unsigned char palNesdev[15][16] = {
 	0x0F,0x0F,0x0F,0x0F},
 };
 
-const unsigned char spr_covid_19[]={
+/*const unsigned char spr_covid_19[]={
 	  0,  0,0x02,0,
 	  8,  0,0x03,0,
 	 16,  0,0x04,0,
@@ -198,6 +198,60 @@ const unsigned char spr_covid_19[]={
 	  8, 16,0x23,0,
 	 16, 16,0x24,0,
 	128
+};
+*/
+
+const unsigned char covid19_0_data[]={
+
+	  4,  4,0x02,0,
+	 12,  4,0x03,0,
+	 20,  4,0x04,0,
+	  4, 12,0x12,0,
+	 12, 12,0x13,0,
+	 20, 12,0x14,0,
+	  4, 20,0x22,0,
+	 12, 20,0x23,0,
+	 20, 20,0x24,0,
+	128
+
+};
+
+const unsigned char covid19_1_data[]={
+
+	  4,  4,0x05,0,
+	 12,  4,0x06,0,
+	 20,  4,0x07,0,
+	  4, 12,0x15,0,
+	 12, 12,0x16,0,
+	 20, 12,0x17,0,
+	  4, 20,0x25,0,
+	 12, 20,0x26,0,
+	 20, 20,0x27,0,
+	128
+
+};
+
+const unsigned char covid19_2_data[]={
+
+	  4,  4,0x08,0,
+	 12,  4,0x09,0,
+	 20,  4,0x0a,0,
+	  4, 12,0x18,0,
+	 12, 12,0x19,0,
+	 20, 12,0x1a,0,
+	  4, 20,0x28,0,
+	 12, 20,0x29,0,
+	 20, 20,0x2a,0,
+	128
+
+};
+
+const unsigned char* const seq_covid19[]={
+
+	covid19_0_data,
+	covid19_1_data,
+	covid19_2_data
+
 };
 
 const unsigned char covid_explode_0_data[]={
@@ -472,6 +526,10 @@ void fx_EQ(void)
 	set_nmi_user_call_on(1);
 }
 
+const unsigned char const huita[] = {
+	2, 5, 3, 6, 4, 9, 5, 10
+};
+
 void fx_SplitScroll(void)
 {
 	if (!(scrollerPos&15)) {
@@ -500,9 +558,8 @@ void fx_SplitScroll(void)
 	if ((FT_BUF[9] & 0x0f)>9 && !eq_Noise_Val) {
 		eq_Noise_Val = 7;
 	}
-		
 
-	xy_split(scrollerPos, 210 - 1 - eq_Noise_Val/* - 2 - eq_Noise_Val*/);
+	xy_split(scrollerPos, 210 - 1 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
 
 	if (eq_Noise_Val)
 		--eq_Noise_Val;
@@ -532,7 +589,7 @@ const unsigned int sine_Table_Shake[] = {
 
 static unsigned int covids_pointers[COVIDS_MAX];
 static unsigned int covid_pointer;
-static unsigned char covid_x, covid_y, covids_hit, covids_phase;
+static unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame;
 static unsigned char covids_states[COVIDS_MAX];
 
 const unsigned char *covidXtable;
@@ -956,6 +1013,7 @@ void covidsInit(unsigned char phase) {
 	}
 	covidXtable = burger_pathX1 + phase*1024;
 	covidYtable = burger_pathY1 + phase*1024;
+	covid_frame = 0;
 }
 
 void fx_galaga() {
@@ -1000,7 +1058,7 @@ void fx_galaga() {
 			bullet_y = 0;
 		}
 		if (!covids_states[i]) {
-			spr=oam_meta_spr(covid_x, covid_y, spr, spr_covid_19);
+			spr=oam_meta_spr(covid_x, covid_y, spr, seq_covid19[covid_frame]);
 			covids_pointers[i] = (covid_pointer + 1) & 511;
 		} else {
 			if (covids_states[i]<27+9) {
@@ -1018,6 +1076,12 @@ void fx_galaga() {
 			}
 		}
 	}
+
+	if (!(nesclock&7))
+		++covid_frame;
+	
+	if (covid_frame>2)
+		covid_frame=0;
 
 	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
 
