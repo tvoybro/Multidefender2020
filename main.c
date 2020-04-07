@@ -1003,9 +1003,6 @@ void fx_Krujeva(void)
 		//gray_line();
 		
 	}
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-	set_nmi_user_call_off();
 }
 
 void galagaInit() {
@@ -1136,22 +1133,30 @@ void main(void)
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	// fx_Krujeva();
+ 	fx_Krujeva();
+
+	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
+	set_nmi_user_call_off();
+
+	ppu_wait_nmi();
+	ppu_wait_nmi();
+	ppu_wait_nmi();
+	ppu_wait_nmi();
 
 	//music_stop();
 	
  	//blink
- 	pal_bg(palBlink);
-	scroll(256,0);
-	oam_clear();
- 	ppu_off();
- 
- 	vram_adr(NAMETABLE_A);	
+ 	//pal_bg(palBlink);
 
+ 	ppu_off();
+ 	scroll(252,0);
+	oam_clear();
+
+ 
 	vram_adr(NAMETABLE_A);
 	vram_unrle(NAM_multi_logo_A);
-	vram_adr(NAMETABLE_B);
-	vram_unrle(NAM_multi_logo_B);	
+	//vram_adr(NAMETABLE_B);
+	//vram_unrle(NAM_multi_logo_B);	
 	pal_bg(palette);
 	pal_spr(palette_spr);	
 	cnrom_set_bank(0);
