@@ -692,17 +692,14 @@ _split_krujeva:
 	sta $2003
 	sta $2004
 
-	lda #$00
-	lda #$00
-	lda #$00
-	lda #$00
-	lda #$00
-	lda #$00
+	ldx #$8B
+@5:
+	dex
+	bmi @5
 
 	lda #$03
 	tax
 	sta banktable, x
-
 
 	rts
 
