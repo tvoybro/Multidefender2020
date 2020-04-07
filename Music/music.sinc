@@ -704,31 +704,32 @@ music_music_data:
 
 
 @song2ch0:
-	.byte $fb,$06
+	.byte $fb,$05
 @song2ch0loop:
 @ref200:
-	.byte $f9,$85
+	.byte $96,$22,$89,$27,$8a,$26,$89,$00,$e1
 	.byte $fd
 	.word @song2ch0loop
 
 @song2ch1:
 @song2ch1loop:
 @ref201:
-	.byte $96,$66,$85,$8a,$66,$85,$00,$ed
+	.byte $96,$3a,$89,$3f,$9a,$3e,$89,$00,$e1
 	.byte $fd
 	.word @song2ch1loop
 
 @song2ch2:
 @song2ch2loop:
 @ref202:
-	.byte $f9,$85
+	.byte $8c,$06,$a2,$22,$8e,$06,$a2,$22,$8e,$06,$a2,$22,$8c,$06,$a2,$26
+	.byte $85,$00,$e7
 	.byte $fd
 	.word @song2ch2loop
 
 @song2ch3:
 @song2ch3loop:
 @ref203:
-	.byte $a2,$1e,$1c,$1a,$18,$18,$1a,$1c,$1e,$00,$ed
+	.byte $80,$17,$90,$13,$13,$80,$18,$f1
 	.byte $fd
 	.word @song2ch3loop
 

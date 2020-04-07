@@ -14,6 +14,7 @@
 #define SFX_SHOT 				0
 #define SFX_COVID_ELIMINATED 	1
 #define SFX_COVID_RESPAWN		2
+#define SFX_TELEGA_FLY			3
 
 #define EQOFFSET 0x20
 #define EQ_CHR_OFF 0xCD
@@ -716,6 +717,7 @@ void fx_NesDev(void)
 
 		}
 		//fadeout
+		
 		if (nesdevFaze == 3) {
 			if (nesdevPalId < 14 && ((nesclock & 3) == 0)) {
 				++nesdevPalId;
@@ -1141,12 +1143,12 @@ void main(void)
 	clear_vram_buffer();
  	
  
- 	//fx_NesDev();
+ 	fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	//fx_Krujeva();
+ 	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
