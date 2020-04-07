@@ -43,6 +43,35 @@ const unsigned char palBlink[16]={
 	0x30,0x30,0x30,0x30
 };
 
+unsigned char paletteId = 0;
+unsigned char paletteIn[6][16]={
+	{0x0F,0x0F,0x0F,0x0F,
+	 0x0F,0x30,0x0F,0x0F,
+	 0x0F,0x30,0x0F,0x0F,
+	 0x0F,0x0F,0x0F,0x0F},
+	{0x02,0x0F,0x0F,0x0F,
+	 0x02,0x30,0x0F,0x0F,
+	 0x02,0x30,0x0F,0x0F,
+	 0x02,0x0F,0x0F,0x0F},
+	{0x12,0x0F,0x0F,0x0F,
+	 0x12,0x30,0x0F,0x0F,
+	 0x12,0x30,0x01,0x0F,
+	 0x12,0x0F,0x0F,0x0F},
+	{0x22,0x0F,0x0F,0x0F,
+	 0x22,0x36,0x0F,0x0F,
+	 0x22,0x36,0x11,0x0F,
+	 0x22,0x0A,0x0F,0x0F},
+	{0x32,0x02,0x03,0x0F,
+	 0x32,0x26,0x03,0x02,
+	 0x32,0x26,0x21,0x02,
+	 0x32,0x1A,0x0A,0x0F},
+	{0x30,0x22,0x13,0x01,
+	 0x30,0x16,0x13,0x22,
+	 0x30,0x16,0x31,0x22,
+	 0x30,0x2A,0x1A,0x01},
+};
+
+
 unsigned char palette[16]={
 	0x30,0x22,0x13,0x01,
 	0x30,0x16,0x13,0x22,
@@ -737,6 +766,13 @@ void fx_NesDev(void)
 			if (nesclock == 0) {
 				nesdevFaze = 2;
 			}
+			if (nesclock >= 220) {
+				if (nesdevPalId < 9 && ((nesclock & 3) == 0)) {
+					++nesdevPalId;
+					pal_bg(palNesdev[nesdevPalId]);
+				}
+			}
+			
 			if (nesclock > 192) {
 				// sound telega
 				if ((nesDevPlayCtrl&2) == 0) {
@@ -776,7 +812,7 @@ void fx_NesDev(void)
 				++nesdevPalId;
 				pal_bg(palNesdev[nesdevPalId]);
 			}
-			if (nesclock == 254) {
+			if (nesclock == 128) {
 				nesdevFaze = 4;
 			}
 
@@ -1223,11 +1259,13 @@ void main(void)
 	vram_unrle(NAM_multi_logo_A);
 	//vram_adr(NAMETABLE_B);
 	//vram_unrle(NAM_multi_logo_B);	
-	pal_bg(palette);
+	pal_bg(paletteIn[0]);
 	pal_spr(palette_spr[0]);	
 	cnrom_set_bank(0);
 	bank_spr(1);
 	ppu_on_all();
+	
+	
 
 	//for (i=0; i<60; ++i)
 	//	ppu_wait_nmi();
@@ -1237,7 +1275,8 @@ void main(void)
 
 	music_stop();
 	music_play(1);
-
+	
+	
 	while(1)
 	{
 
@@ -1262,7 +1301,12 @@ void main(void)
 				logoPos=0;
 		}
 
-		if ((nesclock&15) == 0) {
+		if ((nesclock&1) == 0 && paletteId < 6) {
+			pal_bg(paletteIn[paletteId]);
+			++paletteId;
+		}
+
+		if (paletteId == 6 && (nesclock&15) == 0) {
 			if (++palRollId1 >= 48) {
 				palRollId1 = 0;
 			}
@@ -1272,7 +1316,6 @@ void main(void)
 			//roll_scroll_colors(palRollList[palRollId1], palRollList[palRollId2], palRollList[palRollId2]);
 			palette[13] = palRollList[palRollId1];
 			palette[14] = palRollList[palRollId2];
-			
 			pal_bg(palette);
 		}
 		
