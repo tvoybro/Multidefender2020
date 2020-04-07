@@ -118,6 +118,23 @@ unsigned char palette_spr[5][16]={
 unsigned char palSamoletId = 0;
 const unsigned char palSamolet[2] = {0x24, 0x1e};
 
+const unsigned char palNesdev2[3][16] = {
+	{0x0F,0x12,0x22,0x30,
+	0x0F,0x32,0x12,0x30,
+	0x0F,0x0F,0x22,0x32,
+	0x0F,0x0F,0x0F,0x0F},
+
+	{0x0F,0x32,0x22,0x30,
+	0x0F,0x02,0x32,0x30,
+	0x0F,0x0F,0x22,0x32,
+	0x0F,0x0F,0x0F,0x0F},
+
+	{0x0F,0x12,0x32,0x30,
+	0x0F,0x02,0x12,0x30,
+	0x0F,0x0F,0x22,0x32,
+	0x0F,0x0F,0x0F,0x0F},
+};
+
 const unsigned char palNesdev[15][16] = {
 	//fade_in-0
 	{0x0F,0x32,0x32,0x32,
@@ -646,6 +663,8 @@ const unsigned char spr_telega[]={
 	128
 };
 
+unsigned char nesdevPalId2 = 0;
+unsigned char nesdevPalId2Dir = 0;
 unsigned char nesdevPalId = 0;
 unsigned char nesdevFaze = 0;
 unsigned char telegaX = 64;		//64+8+4;	//64;4
@@ -661,6 +680,7 @@ const unsigned char telegaPal[6][4] = {
 	{0x0F,0x1C,0x21,0x30}
 };
 
+unsigned char nesDevPlayCtrl = 0;
 
 void fx_NesDev(void)
 {
@@ -672,6 +692,7 @@ void fx_NesDev(void)
 	vram_adr(NAMETABLE_A);
 	vram_unrle(logo_scr);
 	ppu_on_all();
+	
 	while(nesdevFaze < 4)
 	{
 		ppu_wait_nmi();
@@ -682,16 +703,48 @@ void fx_NesDev(void)
 		if ((nesdevFaze == 0 && nesclock == 96)) {
 			nesdevFaze = 1;
 		}
+		
+		// sound nesdev - variant 1
+		if ((nesDevPlayCtrl&1) == 0 && nesclock == 64) {
+			//nesDevPlayCtrl |= 1;
+			//music_play(2);
+		}
+		
+		
 		//fade in nesdev
 		if ((nesdevFaze == 1)) {
-			if (nesdevPalId < 5 && ((nesclock & 3) == 0)) {
+			
+			// sound nesdev - variant 2
+			if ((nesDevPlayCtrl&1) == 0) {
+				nesDevPlayCtrl |= 1;
+				music_play(2);
+			}
+			
+			if (nesdevPalId < 5 && ((nesclock & 1) == 0)) {
 				++nesdevPalId;
 				pal_bg(palNesdev[nesdevPalId]);
 			}
+			// nesdev blink
+			if (nesclock >= 128 && (nesclock & 3) == 0) {
+				if (nesdevPalId2 < 3) {
+				pal_bg(palNesdev2[nesdevPalId2]);
+				nesdevPalId2++;
+				} else {
+					pal_bg(palNesdev[nesdevPalId]);
+				}
+			}
+
 			if (nesclock == 0) {
 				nesdevFaze = 2;
 			}
 			if (nesclock > 192) {
+				// sound telega
+				if ((nesDevPlayCtrl&2) == 0) {
+					nesDevPlayCtrl |= 2;
+					music_stop();
+					sfx_play(SFX_TELEGA_FLY, 0);
+				}
+
 				// telega in
 				if (telegaX < 192+8) {
 					telegaX += 4;	// 2 4
