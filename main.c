@@ -386,7 +386,11 @@ const unsigned char spr_starship[]={
 
 };
 
-unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause;
+const unsigned char const starship_pal[] = {
+	0x17, 0x27, 0x05, 0x27
+};
+
+unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause, starship_flame;
 unsigned char bullet_x, bullet_y;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
@@ -1101,8 +1105,11 @@ void fx_galaga() {
 		}
 	}
 
-	if (!(nesclock&3))
+	if (!(nesclock&3)) {
 		++covid_frame;
+		pal_col(30, starship_pal[starship_flame]);
+		starship_flame = (starship_flame + 1) & 3;
+	}
 	
 	if (covid_frame>2)
 		covid_frame=0;
@@ -1124,7 +1131,7 @@ void main(void)
 	clear_vram_buffer();
  	
  
- 	//fx_NesDev();
+ 	// fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
