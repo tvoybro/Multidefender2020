@@ -386,7 +386,7 @@ const unsigned char spr_starship[]={
 
 };
 
-unsigned char starship_x, starship_y, starship_state, starship_toX;
+unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause;
 unsigned char bullet_x, bullet_y;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
@@ -1029,23 +1029,23 @@ void fx_galaga() {
 	if (pad&255)
 		starship_state &= (255 ^ STARSHIP_AUTOPILOT);
 
-	if (starship_state&STARSHIP_AUTOPILOT) {
-		if (starship_x==starship_toX && !bullet_y) {
-			//sfx_play(SFX_SHOT,0);
-			bullet_y = starship_y-16;
-			bullet_x = starship_x-4;
-			starship_toX = 255;
-		}
+	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
 		if (starship_x < starship_toX) {
-			if (starship_x<256-16) {
+			if (starship_x<256-8) {
 				++starship_x;
 				++starship_x;
 			}
 		} else {
-			if (starship_x>2) {
+			if (starship_x>8) {
 				--starship_x;
 				--starship_x;
 			}
+		}
+		if (starship_x==starship_toX && !bullet_y) {
+			//sfx_play(SFX_SHOT,0);
+			bullet_y = starship_y-16;
+			bullet_x = starship_x-4;
+			starship_pause = 30;
 		}
 	} else {
 		if (pad&PAD_LEFT) {
@@ -1063,12 +1063,15 @@ void fx_galaga() {
 		}
 	}
 
+	if (starship_pause)
+		--starship_pause;
+
 	for(i=0;i<COVIDS_MAX;++i)
 	{
 		covid_pointer = covids_pointers[i];
 		covid_x = covidXtable[covid_pointer];
 		covid_y = covidYtable[covid_pointer];
-		
+
 		if (!covids_states[i])
 			starship_toX = covid_x + 12;
 
@@ -1098,7 +1101,7 @@ void fx_galaga() {
 		}
 	}
 
-	if (!(nesclock&7))
+	if (!(nesclock&3))
 		++covid_frame;
 	
 	if (covid_frame>2)
