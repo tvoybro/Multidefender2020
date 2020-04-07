@@ -819,7 +819,7 @@ void fx_Krujeva(void)
 	ppu_on_all();
 	music_play(0);
 	isNtsc = ppu_system() == 0 ? 0 : 1;
-	
+
 	while (krujFrm < (isNtsc ? 48 : 46)) //(isNtsc ? 48 : 46))
 	{
 		++nesclock;
@@ -1146,7 +1146,7 @@ void main(void)
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	//fx_Krujeva();
+ 	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
