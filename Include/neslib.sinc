@@ -1453,26 +1453,26 @@ nmiUserCall:
 	sta PPU_CTRL
 
 	;--- restore bg color = white
-	lda #$3F
- 	sta PPU_ADDR
- 	lda #$00
- 	sta PPU_ADDR
- 	lda #$30
- 	sta PPU_DATA
+	;lda #$3F
+ 	;sta PPU_ADDR
+ 	;lda #$00
+ 	;sta PPU_ADDR
+ 	;lda #$30
+ 	;sta PPU_DATA
 	
 	;--- text palette roll
-	lda  #$3F
- 	sta  PPU_ADDR
- 	lda  #$0D
- 	sta  PPU_ADDR
-	lda	 <NMI_SCROLL_TEXT_COLOR+1
-	sta  PPU_DATA
-	lda  #$3F
- 	sta  PPU_ADDR
- 	lda  #$0E
- 	sta  PPU_ADDR
-	lda	 <NMI_SCROLL_TEXT_COLOR+2
-	sta  PPU_DATA
+	;lda  #$3F
+ 	;sta  PPU_ADDR
+ 	;lda  #$0D
+ 	;sta  PPU_ADDR
+	;lda	 <NMI_SCROLL_TEXT_COLOR+1
+	;sta  PPU_DATA
+	;lda  #$3F
+ 	;sta  PPU_ADDR
+ 	;lda  #$0E
+ 	;sta  PPU_ADDR
+	;lda	 <NMI_SCROLL_TEXT_COLOR+2
+	;sta  PPU_DATA
 
 
 	lda	#$21
@@ -1634,6 +1634,11 @@ nmiUserCall:
 	lda	PPU_DATA
 	lda	_eqValues + 4 + 15
 	sta	PPU_DATA
+
+	lda <PPU_CTRL_VAR
+	and #%11111011
+	sta PPU_CTRL
+
 
 	jmp nmiUserCallRet
 	

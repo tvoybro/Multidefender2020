@@ -40,8 +40,7 @@ const unsigned char palBlink[16]={
 	0x30,0x30,0x30,0x30
 };
 
-
-const unsigned char palette[16]={
+unsigned char palette[16]={
 	0x30,0x22,0x13,0x01,
 	0x30,0x16,0x13,0x22,
 	0x30,0x16,0x31,0x22,
@@ -1105,7 +1104,7 @@ void main(void)
 
 	//fx_NesDev();
 	
-	fx_Krujeva();
+	//fx_Krujeva();
 
 	//blink
 	pal_bg(palBlink);
@@ -1164,7 +1163,11 @@ void main(void)
 			if (++palRollId2 >= 48) {
 				palRollId2 = 0;
 			}
-			roll_scroll_colors(palRollList[palRollId1], palRollList[palRollId2], palRollList[palRollId2]);
+			//roll_scroll_colors(palRollList[palRollId1], palRollList[palRollId2], palRollList[palRollId2]);
+			palette[13] = palRollList[palRollId1];
+			palette[14] = palRollList[palRollId2];
+			
+			pal_bg(palette);
 		}
 
 		fx_EQ();
