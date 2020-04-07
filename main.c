@@ -9,6 +9,8 @@
 #include "Gfx/logo_scr.h"
 #include "Gfx/kruj_nametable.h"
 
+#define COVIDS_MAX	6
+
 #define SFX_SHOT 				0
 #define SFX_COVID_ELIMINATED 	1
 #define SFX_COVID_RESPAWN		2
@@ -586,10 +588,6 @@ const unsigned int sine_Table_Shake[] = {
 // -------------- VIRUSEZ ----------------
 // ---------------------------------------
 
-#define COVIDS_MAX	6
-
-//balls parameters
-
 static unsigned int covids_pointers[COVIDS_MAX];
 static unsigned int covid_pointer;
 static unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
@@ -1029,9 +1027,11 @@ void covidsInit(unsigned char phase) {
 void fx_galaga() {
 	pad = pad_poll(0);
 
+	// Disable autopilot if any joypad button pressed
 	if (pad&255)
 		starship_state &= (255 ^ STARSHIP_AUTOPILOT);
 
+	// Autopilot
 	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
 		if (starship_x < starship_toX) {
 			if (starship_x<256-8) {
@@ -1045,12 +1045,12 @@ void fx_galaga() {
 			}
 		}
 		if (starship_x==starship_toX && !bullet_y) {
-			//sfx_play(SFX_SHOT,0);
 			bullet_y = starship_y-16;
 			bullet_x = starship_x-4;
 			starship_pause = 30 + (rand8()&7);
 		}
 	} else {
+	// Manual controls
 		if (pad&PAD_LEFT) {
 			--starship_x;
 			--starship_x;
@@ -1069,6 +1069,7 @@ void fx_galaga() {
 	if (starship_pause)
 		--starship_pause;
 
+	// Processing Covid-19 viruses
 	for(i=0;i<COVIDS_MAX;++i)
 	{
 		covid_pointer = covids_pointers[i];
