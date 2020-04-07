@@ -589,7 +589,7 @@ void fx_EQ(void)
 }
 
 const unsigned char const huita[] = {
-	2, 5, 3, 6, 4, 9, 5, 10
+	3, 5, 4, 6, 5, 9, 6, 8
 };
 
 void fx_SplitScroll(void)
@@ -1232,12 +1232,12 @@ void main(void)
 	clear_vram_buffer();
  	
  
- 	fx_NesDev();
+ 	//fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	fx_Krujeva();
+ 	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1295,7 +1295,7 @@ void main(void)
 //		if (muspos==192)
 //			pal_col(0,21);
 
-		if (nesclock&1 && muspos > 1024) {
+		if (nesclock&1 && muspos > 1124) {
 			++logoPos;
 			if (logoPos>127)
 				logoPos=0;
