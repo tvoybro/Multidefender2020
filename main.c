@@ -105,7 +105,17 @@ const unsigned char palRollList[48] = {
 0x21
 };
 
-const unsigned char palette_spr[16]={ 0x0f,0x00,0x06,0x10,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30 };
+
+unsigned char paletteSprId = 0;
+unsigned char palette_spr[5][16]={
+	{0x0f,0x00,0x06,0x10,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
+	{0x0f,0x10,0x06,0x36,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
+	{0x0f,0x27,0x06,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
+	{0x0f,0x27,0x16,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
+	{0x0f,0x38,0x26,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
+};
+unsigned char palSamoletId = 0;
+const unsigned char palSamolet[2] = {0x24, 0x1e};
 
 const unsigned char palNesdev[15][16] = {
 	//fade_in-0
@@ -748,7 +758,7 @@ const unsigned char krujSprPal[16] = {
 	0x0F,0x30,0x0F,0x0F,
 	0x0F,0x30,0x30,0x0F,
 	0x0F,0x30,0x30,0x30,
-	0x0F,0x0F,0x16,0x30
+	0x0F,0x0F,0x30,0x16
 };
 
 unsigned char krujAnimaId = 0;
@@ -804,10 +814,10 @@ void fx_Krujeva(void)
 	vram_adr(NAMETABLE_A);
 	vram_unrle(kruj_nametable);
 	set_nmi_user_call_on(2);
-	music_play(0);
 	oam_clear();
 	oam_spr(253, 118, 0xFF, 3 | OAM_BEHIND, 0);
 	ppu_on_all();
+	music_play(0);
 	isNtsc = ppu_system() == 0 ? 0 : 1;
 	
 	while (krujFrm < (isNtsc ? 48 : 46)) //(isNtsc ? 48 : 46))
@@ -1131,12 +1141,12 @@ void main(void)
 	clear_vram_buffer();
  	
  
- 	// fx_NesDev();
+ 	//fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	fx_Krujeva();
+ 	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1146,8 +1156,6 @@ void main(void)
 	ppu_wait_nmi();
 	ppu_wait_nmi();
 
-	//music_stop();
-	
  	//blink
  	//pal_bg(palBlink);
 
@@ -1161,7 +1169,7 @@ void main(void)
 	//vram_adr(NAMETABLE_B);
 	//vram_unrle(NAM_multi_logo_B);	
 	pal_bg(palette);
-	pal_spr(palette_spr);	
+	pal_spr(palette_spr[0]);	
 	cnrom_set_bank(0);
 	bank_spr(1);
 	ppu_on_all();
@@ -1172,6 +1180,7 @@ void main(void)
 	galagaInit();
 	covidsInit(0);
 
+	music_stop();
 	music_play(1);
 
 	while(1)
@@ -1210,6 +1219,21 @@ void main(void)
 			palette[14] = palRollList[palRollId2];
 			
 			pal_bg(palette);
+		}
+		
+		if ((nesclock&3) == 0) {
+			palSamoletId ^= 1;
+			palette_spr[0][14] = palSamolet[palSamoletId];
+			palette_spr[1][14] = palSamolet[palSamoletId];
+			palette_spr[2][14] = palSamolet[palSamoletId];
+			palette_spr[3][14] = palSamolet[palSamoletId];
+			palette_spr[4][14] = palSamolet[palSamoletId];
+		}
+		
+		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
+		pal_spr(palette_spr[paletteSprId]);
+		if (paletteSprId && (nesclock&7) == 0) {
+			--paletteSprId;
 		}
 
 		fx_EQ();
