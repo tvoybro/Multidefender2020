@@ -688,9 +688,21 @@ _split_krujeva:
 	bit PPU_STATUS
 	bvc @4
 
+	lda #$00
+	sta $2003
+	sta $2004
+
+	lda #$00
+	lda #$00
+	lda #$00
+	lda #$00
+	lda #$00
+	lda #$00
+
 	lda #$03
 	tax
 	sta banktable, x
+
 
 	rts
 
