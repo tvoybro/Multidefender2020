@@ -574,7 +574,7 @@ void fx_SplitScroll(void)
 		eq_Noise_Val = 7;
 	}
 
-	xy_split(scrollerPos, 210 - 1 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
+	xy_split(scrollerPos, 210 + 5 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
 
 	if (eq_Noise_Val)
 		--eq_Noise_Val;
