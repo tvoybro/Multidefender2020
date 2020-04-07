@@ -592,7 +592,7 @@ const unsigned int sine_Table_Shake[] = {
 
 static unsigned int covids_pointers[COVIDS_MAX];
 static unsigned int covid_pointer;
-static unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame;
+static unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
 static unsigned char covids_states[COVIDS_MAX];
 
 const unsigned char *covidXtable;
@@ -1015,8 +1015,9 @@ void galagaInit() {
 void covidsInit(unsigned char phase) {
 	if (!(starship_state&STARSHIP_AUTOPILOT))
 		sfx_play(SFX_COVID_RESPAWN,2);
+	covids_rate = 24 + (rand8()&63);
 	for(i=0;i<COVIDS_MAX;++i) {
-		covids_pointers[i] = i*24;
+		covids_pointers[i] = i*covids_rate;
 		covids_states[i] = 0;
 		covids_hit = 0;
 	}
