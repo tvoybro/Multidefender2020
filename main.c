@@ -776,7 +776,7 @@ void fx_NesDev(void)
 				++nesdevPalId;
 				pal_bg(palNesdev[nesdevPalId]);
 			}
-			if (nesclock == 96) {
+			if (nesclock == 254) {
 				nesdevFaze = 4;
 			}
 
