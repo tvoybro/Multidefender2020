@@ -386,7 +386,7 @@ const unsigned char spr_starship[]={
 
 };
 
-unsigned char starship_x, starship_y, starship_state;
+unsigned char starship_x, starship_y, starship_state, starship_toX;
 unsigned char bullet_x, bullet_y;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
@@ -1007,7 +1007,8 @@ void galagaInit() {
 }
 
 void covidsInit(unsigned char phase) {
-	sfx_play(SFX_COVID_RESPAWN,2);
+	if (!(starship_state&STARSHIP_AUTOPILOT))
+		sfx_play(SFX_COVID_RESPAWN,2);
 	for(i=0;i<COVIDS_MAX;++i) {
 		covids_pointers[i] = i*24;
 		covids_states[i] = 0;
@@ -1025,12 +1026,22 @@ void fx_galaga() {
 		starship_state &= (255 ^ STARSHIP_AUTOPILOT);
 
 	if (starship_state&STARSHIP_AUTOPILOT) {
-		if (rand8()>127) {
-			--starship_x;
-			--starship_x;
+		if (starship_x==starship_toX && !bullet_y) {
+			//sfx_play(SFX_SHOT,0);
+			bullet_y = starship_y-16;
+			bullet_x = starship_x-4;
+			starship_toX = 255;
+		}
+		if (starship_x < starship_toX) {
+			if (starship_x<256-16) {
+				++starship_x;
+				++starship_x;
+			}
 		} else {
-			++starship_x;
-			++starship_x;
+			if (starship_x>2) {
+				--starship_x;
+				--starship_x;
+			}
 		}
 	} else {
 		if (pad&PAD_LEFT) {
@@ -1044,18 +1055,22 @@ void fx_galaga() {
 		if (pad&(PAD_A|PAD_B) && !bullet_y) {
 			sfx_play(SFX_SHOT,0);
 			bullet_y = starship_y-16;
+			bullet_x = starship_x-4;
 		}
 	}
-
-	bullet_x = starship_x-4;
 
 	for(i=0;i<COVIDS_MAX;++i)
 	{
 		covid_pointer = covids_pointers[i];
 		covid_x = covidXtable[covid_pointer];
 		covid_y = covidYtable[covid_pointer];
+		
+		if (!covids_states[i])
+			starship_toX = covid_x + 12;
+
 		if (bullet_x>covid_x && bullet_x<covid_x+24 && bullet_y>covid_y && bullet_y<covid_y+24 && !covids_states[i]) {
-			sfx_play(SFX_COVID_ELIMINATED,1);
+			if (!(starship_state&STARSHIP_AUTOPILOT))
+				sfx_play(SFX_COVID_ELIMINATED,1);
 			covids_states[i] = 1;
 			bullet_y = 0;
 		}
@@ -1107,7 +1122,7 @@ void main(void)
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	fx_Krujeva();
+ 	// fx_Krujeva();
 
 	music_stop();
 	
