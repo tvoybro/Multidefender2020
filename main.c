@@ -1142,9 +1142,9 @@ void main(void)
  	//pal_bg(palBlink);
 
  	ppu_off();
- 	scroll(252,0);
+	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
+	scroll(scrollpos, 0);
 	oam_clear();
-
  
 	vram_adr(NAMETABLE_A);
 	vram_unrle(NAM_multi_logo_A);
