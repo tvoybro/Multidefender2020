@@ -9,18 +9,18 @@
 #include "Gfx/logo_scr.h"
 #include "Gfx/kruj_nametable.h"
 
-#define COVIDS_MAX	6
+#define COVIDS_MAX				6
 
-#define SFX_SHOT 				0
-#define SFX_COVID_ELIMINATED 	1
-#define SFX_COVID_RESPAWN		2
-#define SFX_TELEGA_FLY			3
+#define SFX_SHOT 				0x00
+#define SFX_COVID_ELIMINATED 	0x01
+#define SFX_COVID_RESPAWN		0x02
+#define SFX_TELEGA_FLY			0x03
 
-#define EQOFFSET 0x20
-#define EQ_CHR_OFF 0xCD
-#define EQ_CHR_ON 0xA8
+#define EQOFFSET 				0x20
+#define EQ_CHR_OFF 				0xCD
+#define EQ_CHR_ON 				0xA8
 
-#define STARSHIP_AUTOPILOT 0b10000000
+#define STARSHIP_AUTOPILOT 		0b10000000
 
 unsigned char isNtsc;
 
@@ -31,7 +31,6 @@ extern unsigned int FT_MUSPOS;
 
 extern unsigned char FT_BUF[];
 
-unsigned char pad_t;
 unsigned char tileset;
 unsigned int muspos;
 
@@ -138,11 +137,11 @@ const unsigned char palRollList[48] = {
 
 unsigned char paletteSprId = 0;
 unsigned char palette_spr[5][16]={
-	{0x0f,0x00,0x06,0x10,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
-	{0x0f,0x10,0x06,0x36,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
-	{0x0f,0x27,0x06,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
-	{0x0f,0x27,0x16,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
-	{0x0f,0x38,0x26,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x0f,0x30,0x0f,0x14,0x24,0x30},
+	{0x0f,0x00,0x06,0x10,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x21,0x30,0x21,0x14,0x24,0x30},
+	{0x0f,0x10,0x06,0x36,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x21,0x30,0x21,0x14,0x24,0x30},
+	{0x0f,0x27,0x06,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x21,0x30,0x21,0x14,0x24,0x30},
+	{0x0f,0x27,0x16,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x21,0x30,0x21,0x14,0x24,0x30},
+	{0x0f,0x38,0x26,0x30,0x0f,0x0c,0x0c,0x0c,0x0f,0x0f,0x21,0x30,0x21,0x14,0x24,0x30},
 };
 unsigned char palSamoletId = 0;
 const unsigned char palSamolet[2] = {0x24, 0x1e};
@@ -321,74 +320,74 @@ const unsigned char covid_explode_0_data[]={
 
 const unsigned char covid_explode_1_data[]={
 
-	  4,  4,0x7e,2,
-	 12,  4,0x7e,2|OAM_FLIP_H,
-	  4, 12,0x7e,2|OAM_FLIP_V,
-	 12, 12,0x7e,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xfe,2,
+	 12,  4,0xfe,2|OAM_FLIP_H,
+	  4, 12,0xfe,2|OAM_FLIP_V,
+	 12, 12,0xfe,2|OAM_FLIP_H|OAM_FLIP_V,
 	128
 
 };
 
 const unsigned char covid_explode_2_data[]={
 
-	  4,  4,0x7f,2,
-	 12,  4,0x70,2,
-	  4, 12,0x71,2,
-	 12, 12,0x72,2,
+	  4,  4,0xff,2,
+	 12,  4,0xf0,2,
+	  4, 12,0xf1,2,
+	 12, 12,0xf2,2,
 	128
 
 };
 
 const unsigned char covid_explode_3_data[]={
 
-	  4,  4,0x73,2,
-	 12,  4,0x74,2,
-	  4, 12,0x75,2,
-	 12, 12,0x76,2,
+	  4,  4,0xf3,2,
+	 12,  4,0xf4,2,
+	  4, 12,0xf5,2,
+	 12, 12,0xf6,2,
 	128
 
 };
 
 const unsigned char covid_explode_4_data[]={
 
-	  4,  4,0x72,2|OAM_FLIP_H|OAM_FLIP_V,
-	 12,  4,0x71,2|OAM_FLIP_H|OAM_FLIP_V,
-	  4, 12,0x70,2|OAM_FLIP_H|OAM_FLIP_V,
-	 12, 12,0x7f,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xf2,2|OAM_FLIP_H|OAM_FLIP_V,
+	 12,  4,0xf1,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4, 12,0xf0,2|OAM_FLIP_H|OAM_FLIP_V,
+	 12, 12,0xff,2|OAM_FLIP_H|OAM_FLIP_V,
 	128
 
 };
 
 const unsigned char covid_explode_5_data[]={
 
-	 12, 12,0x73,2|OAM_FLIP_H|OAM_FLIP_V,
-	  4, 12,0x74,2|OAM_FLIP_H|OAM_FLIP_V,
-	 12,  4,0x75,2|OAM_FLIP_H|OAM_FLIP_V,
-	  4,  4,0x76,2|OAM_FLIP_H|OAM_FLIP_V,
+	 12, 12,0xf3,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4, 12,0xf4,2|OAM_FLIP_H|OAM_FLIP_V,
+	 12,  4,0xf5,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xf6,2|OAM_FLIP_H|OAM_FLIP_V,
 	128
 
 };
 
 const unsigned char covid_explode_6_data[]={
 
-	  4,  4,0x77,2,
-	 12,  4,0x78,2,
-	  4, 12,0x79,2,
-	 12, 12,0x7a,2,
+	  4,  4,0xf7,2,
+	 12,  4,0xf8,2,
+	  4, 12,0xf9,2,
+	 12, 12,0xfa,2,
 	128
 
 };
 
 const unsigned char covid_explode_7_data[]={
 
-	  8,  8,0x7b,2,
+	  8,  8,0xfb,2,
 	128
 
 };
 
 const unsigned char covid_explode_8_data[]={
 
-	  8,  8,0x7c,2,
+	  8,  8,0xfc,2,
 	128
 
 };
@@ -489,7 +488,7 @@ unsigned char eq_Noise_Val = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
 unsigned char eq_Noise_Val_prev = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
 unsigned char spr;
 unsigned int nt_Offset;
-unsigned char i, j, eq_Tile, pad;
+unsigned char i, j, eq_Tile, pad, pad_prev;
 unsigned char eqValues[4][5]={
 	{0,0,0,0,0},
 	{0,0,0,0,0},
@@ -645,10 +644,10 @@ const unsigned int sine_Table_Shake[] = {
 // -------------- VIRUSEZ ----------------
 // ---------------------------------------
 
-static unsigned int covids_pointers[COVIDS_MAX];
-static unsigned int covid_pointer;
-static unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
-static unsigned char covids_states[COVIDS_MAX];
+unsigned int covids_pointers[COVIDS_MAX];
+unsigned int covid_pointer;
+unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
+unsigned char covids_states[COVIDS_MAX];
 
 const unsigned char *covidXtable;
 const unsigned char *covidYtable;
@@ -1126,6 +1125,8 @@ void covidsInit(unsigned char phase) {
 }
 
 void fx_galaga() {
+	
+	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
 	// Disable autopilot if any joypad button pressed
@@ -1152,15 +1153,15 @@ void fx_galaga() {
 		}
 	} else {
 	// Manual controls
-		if (pad&PAD_LEFT) {
+		if (pad&PAD_LEFT && starship_x>8) {
 			--starship_x;
 			--starship_x;
 		}
-		if (pad&PAD_RIGHT) {
+		if (pad&PAD_RIGHT && starship_x<256-8) {
 			++starship_x;
 			++starship_x;
 		}
-		if (pad&(PAD_A|PAD_B) && !bullet_y) {
+		if (pad_prev&(PAD_A|PAD_B) && !bullet_y) {
 			sfx_play(SFX_SHOT,0);
 			bullet_y = starship_y-16;
 			bullet_x = starship_x-4;
