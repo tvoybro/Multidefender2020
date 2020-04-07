@@ -997,9 +997,7 @@ void fx_Krujeva(void)
 		//gray_line();
 		
 	}
-	
-	
-	ppu_off();
+
 	set_nmi_user_call_off();
 }
 
@@ -1109,21 +1107,28 @@ void main(void)
 	
 	fx_Krujeva();
 
-	pal_bg(palette);
-	pal_spr(palette_spr);
+	//blink
+	pal_bg(palBlink);
+	oam_clear();
+	ppu_wait_nmi();
+	ppu_wait_nmi();
+	ppu_wait_nmi();
+	ppu_wait_nmi();
+
 	
-	tileset = 0;
-	
-	cnrom_set_bank(tileset);
-	bank_spr(1);
+	ppu_off();
 
 	vram_adr(NAMETABLE_A);
 	vram_unrle(NAM_multi_logo_A);
 	vram_adr(NAMETABLE_B);
-	vram_unrle(NAM_multi_logo_B);
+	vram_unrle(NAM_multi_logo_B);	
+	pal_bg(palette);
+	pal_spr(palette_spr);	
+	cnrom_set_bank(0);
+	bank_spr(1);
 
-	covidsInit(0);
 	galagaInit();
+	covidsInit(0);
 
 	ppu_on_all();
 	music_play(1);
