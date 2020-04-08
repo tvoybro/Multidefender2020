@@ -244,20 +244,6 @@ const unsigned char palNesdev[15][16] = {
 	0x0F,0x0F,0x0F,0x0F},
 };
 
-/*const unsigned char spr_covid_19[]={
-	  0,  0,0x02,0,
-	  8,  0,0x03,0,
-	 16,  0,0x04,0,
-	  0,  8,0x12,0,
-	  8,  8,0x13,0,
-	 16,  8,0x14,0,
-	  0, 16,0x22,0,
-	  8, 16,0x23,0,
-	 16, 16,0x24,0,
-	128
-};
-*/
-
 const unsigned char covid19_0_data[]={
 
 	  4,  4,0x02,0,
@@ -436,10 +422,10 @@ const unsigned char* const covid_explode[]={
 
 const unsigned char spr_starship[]={
 
-	- 8,- 8,0x82,3,
-	  0,- 8,0x83,3,
-	- 8,  0,0x92,3,
-	  0,  0,0x93,3,
+	- 8,- 8,0xea,3,
+	  0,- 8,0xeb,3,
+	- 8,  0,0xec,3,
+	  0,  0,0xed,3,
 	128
 
 };
@@ -1096,6 +1082,8 @@ const unsigned char covid_pathY4[512] = {
 
 unsigned int covids_pointers[COVIDS_MAX];
 unsigned int covid_pointer;
+unsigned int points;
+unsigned char points_array[3] = {0, 0, 0};
 unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
 unsigned char covids_states[COVIDS_MAX];
 
@@ -1139,14 +1127,30 @@ void covidsInit(unsigned char phase) {
 	covid_frame = 0;
 }
 
+void earnpoint(void) {
+	++points;
+	if (points>999)
+		points=0;
+	points_array[0]=0xe0+points/100;
+	points_array[1]=0xe0+points/10%10;
+	points_array[2]=0xe0+points%10; 
+}
+
 void fx_galaga() {
 	
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
 	// Disable autopilot if any joypad button pressed
-	if (pad&255)
-		starship_state &= (255 ^ STARSHIP_AUTOPILOT);
+	if (pad_prev&PAD_START) {
+		if (starship_state&STARSHIP_AUTOPILOT) {
+			points = 999;
+			earnpoint();
+			starship_state &= (255 ^ STARSHIP_AUTOPILOT);
+			sfx_play(SFX_TELEGA_FLY,0);
+			pad_prev = 0;
+		}
+	}
 
 	// Autopilot
 	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
@@ -1180,6 +1184,12 @@ void fx_galaga() {
 			sfx_play(SFX_SHOT,0);
 			bullet_y = starship_y-16;
 			bullet_x = starship_x-4;
+		}
+		if (pad_prev&PAD_START) {
+			starship_state |= STARSHIP_AUTOPILOT;
+			points = 999;
+			earnpoint();
+			sfx_play(SFX_TELEGA_FLY,0);
 		}
 	}
 
@@ -1219,6 +1229,7 @@ void fx_galaga() {
 				sfx_play(SFX_COVID_ELIMINATED,1);
 			covids_states[i] = 1;
 			bullet_y = 0;
+			earnpoint();
 		}
 	}
 
@@ -1233,8 +1244,12 @@ void fx_galaga() {
 
 	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
 
+	spr=oam_spr(256-8-24,16,points_array[0],2,spr);
+	spr=oam_spr(256-8-16,16,points_array[1],2,spr);
+	spr=oam_spr(256-8-8,16,points_array[2],2,spr);
+
 	if (bullet_y) {
-		spr=oam_spr(bullet_x, bullet_y, 0x84, 3, spr);
+		spr=oam_spr(bullet_x, bullet_y, 0xee, 3, spr); // ee or ef ?
 		bullet_y -= 4;
 		if (bullet_y<4)
 			bullet_y = 0;
