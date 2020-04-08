@@ -15,6 +15,7 @@
 #define SFX_COVID_ELIMINATED 	0x01
 #define SFX_COVID_RESPAWN		0x02
 #define SFX_TELEGA_FLY			0x03
+#define SFX_TELEGA_OUT			0x04
 
 #define MUS_PATTERN				448
 
@@ -1217,6 +1218,10 @@ void fx_galaga() {
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
+	spr=oam_spr(256-8-24,16,points_array[0],2,spr);
+	spr=oam_spr(256-8-16,16,points_array[1],2,spr);
+	spr=oam_spr(256-8-8,16,points_array[2],2,spr);
+
 	// Disable autopilot if any joypad button pressed
 	if (pad_prev&PAD_START) {
 		if (starship_state&STARSHIP_AUTOPILOT) {
@@ -1278,10 +1283,6 @@ void fx_galaga() {
 	}
 
 	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
-
-	spr=oam_spr(256-8-24,16,points_array[0],2,spr);
-	spr=oam_spr(256-8-16,16,points_array[1],2,spr);
-	spr=oam_spr(256-8-8,16,points_array[2],2,spr);
 
 	if (bullet_y) {
 		spr=oam_spr(bullet_x, bullet_y, 0xee, 3, spr); // ee or ef ?
