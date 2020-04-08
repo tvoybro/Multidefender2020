@@ -334,6 +334,10 @@ FamiToneMusicStop:
 
 FamiToneMusicPlay:
 
+	ldx #0
+	stx FT_TEMP+3
+	stx FT_TEMP+4
+
 	ldx FT_SONG_LIST_L
 	stx <FT_TEMP_PTR_L
 	ldx FT_SONG_LIST_H

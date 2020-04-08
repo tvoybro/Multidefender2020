@@ -16,6 +16,8 @@
 #define SFX_COVID_RESPAWN		0x02
 #define SFX_TELEGA_FLY			0x03
 
+#define MUS_PATTERN				448
+
 #define EQOFFSET 				0x20
 #define EQ_CHR_OFF 				0xCD
 #define EQ_CHR_ON 				0xA8
@@ -23,11 +25,6 @@
 #define STARSHIP_AUTOPILOT 		0b10000000
 
 unsigned char isNtsc;
-
-extern char scrollText[];
-
-extern unsigned int FT_MUSPOS;
-#pragma zpsym ("FT_MUSPOS")
 
 extern unsigned char FT_BUF[];
 
@@ -1182,6 +1179,26 @@ void fx_galaga() {
 	if (starship_pause)
 		--starship_pause;
 
+	if (!(nesclock&3)) {
+		pal_col(30, starship_pal[starship_flame]);
+		starship_flame = (starship_flame + 1) & 3;
+	}
+
+	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+
+	spr=oam_spr(256-8-24,16,points_array[0],2,spr);
+	spr=oam_spr(256-8-16,16,points_array[1],2,spr);
+	spr=oam_spr(256-8-8,16,points_array[2],2,spr);
+
+	if (bullet_y) {
+		spr=oam_spr(bullet_x, bullet_y, 0xee, 3, spr); // ee or ef ?
+		bullet_y -= 4;
+		if (bullet_y<4)
+			bullet_y = 0;
+	}
+}
+
+void fx_Covid19 (void) {
 	// Processing Covid-19 viruses
 	for(i=0;i<COVIDS_MAX;++i)
 	{
@@ -1221,25 +1238,10 @@ void fx_galaga() {
 
 	if (!(nesclock&3)) {
 		++covid_frame;
-		pal_col(30, starship_pal[starship_flame]);
-		starship_flame = (starship_flame + 1) & 3;
 	}
 	
 	if (covid_frame>2)
 		covid_frame=0;
-
-	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
-
-	spr=oam_spr(256-8-24,16,points_array[0],2,spr);
-	spr=oam_spr(256-8-16,16,points_array[1],2,spr);
-	spr=oam_spr(256-8-8,16,points_array[2],2,spr);
-
-	if (bullet_y) {
-		spr=oam_spr(bullet_x, bullet_y, 0xee, 3, spr); // ee or ef ?
-		bullet_y -= 4;
-		if (bullet_y<4)
-			bullet_y = 0;
-	}
 
 }
 
@@ -1249,12 +1251,12 @@ void main(void)
 	clear_vram_buffer();
  	
  
- 	fx_NesDev();
+	fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
- 	fx_Krujeva();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1296,14 +1298,15 @@ void main(void)
 		scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 		scroll(scrollpos, 0);
 
-		fx_galaga();
+		if (muspos > MUS_PATTERN*3)
+			fx_galaga();
+
+		if (muspos > MUS_PATTERN*2)
+			fx_Covid19();
 
 		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
 
-//		if (muspos==192)
-//			pal_col(0,21);
-
-		if (nesclock&1 && muspos > 1124) {
+		if (nesclock&1 && muspos > MUS_PATTERN) {
 			++logoPos;
 			if (logoPos>127)
 				logoPos=0;
