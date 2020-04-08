@@ -15,6 +15,7 @@
 #define SFX_COVID_ELIMINATED 	0x01
 #define SFX_COVID_RESPAWN		0x02
 #define SFX_TELEGA_FLY			0x03
+#define SFX_TELEGA_OUT			0x04
 
 #define MUS_PATTERN				448
 
