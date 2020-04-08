@@ -11,6 +11,8 @@
 // 060414 - many fixes and improvements, including sequental VRAM updates
 // previous versions were created since mid-2011, there were many updates
 
+void __fastcall__ cnrom_set_bank(unsigned char bank);
+
 void __fastcall__ set_nmi_user_call_on(unsigned char mode);
 void __fastcall__ set_nmi_user_call_off(void);
 void __fastcall__ split_krujeva(void);

@@ -439,20 +439,6 @@ unsigned char bullet_x, bullet_y;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
 
-
-const unsigned char bus_conflict[4]={ 0x00,0x01,0x02,0x03 };
-void cnrom_set_bank(unsigned char bank)
-{
-	unsigned char *ptr;
-	
-	bank&=3;	//есть платы, у которых больше 4 банков, например 16, но для простоты пока так
-	
-	ptr=(unsigned char*)&bus_conflict[bank];
-	
-	*ptr=bank;
-}
-
-
 unsigned char _fs = 0;
 unsigned char scrollPointer = 0;
 unsigned char scrollSym = 0;
@@ -1082,7 +1068,7 @@ const unsigned char covid_pathY4[512] = {
 
 unsigned int covids_pointers[COVIDS_MAX];
 unsigned int covid_pointer;
-unsigned int points;
+unsigned int points = 0;
 unsigned char points_array[3] = {0, 0, 0};
 unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
 unsigned char covids_states[COVIDS_MAX];

@@ -26,12 +26,18 @@
 	.export _set_vram_update,_flush_vram_update
 	.export _memcpy,_memfill,_delay, _xy_split
 
+	.export _cnrom_set_bank
 	.export _get_mus_pos
 	.export _roll_scroll_colors
 	.export _split_krujeva
 
 	.export shouldbealigned
 	.export shouldbealigned_eof
+
+_cnrom_set_bank:
+	tax
+	sta banktable, x
+	rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Delays A clocks + overhead
@@ -1685,6 +1691,3 @@ palBrightTable8:
 .segment "RODATA"
 banktable:              ; Write to this table to switch banks.
   .byte $00, $01, $02, $03
-;	lda #$01	
-;	tax
-;	sta banktable, x
