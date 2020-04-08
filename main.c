@@ -5,7 +5,7 @@
 #include "Include/font4x4.h"
 
 #include "Gfx/NAM_multi_logo_A.h"
-#include "Gfx/NAM_multi_logo_B.h"
+//#include "Gfx/NAM_multi_logo_B.h"
 #include "Gfx/logo_scr.h"
 #include "Gfx/kruj_nametable.h"
 
@@ -1355,8 +1355,27 @@ void fx_Covid19(void) {
 
 }
 
-void fx_high_score(void) {
+const char highscore_list1[]={
+	"HI SCORE"
+	"PLAYER 1"
+	"PLAYER 2"
+	"PLAYER 3"
+	"PLAYER 4"
+	"PLAYER 5"
+	"PLAYER 6"
+	"PLAYER 7"
+};
 
+unsigned char hs_char, hs_pointer;
+
+void fx_highscore(void) {
+	hs_char = hs_pointer = 0;
+	for (i=0; i<7; ++i) {
+		for (j=0; j<8; ++j) {
+			hs_char = highscore_list1[hs_pointer++] + 0x90;
+			spr = oam_spr(96 + (j*8), 40 + (i*16), hs_char, 2, spr);
+		}
+	}
 }
 
 void main(void)
@@ -1364,12 +1383,12 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	fx_NesDev();
+	//fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
-	fx_Krujeva();
+	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1420,8 +1439,10 @@ void main(void)
 		if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 
-		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
-			fx_Covid19();
+		//if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
+		//	fx_Covid19();
+
+		fx_highscore();
 
 		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
 
