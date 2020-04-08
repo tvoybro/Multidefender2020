@@ -414,10 +414,10 @@ const unsigned char* const covid_explode[]={
 
 const unsigned char spr_starship[]={
 
-	- 8,- 8,0xea,3,
-	  0,- 8,0xeb,3,
-	- 8,  0,0xec,3,
-	  0,  0,0xed,3,
+	- 8,- 8,0xeb,3,
+	  0,- 8,0xec,3,
+	- 8,  0,0xed,3,
+	  0,  0,0xee,3,
 	128
 
 };
@@ -1175,7 +1175,7 @@ const unsigned char *covidXtable;
 const unsigned char *covidYtable;
 
 
-void galagaInit() {
+void galagaInit(void) {
 	starship_x = 100;
 	starship_y = 200-8;
 	starship_state = 1 | STARSHIP_AUTOPILOT;
@@ -1215,19 +1215,19 @@ void earnpoint(void) {
 	++points;
 	if (points>999)
 		points=0;
-	points_array[0]=0xe0+points/100;
-	points_array[1]=0xe0+points/10%10;
-	points_array[2]=0xe0+points%10; 
+	points_array[0]=0xc0+points/100;
+	points_array[1]=0xc0+points/10%10;
+	points_array[2]=0xc0+points%10; 
 }
 
-void fx_galaga() {
+void fx_galaga(void) {
 	
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
-	spr=oam_spr(256-8-24,16,points_array[0],2,spr);
-	spr=oam_spr(256-8-16,16,points_array[1],2,spr);
-	spr=oam_spr(256-8-8,16,points_array[2],2,spr);
+	spr=oam_spr(256-8-24,16,points_array[0],3,spr);
+	spr=oam_spr(256-8-16,16,points_array[1],3,spr);
+	spr=oam_spr(256-8-8,16,points_array[2],3,spr);
 
 	// Disable autopilot if any joypad button pressed
 	if (pad_prev&PAD_START) {
@@ -1294,14 +1294,14 @@ void fx_galaga() {
 	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
 
 	if (bullet_y) {
-		spr=oam_spr(bullet_x, bullet_y, 0xee, 3, spr); // ee or ef ?
+		spr=oam_spr(bullet_x, bullet_y, 0xef, 3, spr);
 		bullet_y -= 4;
 		if (bullet_y<4)
 			bullet_y = 0;
 	}
 }
 
-void fx_Covid19 (void) {
+void fx_Covid19(void) {
 	// Processing Covid-19 viruses
 	for(i=0;i<COVIDS_MAX;++i)
 	{
@@ -1352,6 +1352,10 @@ void fx_Covid19 (void) {
 	if (covidQty < COVIDS_MAX && eq_Noise_Val > 5) {
 		++covidQty;
 	}
+
+}
+
+void fx_high_score(void) {
 
 }
 
