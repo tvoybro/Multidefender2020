@@ -27,6 +27,8 @@
 
 unsigned char isNtsc;
 
+unsigned char covidQty = 0;
+
 extern unsigned char FT_BUF[];
 
 unsigned char tileset;
@@ -1240,21 +1242,23 @@ void fx_galaga() {
 
 	// Autopilot
 	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
-		if (starship_x < starship_toX) {
-			if (starship_x<256-8) {
-				++starship_x;
-				++starship_x;
+		if (covidQty == COVIDS_MAX) {
+			if (starship_x < starship_toX) {
+				if (starship_x<256-8) {
+					++starship_x;
+					++starship_x;
+				}
+			} else {
+				if (starship_x>8) {
+					--starship_x;
+					--starship_x;
+				}
 			}
-		} else {
-			if (starship_x>8) {
-				--starship_x;
-				--starship_x;
+			if (starship_x==starship_toX && !bullet_y) {
+				bullet_y = starship_y-16;
+				bullet_x = starship_x-4;
+				starship_pause = 30 + (rand8()&7);
 			}
-		}
-		if (starship_x==starship_toX && !bullet_y) {
-			bullet_y = starship_y-16;
-			bullet_x = starship_x-4;
-			starship_pause = 30 + (rand8()&7);
 		}
 	} else {
 	// Manual controls
@@ -1306,7 +1310,9 @@ void fx_Covid19 (void) {
 		covid_y = covidYtable[covid_pointer];
 
 		if (!covids_states[i]) {
-			spr=oam_meta_spr(covid_x, covid_y, spr, seq_covid19[covid_frame]);
+			if (i < covidQty) {
+				spr=oam_meta_spr(covid_x, covid_y, spr, seq_covid19[covid_frame]);
+			}
 			covids_pointers[i] = (covid_pointer + 1) & 511;
 			starship_toX = covid_x + 12;
 		} else {
@@ -1321,6 +1327,7 @@ void fx_Covid19 (void) {
 				if (covids_hit==COVIDS_MAX) {
 					covids_phase = (covids_phase + 1) & 3;
 					covidsInit(covids_phase);
+					covidQty = 0;
 				}
 			}
 			
@@ -1342,6 +1349,10 @@ void fx_Covid19 (void) {
 	if (covid_frame>2)
 		covid_frame=0;
 
+	if (covidQty < COVIDS_MAX && eq_Noise_Val > 5) {
+		++covidQty;
+	}
+
 }
 
 void main(void)
@@ -1349,12 +1360,12 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	fx_NesDev();
+	//fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
-	fx_Krujeva();
+	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1395,11 +1406,17 @@ void main(void)
 
 		scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 		scroll(scrollpos, 0);
+		
+		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
+		pal_spr(palette_spr[paletteSprId]);
+		if (paletteSprId && (nesclock&7) == 0) {
+			--paletteSprId;
+		}
 
 		if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 
-		if (muspos > MUS_PATTERN*2)
+		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 
 		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
@@ -1435,12 +1452,6 @@ void main(void)
 			palette_spr[2][14] = palSamolet[palSamoletId];
 			palette_spr[3][14] = palSamolet[palSamoletId];
 			palette_spr[4][14] = palSamolet[palSamoletId];
-		}
-		
-		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
-		pal_spr(palette_spr[paletteSprId]);
-		if (paletteSprId && (nesclock&7) == 0) {
-			--paletteSprId;
 		}
 
 		fx_EQ();
