@@ -724,8 +724,13 @@ void fx_NesDev(void)
 
 		}
 		//fadeout
-		
 		if (nesdevFaze == 3) {
+			// sound telega out
+			if ((nesDevPlayCtrl&4) == 0) {
+				nesDevPlayCtrl |= 4;
+				sfx_play(SFX_TELEGA_OUT,0);
+			}
+			
 			if (nesdevPalId < 14 && ((nesclock & 3) == 0)) {
 				++nesdevPalId;
 				pal_bg(palNesdev[nesdevPalId]);
