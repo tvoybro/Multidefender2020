@@ -1360,12 +1360,12 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	//fx_NesDev();
+	fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
-	//fx_Krujeva();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
