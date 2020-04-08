@@ -1108,9 +1108,8 @@ void fx_Krujeva(void)
 						krujX = krujAnimaSpr2[krujAnimaId2+i][3];
 						krujAttr = krujPalId + krujAnimaSpr2[krujAnimaId2+i][2];
 						spr = oam_spr(krujX, krujY, krujChr, krujAttr, spr);
-						spr = oam_spr(krujX + 104, krujY, krujChr, krujAttr, spr);
-						if (krujX <= 256-8-208) {
-							spr = oam_spr(krujX + 208, krujY, krujChr, krujAttr, spr);
+						if (krujX <= 256-8-104) {
+							spr = oam_spr(krujX + 104, krujY, krujChr, krujAttr, spr);
 						}
 						if (krujX >= 13*8) {
 							spr = oam_spr(krujX - 13*8, krujY, krujChr, krujAttr, spr);
