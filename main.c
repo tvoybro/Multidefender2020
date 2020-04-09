@@ -1669,6 +1669,14 @@ void bossFight(void)
 			}
 		}
 
+		//boss collision
+		if (!starship_stunned && starship_x>bossX-12 && starship_x<bossX+24-12) {
+			if (bossY >= 160) {
+				starship_stunned = 60*2;
+				sfx_play(SFX_COVID_ELIMINATED, 0);
+			}
+		}
+
 		//boss covids
 		if (bossCovidY < 200) {
 			spr = oam_meta_spr(bossCovidX1, bossCovidY + 24, spr, seq_covid19[covid_frame]);
@@ -1793,7 +1801,7 @@ void main(void)
 	while(1)
 	{
 		
-		//isboss = 1;
+		isboss = 1;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
@@ -1825,7 +1833,7 @@ void main(void)
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 
-		if (muspos > MUS_PATTERN*3)
+		//if (muspos > MUS_PATTERN*3)
 			fx_galaga();		
 
 		
