@@ -30,7 +30,8 @@
 
 unsigned char isNtsc;
 
-unsigned char covidQty = 0;
+unsigned char covidQty, covidLiveQty;
+
 
 extern unsigned char FT_BUF[];
 
@@ -1198,6 +1199,7 @@ void galagaInit(void) {
 }
 
 void covidsInit(unsigned char phase) {
+	covidLiveQty = COVIDS_MAX;
 	if (!(starship_state&STARSHIP_AUTOPILOT))
 		sfx_play(SFX_COVID_RESPAWN,2);
 	covids_rate = 24 + (rand8()&15);
@@ -1273,7 +1275,7 @@ void fx_galaga(void) {
 					--starship_x;
 				}
 			}
-			if (starship_x==starship_toX && !bullet_y) {
+			if (covidLiveQty && starship_x==starship_toX && !bullet_y) {
 				bullet_y = starship_y-16;
 				bullet_x = starship_x-4;
 				starship_pause = 30 + (rand8()&7);
@@ -1367,6 +1369,7 @@ void fx_Covid19(void) {
 			if (!(starship_state&STARSHIP_AUTOPILOT))
 				sfx_play(SFX_COVID_ELIMINATED,1);
 			covids_states[i] = 1;
+			--covidLiveQty;
 			bullet_y = 0;
 			earnpoint();
 		}
@@ -1379,7 +1382,7 @@ void fx_Covid19(void) {
 	if (covid_frame>2)
 		covid_frame=0;
 
-	if (covidQty < COVIDS_MAX && eq_Noise_Val > 5) {
+	if (covidQty < COVIDS_MAX && eq_Noise_Val > 5 && !ishighscore) {
 		++covidQty;
 	}
 
@@ -1797,12 +1800,11 @@ void main(void)
 		
 		bossFight();
 
-		if (muspos > MUS_PATTERN*3)
-			fx_galaga();
-
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
-		
+
+		if (muspos > MUS_PATTERN*3)
+			fx_galaga();		
 
 		
 		fx_highscore();
