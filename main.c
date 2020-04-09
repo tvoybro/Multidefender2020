@@ -436,7 +436,7 @@ const unsigned char const starship_pal[] = {
 };
 
 unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause, starship_flame;
-unsigned char bullet_x, bullet_y;
+unsigned char bullet_x, bullet_y, bullet_timeout;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
 
@@ -1286,10 +1286,11 @@ void fx_galaga(void) {
 			++starship_x;
 			++starship_x;
 		}
-		if (pad_prev&(PAD_A|PAD_B) && !bullet_y) {
+		if (pad_prev&(PAD_A|PAD_B) && !bullet_y && !bullet_timeout) {
 			sfx_play(SFX_SHOT,0);
 			bullet_y = starship_y-16;
 			bullet_x = starship_x-4;
+			bullet_timeout = 30;
 		}
 		if (pad_prev&PAD_START) {
 			starship_state |= STARSHIP_AUTOPILOT;
@@ -1308,6 +1309,9 @@ void fx_galaga(void) {
 	}
 
 	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+
+	if (bullet_timeout)
+		--bullet_timeout;
 
 	if (bullet_y) {
 		spr=oam_spr(bullet_x, bullet_y, 0xef, 3, spr);
@@ -1605,6 +1609,7 @@ unsigned int bossIndex = 0;
 unsigned char bossAttack = 0;
 unsigned char bossAttackTimeout = 255;
 unsigned char bossCovidY = 255;
+unsigned char bossFlash = 0;
 unsigned char bossCovidX1;
 unsigned char bossCovidX2;
 unsigned char bossCovidX3;
@@ -1629,6 +1634,13 @@ void bossFight(void)
 				bossAttackTimeout = 255;
 			}
 			--bossAttack;
+
+			if (!(nesclock&2))
+				pal_col(22, 0x01);
+			else
+				pal_col(22, 0x21);
+
+
 		} else {
 			bossIndex = (bossIndex + 1) & 511;
 			if (bossAttackTimeout) {
@@ -1655,6 +1667,7 @@ void bossFight(void)
 			
 			if (covid_frame>2)
 				covid_frame=0;
+
 		}
 		
 		// blinking boss if low hp
@@ -1665,7 +1678,22 @@ void bossFight(void)
 		if (bullet_x>bossX-16 && bullet_x<bossX+16 && bullet_y>bossY && bullet_y<bossY+24) {
 			bullet_y = 0;
 			sfx_play(SFX_BOSS_HIT,0);
-			earnpoint();
+			bossFlash = 5;
+			pal_col(21, 0x30);
+			pal_col(25, 0x30);
+			pal_col(26, 0x30);
+			pal_col(27, 0x30);
+			//earnpoint();
+		}
+
+		if (bossFlash) {
+			--bossFlash;
+			if (!bossFlash) {
+				pal_col(21, 0x0f);
+				pal_col(25, 0x0f);
+				pal_col(26, 0x16);
+				pal_col(27, 0x26);
+			}
 		}
 		
 
@@ -1712,7 +1740,7 @@ void main(void)
 	covidsInit(0);
 
 	music_stop();
-	music_play(1);
+	//music_play(1);
 
 	while(1)
 	{
@@ -1728,12 +1756,12 @@ void main(void)
 			scroll(scrollpos, 0);
 		}
 		
-		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
+/*		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
 		pal_spr(palette_spr[paletteSprId]);
 		if (paletteSprId && (nesclock&7) == 0) {
 			--paletteSprId;
 		}
-
+*/
 		
 		bossFight();
 
