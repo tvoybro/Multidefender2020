@@ -137,12 +137,15 @@ const unsigned char palRollList[48] = {
 
 
 unsigned char paletteSprId = 0;
-unsigned char palette_spr[5][16]={
-	{0x0f,0x00,0x06,0x10,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30},
-	{0x0f,0x10,0x06,0x36,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30},
-	{0x0f,0x27,0x06,0x30,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30},
-	{0x0f,0x27,0x16,0x30,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30},
-	{0x0f,0x38,0x26,0x30,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30},
+unsigned char palette_spr_init[16]={
+	0x0f,0x00,0x06,0x10,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30
+};
+unsigned char palette_spr[5][4]={
+	{0x0f,0x00,0x06,0x10},
+	{0x0f,0x10,0x06,0x36},
+	{0x0f,0x27,0x06,0x30},
+	{0x0f,0x27,0x16,0x30},
+	{0x0f,0x38,0x26,0x30},
 };
 unsigned char palSamoletId = 0;
 const unsigned char palSamolet[2] = {0x24, 0x1e};
@@ -1707,9 +1710,9 @@ void bossFight(void)
 				pal_col(27, 0x26);
 			}
 			else {
-				pal_col(21, 0x16);
+				pal_col(21, 0x0f);
 				pal_col(22, 0x26);
-				pal_col(25, 0x16);
+				pal_col(25, 0x0f);
 				pal_col(26, 0x26);
 				pal_col(27, 0x37);
 			}
@@ -1749,7 +1752,7 @@ void main(void)
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_B);	
 	pal_bg(paletteIn[0]);
-	pal_spr(palette_spr[0]);	
+	pal_spr(palette_spr_init);	
 	cnrom_set_bank(0);
 	bank_spr(1);
 	ppu_on_all();
@@ -1774,12 +1777,15 @@ void main(void)
 			scroll(scrollpos, 0);
 		}
 		
-/*		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
-		pal_spr(palette_spr[paletteSprId]);
+		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
+		pal_col(16+0, palette_spr[paletteSprId][0]);
+		pal_col(16+1, palette_spr[paletteSprId][1]);
+		pal_col(16+2, palette_spr[paletteSprId][2]);
+		pal_col(16+3, palette_spr[paletteSprId][3]);
 		if (paletteSprId && (nesclock&7) == 0) {
 			--paletteSprId;
 		}
-*/
+
 		
 		bossFight();
 
@@ -1801,11 +1807,13 @@ void main(void)
 				logoPos=0;
 		}
 
+		// вспышка коронавирусов под бит
 		if ((nesclock&1) == 0 && paletteId < 6) {
 			pal_bg(paletteIn[paletteId]);
 			++paletteId;
 		}
 
+		// сдвиг цветов скроллера
 		if (paletteId == 6 && (nesclock&15) == 0) {
 			if (++palRollId1 >= 48) {
 				palRollId1 = 0;
@@ -1819,13 +1827,10 @@ void main(void)
 			pal_bg(palette);
 		}
 		
+		// сигание двигателя самолета
 		if ((nesclock&3) == 0) {
 			palSamoletId ^= 1;
-			palette_spr[0][14] = palSamolet[palSamoletId];
-			palette_spr[1][14] = palSamolet[palSamoletId];
-			palette_spr[2][14] = palSamolet[palSamoletId];
-			palette_spr[3][14] = palSamolet[palSamoletId];
-			palette_spr[4][14] = palSamolet[palSamoletId];
+			pal_col(16+14, palSamolet[palSamoletId]);
 		}
 
 		fx_EQ();
