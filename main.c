@@ -1766,18 +1766,21 @@ void main(void)
 
 	while(1)
 	{
-		isboss = 1;
+		isboss = 0;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
 		spr = 4;
+		spr = oam_spr(0, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
+		spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 
 		if (!ishighscore) {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
 		}
 		
+		// вспышка коронавирусов под бит
 		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
 		pal_col(16+0, palette_spr[paletteSprId][0]);
 		pal_col(16+1, palette_spr[paletteSprId][1]);
@@ -1793,7 +1796,7 @@ void main(void)
 		//if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 
-		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
+		//if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 		
 
@@ -1806,12 +1809,6 @@ void main(void)
 			++logoPos;
 			if (logoPos>127)
 				logoPos=0;
-		}
-
-		// вспышка коронавирусов под бит
-		if ((nesclock&1) == 0 && paletteId < 6) {
-			pal_bg(paletteIn[paletteId]);
-			++paletteId;
 		}
 
 		// сдвиг цветов скроллера
@@ -1833,6 +1830,17 @@ void main(void)
 			palSamoletId ^= 1;
 			pal_col(16+14, palSamolet[palSamoletId]);
 		}
+
+		pal_bg(paletteIn[paletteId]);
+		// цвет боковых плашек
+		pal_col(16+7, paletteIn[paletteId][10]);
+
+		//fade in сцены		
+		if ((nesclock&1) == 0 && paletteId < 6) {
+			++paletteId;
+		}
+
+
 
 		fx_EQ();
 		fx_SplitScroll();
