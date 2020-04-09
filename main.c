@@ -250,45 +250,45 @@ const unsigned char palNesdev[15][16] = {
 
 const unsigned char covid19_0_data[]={
 
-	  4,  4,0x02,0,
-	 12,  4,0x03,0,
-	 20,  4,0x04,0,
-	  4, 12,0x12,0,
-	 12, 12,0x13,0,
-	 20, 12,0x14,0,
-	  4, 20,0x22,0,
-	 12, 20,0x23,0,
-	 20, 20,0x24,0,
+	  0,  0,0x02,0,
+	  8,  0,0x03,0,
+	 16,  0,0x04,0,
+	  0, 8,0x12,0,
+	  8, 8,0x13,0,
+	 16, 8,0x14,0,
+	  0, 16,0x22,0,
+	  8, 16,0x23,0,
+	 16, 16,0x24,0,
 	128
 
 };
 
 const unsigned char covid19_1_data[]={
 
-	  4,  4,0x05,0,
-	 12,  4,0x06,0,
-	 20,  4,0x07,0,
-	  4, 12,0x15,0,
-	 12, 12,0x16,0,
-	 20, 12,0x17,0,
-	  4, 20,0x25,0,
-	 12, 20,0x26,0,
-	 20, 20,0x27,0,
+	  0,  0,0x05,0,
+	 8,  0,0x06,0,
+	 16,  0,0x07,0,
+	  0, 8,0x15,0,
+	 8, 8,0x16,0,
+	 16, 8,0x17,0,
+	  0, 16,0x25,0,
+	 8, 16,0x26,0,
+	 16, 16,0x27,0,
 	128
 
 };
 
 const unsigned char covid19_2_data[]={
 
-	  4,  4,0x08,0,
-	 12,  4,0x09,0,
-	 20,  4,0x0a,0,
-	  4, 12,0x18,0,
-	 12, 12,0x19,0,
-	 20, 12,0x1a,0,
-	  4, 20,0x28,0,
-	 12, 20,0x29,0,
-	 20, 20,0x2a,0,
+	  0,  0,0x08,0,
+	 8,  0,0x09,0,
+	 16,  0,0x0a,0,
+	  0, 8,0x18,0,
+	 8, 8,0x19,0,
+	 16, 8,0x1a,0,
+	  0, 16,0x28,0,
+	 8, 16,0x29,0,
+	 16, 16,0x2a,0,
 	128
 
 };
@@ -438,7 +438,7 @@ const unsigned char const starship_pal[] = {
 	0x17, 0x27, 0x05, 0x27
 };
 
-unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause, starship_flame;
+unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause, starship_flame, starship_stunned;
 unsigned char bullet_x, bullet_y, bullet_timeout;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
@@ -1281,37 +1281,46 @@ void fx_galaga(void) {
 		}
 	} else {
 	// Manual controls
-		if (pad&PAD_LEFT && starship_x>8) {
-			--starship_x;
-			--starship_x;
-		}
-		if (pad&PAD_RIGHT && starship_x<256-8) {
-			++starship_x;
-			++starship_x;
-		}
-		if (pad_prev&(PAD_A|PAD_B) && !bullet_y && !bullet_timeout) {
-			sfx_play(SFX_SHOT,0);
-			bullet_y = starship_y-16;
-			bullet_x = starship_x-4;
-			bullet_timeout = 30;
-		}
-		if (pad_prev&PAD_START) {
-			starship_state |= STARSHIP_AUTOPILOT;
-			points = 999;
-			earnpoint();
-			sfx_play(SFX_TELEGA_FLY,0);
+		if (!starship_stunned) {
+			if (pad&PAD_LEFT && starship_x>8) {
+				--starship_x;
+				--starship_x;
+			}
+			if (pad&PAD_RIGHT && starship_x<256-8) {
+				++starship_x;
+				++starship_x;
+			}
+			if (pad_prev&(PAD_A|PAD_B) && !bullet_y && !bullet_timeout) {
+				sfx_play(SFX_SHOT,0);
+				bullet_y = starship_y-16;
+				bullet_x = starship_x-4;
+				bullet_timeout = 30;
+			}
+			if (pad_prev&PAD_START) {
+				starship_state |= STARSHIP_AUTOPILOT;
+				points = 999;
+				earnpoint();
+				sfx_play(SFX_TELEGA_FLY,0);
+			}
 		}
 	}
 
 	if (starship_pause)
 		--starship_pause;
+	if (starship_stunned)
+		--starship_stunned;
 
 	if (!(nesclock&3)) {
 		pal_col(30, starship_pal[starship_flame]);
 		starship_flame = (starship_flame + 1) & 3;
 	}
 
-	spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+	if (starship_stunned) {
+		if (nesclock&2)
+			spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+	} else {
+		spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+	}
 
 	if (bullet_timeout)
 		--bullet_timeout;
@@ -1665,6 +1674,20 @@ void bossFight(void)
 
 			// Check collision
 
+			if (starship_y<bossCovidY+24 && starship_y>bossCovidY) {
+				if ((starship_x<bossCovidX2+24 && starship_x>bossCovidX2) || (starship_x<bossCovidX3+24 && starship_x>bossCovidX3)) {
+					starship_stunned = 60*2;
+					sfx_play(SFX_COVID_ELIMINATED, 0);
+				}
+			}
+
+			if (starship_y<bossCovidY+48 && starship_y>bossCovidY+24) {
+				if (starship_x<bossCovidX1+24 && starship_x>bossCovidX1) {
+					starship_stunned = 60*2;
+					sfx_play(SFX_COVID_ELIMINATED, 0);
+				}
+			}
+
 			bossCovidX2 -= 1;
 			bossCovidX3 += 1;
 			bossCovidY += 4;
@@ -1807,13 +1830,13 @@ void main(void)
 				logoPos=0;
 		}
 
-		// вспышка коронавирусов под бит
+		// ???? ???????????
 		if ((nesclock&1) == 0 && paletteId < 6) {
 			pal_bg(paletteIn[paletteId]);
 			++paletteId;
 		}
 
-		// сдвиг цветов скроллера
+		// ????????????
 		if (paletteId == 6 && (nesclock&15) == 0) {
 			if (++palRollId1 >= 48) {
 				palRollId1 = 0;
@@ -1827,7 +1850,7 @@ void main(void)
 			pal_bg(palette);
 		}
 		
-		// сигание двигателя самолета
+		// ????????? ????
 		if ((nesclock&3) == 0) {
 			palSamoletId ^= 1;
 			pal_col(16+14, palSamolet[palSamoletId]);
