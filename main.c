@@ -1793,7 +1793,7 @@ void bossFight(void)
 				if (!(nesclock&2))
 					pal_col(22, 0x01);
 				else
-					pal_col(22, 0x21);
+					pal_col(22, 0x25);
 
 
 			} else {
@@ -1948,12 +1948,11 @@ void main(void)
 	music_stop();
 	music_play(1);
 
-	//isboss = 1;
-	//bossAttractTimer = 60*30;
-
 	while(1)
 	{
-		
+
+		//isboss = 1;
+		//bossAttractTimer = 60*30;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
