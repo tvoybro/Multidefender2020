@@ -299,81 +299,81 @@ const unsigned char* const seq_covid19[]={
 
 const unsigned char covid_explode_0_data[]={
 
-	  8,  8,0x7d,2,
+	  8,  8,0x7d,3,
 	128
 
 };
 
 const unsigned char covid_explode_1_data[]={
 
-	  4,  4,0xfe,2,
-	 12,  4,0xfe,2|OAM_FLIP_H,
-	  4, 12,0xfe,2|OAM_FLIP_V,
-	 12, 12,0xfe,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xfe,3,
+	 12,  4,0xfe,3|OAM_FLIP_H,
+	  4, 12,0xfe,3|OAM_FLIP_V,
+	 12, 12,0xfe,3|OAM_FLIP_H|OAM_FLIP_V,
 	128
 
 };
 
 const unsigned char covid_explode_2_data[]={
 
-	  4,  4,0xff,2,
-	 12,  4,0xf0,2,
-	  4, 12,0xf1,2,
-	 12, 12,0xf2,2,
+	  4,  4,0xff,3,
+	 12,  4,0xf0,3,
+	  4, 12,0xf1,3,
+	 12, 12,0xf2,3,
 	128
 
 };
 
 const unsigned char covid_explode_3_data[]={
 
-	  4,  4,0xf3,2,
-	 12,  4,0xf4,2,
-	  4, 12,0xf5,2,
-	 12, 12,0xf6,2,
+	  4,  4,0xf3,3,
+	 12,  4,0xf4,3,
+	  4, 12,0xf5,3,
+	 12, 12,0xf6,3,
 	128
 
 };
 
 const unsigned char covid_explode_4_data[]={
 
-	  4,  4,0xf2,2|OAM_FLIP_H|OAM_FLIP_V,
-	 12,  4,0xf1,2|OAM_FLIP_H|OAM_FLIP_V,
-	  4, 12,0xf0,2|OAM_FLIP_H|OAM_FLIP_V,
-	 12, 12,0xff,2|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xf2,3|OAM_FLIP_H|OAM_FLIP_V,
+	 12,  4,0xf1,3|OAM_FLIP_H|OAM_FLIP_V,
+	  4, 12,0xf0,3|OAM_FLIP_H|OAM_FLIP_V,
+	 12, 12,0xff,3|OAM_FLIP_H|OAM_FLIP_V,
 	128
 
 };
 
 const unsigned char covid_explode_5_data[]={
 
-	 12, 12,0xf3,2|OAM_FLIP_H|OAM_FLIP_V,
-	  4, 12,0xf4,2|OAM_FLIP_H|OAM_FLIP_V,
-	 12,  4,0xf5,2|OAM_FLIP_H|OAM_FLIP_V,
-	  4,  4,0xf6,2|OAM_FLIP_H|OAM_FLIP_V,
+	 12, 12,0xf3,3|OAM_FLIP_H|OAM_FLIP_V,
+	  4, 12,0xf4,3|OAM_FLIP_H|OAM_FLIP_V,
+	 12,  4,0xf5,3|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xf6,3|OAM_FLIP_H|OAM_FLIP_V,
 	128
 
 };
 
 const unsigned char covid_explode_6_data[]={
 
-	  4,  4,0xf7,2,
-	 12,  4,0xf8,2,
-	  4, 12,0xf9,2,
-	 12, 12,0xfa,2,
+	  4,  4,0xf7,3,
+	 12,  4,0xf8,3,
+	  4, 12,0xf9,3,
+	 12, 12,0xfa,3,
 	128
 
 };
 
 const unsigned char covid_explode_7_data[]={
 
-	  8,  8,0xfb,2,
+	  8,  8,0xfb,3,
 	128
 
 };
 
 const unsigned char covid_explode_8_data[]={
 
-	  8,  8,0xfc,2,
+	  8,  8,0xfc,3,
 	128
 
 };
