@@ -28,7 +28,6 @@
 
 	.export _cnrom_set_bank
 	.export _get_mus_pos
-	.export _roll_scroll_colors
 	.export _split_krujeva
 
 
@@ -1369,16 +1368,6 @@ _delay:
 	bne @1
 
 	rts
-
-
-;void __fastcall__ roll_scroll_colors(unsigned char c1, unsigned char c2, unsigned char c3);
-_roll_scroll_colors:
-	sta	<NMI_SCROLL_TEXT_COLOR+0
-	jsr popax
-	sta	<NMI_SCROLL_TEXT_COLOR+1
-	stx	<NMI_SCROLL_TEXT_COLOR+2
-	rts
-
 
 nmiUserCall2: 
 

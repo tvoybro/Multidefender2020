@@ -19,8 +19,6 @@ void __fastcall__ split_krujeva(void);
 
 unsigned int __fastcall__ get_mus_pos(void);
 
-void __fastcall__ roll_scroll_colors(unsigned char c1, unsigned char c2, unsigned char c3);
-
 //set bg and spr palettes, data is 32 bytes array
 
 void __fastcall__ pal_all(const char *data);
