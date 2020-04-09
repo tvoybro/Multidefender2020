@@ -1527,9 +1527,7 @@ void fx_highscore(void) {
 	}
 }
 
-
 const unsigned char boss_0_data[]={
-
 	-32,- 6,0x30,2,
 	-24,- 2,0x31,2,
 	-16,  0,0x32,2,
@@ -1559,12 +1557,11 @@ const unsigned char boss_0_data[]={
 	  7, 24,0x62,2|OAM_FLIP_H,
 	-16, 24,0x62,2,
 	128
-
 };
-const unsigned char boss_1_data[]={
 
+const unsigned char boss_1_data[]={
 	-24,- 2,0x35,2,
-	-16,- 2,0x36,2,
+	-16,- 2,0x32,2,
 	- 8,- 2,0x33,2,
 	- 1,- 2,0x33,2|OAM_FLIP_H,
 	  7,- 2,0x36,2|OAM_FLIP_H,
@@ -1587,14 +1584,19 @@ const unsigned char boss_1_data[]={
 	 23, 14,0x54,2|OAM_FLIP_H,
 	- 8, 22,0x63,2,
 	- 1, 22,0x63,2|OAM_FLIP_H,
-	  7, 22,0x62,2|OAM_FLIP_H,
-	-16, 22,0x62,2,
+	  6, 23,0x62,2|OAM_FLIP_H,
+	-15, 23,0x62,2,
 	128
 };
+
 const unsigned char* const boss_list[]={
 	boss_0_data,
 	boss_1_data
 };
+
+
+
+
 
 
 unsigned int bossIndex = 0;
