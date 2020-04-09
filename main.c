@@ -16,6 +16,9 @@
 #define SFX_COVID_RESPAWN		0x02
 #define SFX_TELEGA_FLY			0x03
 #define SFX_TELEGA_OUT			0x04
+#define SFX_BOSS_SPAWN			0x05
+#define SFX_BOSS_HIT			0x06
+#define SFX_BOSS_DEFEATED		0x07
 
 #define MUS_PATTERN				448
 
@@ -1231,6 +1234,9 @@ void earnpoint(void) {
 
 void fx_galaga(void) {
 	
+	if (ishighscore)
+		return;
+
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
