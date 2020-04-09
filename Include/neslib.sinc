@@ -675,8 +675,8 @@ _split_krujeva:
 	dex
 	bmi @5
 
-	lda #$03
-	tax
+	lda #%00110011
+	ldx #%00000011
 	sta banktable, x
 
 	rts
@@ -1381,8 +1381,8 @@ _roll_scroll_colors:
 
 nmiUserCall2: 
 
-	lda #$02
-	tax
+	lda #%00100010
+	ldx #%00000010
 	sta banktable, x
 
 	lda _krujFill
