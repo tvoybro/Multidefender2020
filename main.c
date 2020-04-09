@@ -34,7 +34,7 @@ unsigned char covidQty = 0;
 
 extern unsigned char FT_BUF[];
 
-unsigned char bossHealth = 30;
+unsigned char bossHealth = 10;
 unsigned char tileset;
 unsigned int muspos;
 
@@ -1632,6 +1632,7 @@ void bossFight(void)
 				bossCovidX3 = bossX + 16;
 				bossCovidY = covidYtable[bossIndex] + 8;
 				bossAttackTimeout = 255;
+				sfx_play(SFX_COVID_RESPAWN,1);
 			}
 			--bossAttack;
 
@@ -1642,6 +1643,7 @@ void bossFight(void)
 
 
 		} else {
+			pal_col(22, 0x16);
 			bossIndex = (bossIndex + 1) & 511;
 			if (bossAttackTimeout) {
 				--bossAttackTimeout;
@@ -1683,7 +1685,8 @@ void bossFight(void)
 			pal_col(25, 0x30);
 			pal_col(26, 0x30);
 			pal_col(27, 0x30);
-			//earnpoint();
+			if (bossHealth)
+				--bossHealth;
 		}
 
 		if (bossFlash) {
@@ -1696,6 +1699,22 @@ void bossFight(void)
 			}
 		}
 		
+		if (bossHealth<6 && !bossFlash) {
+			if (!(nesclock&4)) {
+				pal_col(21, 0x0f);
+				pal_col(22, 0x16);
+				pal_col(25, 0x0f);
+				pal_col(26, 0x16);
+				pal_col(27, 0x26);
+			}
+			else {
+				pal_col(21, 0x16);
+				pal_col(22, 0x26);
+				pal_col(25, 0x16);
+				pal_col(26, 0x26);
+				pal_col(27, 0x37);
+			}
+		}
 
 	}
 }
@@ -1740,7 +1759,7 @@ void main(void)
 	covidsInit(0);
 
 	music_stop();
-	//music_play(1);
+	music_play(1);
 
 	while(1)
 	{
