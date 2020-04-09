@@ -34,6 +34,7 @@ unsigned char covidQty = 0;
 
 extern unsigned char FT_BUF[];
 
+unsigned char bossHealth = 30;
 unsigned char tileset;
 unsigned int muspos;
 
@@ -1346,7 +1347,8 @@ void fx_Covid19(void) {
 				if (covids_hit==COVIDS_MAX) {
 					covids_phase = (covids_phase + 1) & 3;
 					covidsInit(covids_phase);
-					ishighscore = 1;
+					if (starship_state&STARSHIP_AUTOPILOT)
+						ishighscore = 1;
 					highscore_timer = 60*6;
 					covidQty = 0;
 				}
@@ -1600,19 +1602,20 @@ const unsigned char* const boss_list[]={
 unsigned int bossIndex = 0;
 unsigned char bossAttack = 0;
 unsigned char bossAttackTimeout = 255;
-unsigned char bossHealth = 30;
 unsigned char bossCovidY = 255;
 unsigned char bossCovidX1;
 unsigned char bossCovidX2;
 unsigned char bossCovidX3;
-unsigned char bossX;
+unsigned char bossX, bossY;
+
 void bossFight(void)
 {
 	if (isboss) {
 		
 		bossX = 56 + (2 * covidXtable[bossIndex])/3;
+		bossY = covidYtable[bossIndex]+9;
 		
-		spr = oam_meta_spr((56 + 2*(covidXtable[bossIndex])/3), covidYtable[bossIndex], spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
+		spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
 		
 		if (bossAttack) {
 			if (bossAttack == 1) {
@@ -1648,6 +1651,12 @@ void bossFight(void)
 		// blinking boss if low hp
 		if (bossHealth < 10) {
 			
+		}
+
+		if (bullet_x>bossX-16 && bullet_x<bossX+16 && bullet_y>bossY && bullet_y<bossY+24) {
+			bullet_y = 0;
+			sfx_play(SFX_BOSS_HIT,0);
+			earnpoint();
 		}
 		
 
