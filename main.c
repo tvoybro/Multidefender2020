@@ -5,7 +5,7 @@
 #include "Include/font4x4.h"
 
 #include "Gfx/NAM_multi_logo_A.h"
-//#include "Gfx/NAM_multi_logo_B.h"
+#include "Gfx/NAM_multi_logo_B.h"
 #include "Gfx/logo_scr.h"
 #include "Gfx/kruj_nametable.h"
 
@@ -69,6 +69,11 @@ unsigned char palette[16]={
 	0x30,0x16,0x31,0x22,
 	0x30,0x2A,0x1A,0x01
 };
+
+unsigned char hs_char, hs_pointer, ishighscore;
+unsigned char hs_strings_y;
+unsigned int highscore_timer;
+unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
 
 unsigned char i = 0;
 unsigned char j = 0;
@@ -518,6 +523,10 @@ const unsigned int eq_Pulse2right_NT[7] = {
 
 void fx_EQ(void)
 {
+
+	if (ishighscore)
+		return;
+
 	if (eq_Triangle_Volume && (nesclock&3)==0) {
 		--eq_Triangle_Volume;
 	}
@@ -1302,6 +1311,10 @@ void fx_galaga(void) {
 }
 
 void fx_Covid19(void) {
+
+	if (ishighscore)
+		return;
+
 	// Processing Covid-19 viruses
 	for(i=0;i<COVIDS_MAX;++i)
 	{
@@ -1327,6 +1340,8 @@ void fx_Covid19(void) {
 				if (covids_hit==COVIDS_MAX) {
 					covids_phase = (covids_phase + 1) & 3;
 					covidsInit(covids_phase);
+					ishighscore = 1;
+					highscore_timer = 60*6;
 					covidQty = 0;
 				}
 			}
@@ -1355,26 +1370,154 @@ void fx_Covid19(void) {
 
 }
 
-const char highscore_list1[]={
-	"HI SCORE"
-	"PLAYER 1"
-	"PLAYER 2"
-	"PLAYER 3"
-	"PLAYER 4"
-	"PLAYER 5"
-	"PLAYER 6"
-	"PLAYER 7"
+const unsigned char highscore_table_0_data[]={
+
+	  0,  0,0xd8,2,
+	 16,  0,0xd9,2,
+	 48,  0,0xe3,2,
+	 64,  0,0xd3,2,
+	 80,  0,0xdf,2,
+	 96,  0,0xe2,2,
+	 112,  0,0xd5,2,
+	128
+
 };
 
-unsigned char hs_char, hs_pointer;
+const unsigned char highscore_table_1_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc1,2,
+	128
+
+};
+
+const unsigned char highscore_table_2_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc2,2,
+	128
+
+};
+
+const unsigned char highscore_table_3_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc3,2,
+	128
+
+};
+
+const unsigned char highscore_table_4_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc4,2,
+	128
+
+};
+
+const unsigned char highscore_table_5_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc5,2,
+	128
+
+};
+
+const unsigned char highscore_table_6_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc6,2,
+	128
+
+};
+
+const unsigned char highscore_table_7_data[]={
+
+	  0,  0,0xe0,2,
+	 16,  0,0xdc,2,
+	 32,  0,0xd1,2,
+	 48,  0,0xe9,2,
+	 64,  0,0xd5,2,
+	 80,  0,0xe2,2,
+	 112,  0,0xc7,2,
+	128
+
+};
+
+const unsigned char* const highscore_table[]={
+
+	highscore_table_0_data,
+	highscore_table_1_data,
+	highscore_table_2_data,
+	highscore_table_3_data,
+	highscore_table_4_data,
+	highscore_table_5_data,
+	highscore_table_6_data,
+	highscore_table_7_data
+
+};
+
+
+const unsigned int sineTableTextBobbling[32]={
+0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 7, 7, 7, 8, 
+7, 7, 7, 6, 6, 5, 4, 3, 2, 2, 1, 1, 1, 0, 0, 
+0
+};
 
 void fx_highscore(void) {
-	hs_char = hs_pointer = 0;
-	for (i=0; i<7; ++i) {
-		for (j=0; j<8; ++j) {
-			hs_char = highscore_list1[hs_pointer++] + 0x90;
-			spr = oam_spr(96 + (j*8), 40 + (i*16), hs_char, 2, spr);
+	if (ishighscore) {
+
+		//pal_col(27, 0x02); // char main color
+		//pal_col(25, 0x22); // char shadow color
+
+		scroll(256, 0);
+
+		hs_strings_y = 40;
+
+		for (i=0;i<8;++i)
+		{
+
+			spr=oam_meta_spr(70, hs_strings_y+sineTableTextBobbling[highscore_strings_offsets[i]], spr, highscore_table[i]);
+
+			if (!(nesclock&1)) {
+				++highscore_strings_offsets[i];
+				highscore_strings_offsets[i] &= 31;
+			}
+			hs_strings_y += 16;
 		}
+		--highscore_timer;
+		if (!highscore_timer)
+			ishighscore = 0;
 	}
 }
 
@@ -1405,8 +1548,8 @@ void main(void)
  
 	vram_adr(NAMETABLE_A);
 	vram_unrle(NAM_multi_logo_A);
-	//vram_adr(NAMETABLE_B);
-	//vram_unrle(NAM_multi_logo_B);	
+	vram_adr(NAMETABLE_B);
+	vram_unrle(NAM_multi_logo_B);	
 	pal_bg(paletteIn[0]);
 	pal_spr(palette_spr[0]);	
 	cnrom_set_bank(0);
@@ -1427,8 +1570,10 @@ void main(void)
 
 		spr = 4;
 
-		scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
-		scroll(scrollpos, 0);
+		if (!ishighscore) {
+			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
+			scroll(scrollpos, 0);
+		}
 		
 		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
 		pal_spr(palette_spr[paletteSprId]);
@@ -1439,9 +1584,9 @@ void main(void)
 		if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 
-		//if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
-		//	fx_Covid19();
-
+		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
+			fx_Covid19();
+		
 		fx_highscore();
 
 		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
