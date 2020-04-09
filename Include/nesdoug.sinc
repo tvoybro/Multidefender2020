@@ -3,7 +3,7 @@
 
 .export _set_nmi_user_call_on, _set_nmi_user_call_off
 .export _set_vram_buffer, _multi_vram_buffer_horz, _multi_vram_buffer_vert, _one_vram_buffer
-.export _clear_vram_buffer, _get_pad_new, _get_frame_count, _set_music_speed
+.export _clear_vram_buffer
 
 .export _gray_line
 
@@ -104,33 +104,6 @@ _clear_vram_buffer:
 	sta VRAM_INDEX
 	lda #$ff
 	sta VRAM_BUF
-	rts
-	
-	
-	
-	
-;unsigned char __fastcall__ get_pad_new(unsigned char pad);	
-_get_pad_new:
-	tay
-	lda <PAD_STATET,y
-	ldx #0
-	rts
-	
-	
-	
-	
-;unsigned char __fastcall__ get_frame_count(void);	
-_get_frame_count:
-	lda <FRAME_CNT1
-	ldx #0
-	rts
-	
-	
-	
-	
-;void __fastcall__ set_music_speed(unsigned char tempo);
-_set_music_speed:
-	sta FT_SONG_SPEED
 	rts
 	
 PTR2 = TEMP+2 ;and TEMP+3

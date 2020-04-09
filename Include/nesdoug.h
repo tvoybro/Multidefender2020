@@ -29,23 +29,6 @@ void clear_vram_buffer(void);
 // just sets the index into the vram buffer to zero
 // this should be done at the beginning of each frame, if using the vram_buffer
 
-
-unsigned char __fastcall__ get_pad_new(unsigned char pad);
-// pad 0 or 1, use AFTER pad_poll() to get the trigger / new button presses
-// more efficient than pad_trigger, which runs the entire pad_poll code again
-
-
-unsigned char __fastcall__ get_frame_count(void);
-// use this internal value to time events, this ticks up every frame
-
-
-void __fastcall__ set_music_speed(unsigned char tempo);
-// this will alter the tempo of music, range 1-12 are reasonable, low is faster
-// default is 6
-// music_play also sets the tempo, and any Fxx effect in the song will too
-// you will probably have to repeatedly set_music_speed() every frame
-// music_stop() and music_pause() also overwrite this value
-
 void gray_line(void);
 // For debugging. Insert at the end of the game loop, to see how much frame is left.
 // Will print a gray line on the screen. Distance to the bottom = how much is left.

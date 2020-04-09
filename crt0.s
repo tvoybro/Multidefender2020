@@ -28,6 +28,11 @@ FT_SFX_STREAMS = 4			        ;number of sound effects played at once, 1..4
 	.import NES_MAPPER,NES_PRG_BANKS,NES_CHR_BANKS,NES_MIRRORING
     .include "zeropage.inc"
 
+    .export _NAM_krujeva
+    .export _NAM_multi_logo_A
+    .export _NAM_multi_logo_B
+    .export _NAM_nesdev_A
+
 FT_BASE_ADR		=$0100	;page in RAM, should be $xx00
 
 .define FT_THREAD       1	;undefine if you call sound effects in the same thread as sound update
@@ -272,6 +277,14 @@ sounds_data:
 	
 .segment "CHR2"
 	.incbin "NESst/logo_chr.chr"
+_NAM_krujeva:
+	.incbin "Include/NAM_krujeva.nam"
+_NAM_multi_logo_A:
+	.incbin "Include/NAM_multi_logo_A.nam"
+_NAM_multi_logo_B:
+	.incbin "Include/NAM_multi_logo_B.nam"
+_NAM_nesdev_A:
+	.incbin "Include/NAM_nesdev_A.nam"
 	
 .segment "CHR3"
 	.incbin "NESst/kruj_charset_0.chr"

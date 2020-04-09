@@ -4,11 +4,6 @@
 #include "Include/nesdoug.h"
 #include "Include/font4x4.h"
 
-#include "Gfx/NAM_multi_logo_A.h"
-#include "Gfx/NAM_multi_logo_B.h"
-#include "Gfx/logo_scr.h"
-#include "Gfx/kruj_nametable.h"
-
 #define high_byte(a) *((unsigned char*)&a+1)
 #define low_byte(a) *((unsigned char*)&a)
 
@@ -46,12 +41,18 @@ unsigned char covidQty, covidLiveQty;
 
 
 extern unsigned char FT_BUF[];
+extern unsigned char NAM_krujeva[];
+extern unsigned char NAM_multi_logo_A[];
+extern unsigned char NAM_multi_logo_B[];
+extern unsigned char NAM_nesdev_A[];
 
 unsigned char fxFaze = 0;
 unsigned char bossHealth = 15;
 unsigned char tileset;
 unsigned int muspos;
 unsigned int bossAttractTimer = 0;
+
+unsigned char buffa[64];
 
 unsigned char paletteId = 0;
 unsigned char paletteIn[6][16]={
@@ -557,6 +558,15 @@ const unsigned int eq_Pulse2right_NT[7] = {
 }
 */
 
+void chr_to_nametable(unsigned int nametable, unsigned char *src) {
+	for (i=0;i<16;++i) {
+		vram_adr((int) src+(i*64));
+		vram_read(buffa, 64);
+		vram_adr(nametable+(i*64));
+		vram_write(buffa, 64);
+	}
+}
+
 void fx_EQ(void)
 {
 
@@ -683,8 +693,7 @@ void fx_NesDev(void)
 	pal_spr(palNesdev[14]);
 	cnrom_set_bank(1);
 	bank_spr(0);
-	vram_adr(NAMETABLE_A);
-	vram_unrle(logo_scr);
+	chr_to_nametable(NAMETABLE_A, NAM_nesdev_A);
 	ppu_on_all();
 	
 	while(nesdevFaze < 4)
@@ -897,10 +906,13 @@ void fx_Krujeva(void)
 {
 	pal_clear();
 	pal_spr(krujSprPal);
-	cnrom_set_bank(3);
+	cnrom_set_bank(1);
 	bank_spr(1);
-	vram_adr(NAMETABLE_A);
-	vram_unrle(kruj_nametable);
+	//vram_adr(NAMETABLE_A);
+	//vram_unrle(kruj_nametable);
+	chr_to_nametable(NAMETABLE_A, NAM_krujeva);
+	cnrom_set_bank(3);
+	ppu_on_all();
 	set_nmi_user_call_on(2);
 	oam_clear();
 	oam_spr(2, 118, 0xFF, 3 | OAM_BEHIND, 0); //253 244 219 210
@@ -1901,10 +1913,6 @@ void main(void)
 	clear_vram_buffer();
  	
 	fx_NesDev();
- 	
-	vram_adr(NAMETABLE_B);
-	vram_unrle(NAM_multi_logo_A);
-
 	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
@@ -1919,11 +1927,11 @@ void main(void)
 	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 	scroll(scrollpos, 0);
 	oam_clear();
- 
-	vram_adr(NAMETABLE_A);
-	vram_unrle(NAM_multi_logo_A);
-	vram_adr(NAMETABLE_B);
-	vram_unrle(NAM_multi_logo_B);	
+
+	cnrom_set_bank(1);
+ 	chr_to_nametable(NAMETABLE_A, NAM_multi_logo_A);
+ 	chr_to_nametable(NAMETABLE_B, NAM_multi_logo_B);
+
 	pal_bg(paletteIn[0]);
 	pal_spr(palette_spr_init);	
 	cnrom_set_bank(0);
