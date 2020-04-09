@@ -531,15 +531,15 @@ void fx_EQ(void)
 	if (ishighscore)
 		return;
 
-	if (eq_Triangle_Volume && (nesclock&3)==0) {
+	if (eq_Triangle_Volume && (nesclock&1)==0) {
 		--eq_Triangle_Volume;
 	}
 	
-	if (FT_BUF[6] & 1)
+	if ((FT_BUF[6]&1) && eq_Triangle_Volume < 3)
 		eq_Triangle_Volume = 5;
 
 	if (eq_noise_approx[FT_BUF[9] & 0x0f] > eq_Noise_Volume) {
-		eq_Noise_Volume = eq_noise_approx[FT_BUF[9] & 0x0f];
+		eq_Noise_Volume = 1 + eq_noise_approx[FT_BUF[9] & 0x0f];
 	} else if (eq_Noise_Volume && (nesclock&3)==0) {
 		--eq_Noise_Volume;
 	}
