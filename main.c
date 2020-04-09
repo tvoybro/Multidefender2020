@@ -34,7 +34,7 @@ unsigned char covidQty = 0;
 
 extern unsigned char FT_BUF[];
 
-unsigned char bossHealth = 10;
+unsigned char bossHealth = 30;
 unsigned char tileset;
 unsigned int muspos;
 
@@ -1662,6 +1662,9 @@ void bossFight(void)
 			spr = oam_meta_spr(bossCovidX1, bossCovidY + 24, spr, seq_covid19[covid_frame]);
 			spr = oam_meta_spr(bossCovidX2, bossCovidY, spr, seq_covid19[covid_frame]);
 			spr = oam_meta_spr(bossCovidX3, bossCovidY, spr, seq_covid19[covid_frame]);
+
+			// Check collision
+
 			bossCovidX2 -= 1;
 			bossCovidX3 += 1;
 			bossCovidY += 4;
@@ -1675,11 +1678,6 @@ void bossFight(void)
 
 		}
 		
-		// blinking boss if low hp
-		if (bossHealth < 10) {
-			
-		}
-
 		if (bullet_x>bossX-16 && bullet_x<bossX+16 && bullet_y>bossY && bullet_y<bossY+24) {
 			bullet_y = 0;
 			sfx_play(SFX_BOSS_HIT,0);
@@ -1702,7 +1700,8 @@ void bossFight(void)
 			}
 		}
 		
-		if (bossHealth<6 && !bossFlash) {
+		// blinking boss if low hp
+		if (bossHealth<10 && !bossFlash) {
 			if (!(nesclock&4)) {
 				pal_col(21, 0x0f);
 				pal_col(22, 0x16);
