@@ -1725,6 +1725,7 @@ void bossFight(void)
 
 void main(void)
 {
+	
 	set_vram_buffer();
 	clear_vram_buffer();
  	
@@ -1766,14 +1767,18 @@ void main(void)
 
 	while(1)
 	{
-		isboss = 0;
+		
+		//isboss = 1;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
 		spr = 4;
-		spr = oam_spr(0, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
-		spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
+		
+		if (!isboss) {
+			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
+			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
+		}
 
 		if (!ishighscore) {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
@@ -1793,10 +1798,10 @@ void main(void)
 		
 		bossFight();
 
-		//if (muspos > MUS_PATTERN*3)
+		if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 
-		//if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
+		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 		
 
@@ -1833,14 +1838,14 @@ void main(void)
 
 		pal_bg(paletteIn[paletteId]);
 		// цвет боковых плашек
-		pal_col(16+7, paletteIn[paletteId][10]);
+		if (!isboss) {
+			pal_col(16+7, paletteIn[paletteId][10]);
+		}
 
 		//fade in сцены		
 		if ((nesclock&1) == 0 && paletteId < 6) {
 			++paletteId;
 		}
-
-
 
 		fx_EQ();
 		fx_SplitScroll();
