@@ -1,4 +1,4 @@
-// Multimatograf 2020 invitro
+// Multimatograf 2020 gamevitro
 
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
@@ -8,6 +8,9 @@
 #include "Gfx/NAM_multi_logo_B.h"
 #include "Gfx/logo_scr.h"
 #include "Gfx/kruj_nametable.h"
+
+#define high_byte(a) *((unsigned char*)&a+1)
+#define low_byte(a) *((unsigned char*)&a)
 
 #define COVIDS_MAX				6
 
@@ -27,6 +30,8 @@
 #define EQ_CHR_ON 				0xA8
 
 #define STARSHIP_AUTOPILOT 		0b10000000
+#define CMD_LEFT		 		0x01
+#define CMD_RIGHT		 		0x02
 
 unsigned char isNtsc;
 
@@ -439,7 +444,9 @@ const unsigned char const starship_pal[] = {
 	0x17, 0x27, 0x05, 0x27
 };
 
-unsigned char starship_x, starship_y, starship_state, starship_toX, starship_pause, starship_flame, starship_stunned;
+unsigned int starship_x, starship_newx;
+signed int starship_vx;
+unsigned char starship_y, starship_state, starship_toX, starship_pause, starship_flame, starship_stunned, starship_command, starship_x8;
 unsigned char bullet_x, bullet_y, bullet_timeout;
 
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
@@ -1193,7 +1200,7 @@ const unsigned char *covidYtable;
 
 
 void galagaInit(void) {
-	starship_x = 100;
+	starship_x = 100*256;
 	starship_y = 200-8;
 	starship_state = 1 | STARSHIP_AUTOPILOT;
 }
@@ -1261,41 +1268,38 @@ void fx_galaga(void) {
 		}
 	}
 
+	starship_x8 = high_byte(starship_x);
+	starship_command = 0;
+
 	// Autopilot
 	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
 		if (covidQty == COVIDS_MAX) {
-			if (starship_x < starship_toX) {
-				if (starship_x<256-8) {
-					++starship_x;
-					++starship_x;
-				}
+			if (starship_x8 < starship_toX) {
+				starship_command = CMD_RIGHT;
 			} else {
-				if (starship_x>8) {
-					--starship_x;
-					--starship_x;
-				}
+				starship_command = CMD_LEFT;
 			}
-			if (covidLiveQty && starship_x==starship_toX && !bullet_y) {
+			if (covidLiveQty && starship_x8==starship_toX && !bullet_y) {
 				bullet_y = starship_y-16;
-				bullet_x = starship_x-4;
+				bullet_x = starship_x8-4;
 				starship_pause = 30 + (rand8()&7);
 			}
 		}
 	} else {
 	// Manual controls
 		if (!starship_stunned) {
-			if (pad&PAD_LEFT && starship_x>8) {
-				--starship_x;
-				--starship_x;
+
+
+			if (pad&PAD_LEFT) {
+				starship_command = CMD_LEFT;
 			}
-			if (pad&PAD_RIGHT && starship_x<256-8) {
-				++starship_x;
-				++starship_x;
+			if (pad&PAD_RIGHT) {
+				starship_command = CMD_RIGHT;
 			}
 			if (pad_prev&(PAD_A|PAD_B) && !bullet_y && !bullet_timeout) {
 				sfx_play(SFX_SHOT,0);
 				bullet_y = starship_y-16;
-				bullet_x = starship_x-4;
+				bullet_x = starship_x8-4;
 				bullet_timeout = 30;
 			}
 			if (pad_prev&PAD_START) {
@@ -1306,6 +1310,36 @@ void fx_galaga(void) {
 			}
 		}
 	}
+
+	if (starship_command==CMD_LEFT) {
+		if (starship_vx>-500) {
+			starship_vx-=48;
+		}
+	} else {
+		if (starship_vx < 0) {
+			starship_vx += 48;
+			if (starship_vx > 0) 
+				starship_vx = 0;
+		}
+	}
+
+	if (starship_command==CMD_RIGHT) {
+		if (starship_vx<500) {
+			starship_vx+=48;
+		}
+	} else
+		if (starship_vx > 0) {
+			starship_vx -= 48;
+			if (starship_vx < 0)
+				starship_vx = 0;
+		}
+
+
+	starship_newx = starship_x + starship_vx;
+	if (high_byte(starship_newx)<8 || high_byte(starship_newx)>256-8) {
+		starship_vx = 0;	
+	} else
+		starship_x += starship_vx;
 
 	if (starship_pause)
 		--starship_pause;
@@ -1319,9 +1353,9 @@ void fx_galaga(void) {
 
 	if (starship_stunned) {
 		if (nesclock&2)
-			spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+			spr=oam_meta_spr(starship_x8, starship_y, spr, spr_starship);
 	} else {
-		spr=oam_meta_spr(starship_x, starship_y, spr, spr_starship);
+		spr=oam_meta_spr(starship_x8, starship_y, spr, spr_starship);
 	}
 
 	if (bullet_timeout)
@@ -1670,9 +1704,10 @@ void bossFight(void)
 		}
 
 		//boss collision
-		if (!starship_stunned && starship_x>bossX-12 && starship_x<bossX+24-12) {
+		if (!starship_stunned && starship_x8>bossX-12 && starship_x8<bossX+24-12) {
 			if (bossY >= 160) {
 				starship_stunned = 60*2;
+				starship_vx = 0;
 				sfx_play(SFX_COVID_ELIMINATED, 0);
 			}
 		}
@@ -1686,15 +1721,17 @@ void bossFight(void)
 			// Check collision
 
 			if (starship_y<bossCovidY+24 && starship_y>bossCovidY) {
-				if ((starship_x<bossCovidX2+24 && starship_x>bossCovidX2) || (starship_x<bossCovidX3+24 && starship_x>bossCovidX3)) {
+				if ((starship_x8<bossCovidX2+24 && starship_x8>bossCovidX2) || (starship_x8<bossCovidX3+24 && starship_x8>bossCovidX3)) {
 					starship_stunned = 60*2;
+					starship_vx = 0;
 					sfx_play(SFX_COVID_ELIMINATED, 0);
 				}
 			}
 
 			if (starship_y<bossCovidY+48 && starship_y>bossCovidY+24) {
-				if (starship_x<bossCovidX1+24 && starship_x>bossCovidX1) {
+				if (starship_x8<bossCovidX1+24 && starship_x8>bossCovidX1) {
 					starship_stunned = 60*2;
+					starship_vx = 0;
 					sfx_play(SFX_COVID_ELIMINATED, 0);
 				}
 			}
