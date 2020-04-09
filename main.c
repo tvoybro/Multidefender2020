@@ -42,7 +42,12 @@ unsigned char covidQty, covidLiveQty;
 
 extern unsigned char FT_BUF[];
 
+<<<<<<< HEAD
 unsigned char bossHealth = BOSS_MAX_HP;
+=======
+unsigned char fxFaze = 0;
+unsigned char bossHealth = 15;
+>>>>>>> 6d7a28b6822ade23a746837b3c6ce5646afd0390
 unsigned char tileset;
 unsigned int muspos;
 
@@ -1597,8 +1602,14 @@ void fx_highscore(void) {
 			hs_strings_y += 16;
 		}
 		--highscore_timer;
-		if (!highscore_timer)
+		if (!highscore_timer) {
 			ishighscore = 0;
+			fxFaze++;
+			if ((fxFaze&3) == 0) {
+				isboss = 1;
+				bossHealth = starship_state&STARSHIP_AUTOPILOT ? 6 : 15;
+			}
+		}
 	}
 }
 
@@ -1834,6 +1845,7 @@ void bossFight(void)
 					return;
 				}
 			}
+<<<<<<< HEAD
 
 			if (bossFlash) {
 				--bossFlash;
@@ -1843,6 +1855,18 @@ void bossFight(void)
 					pal_col(26, 0x16);
 					pal_col(27, 0x26);
 				}
+=======
+		}
+		
+		// blinking boss if low hp
+		if (bossHealth < (starship_state&STARSHIP_AUTOPILOT ? 3 : 6) && !bossFlash) {
+			if (!(nesclock&4)) {
+				pal_col(21, 0x0f);
+				pal_col(22, 0x16);
+				pal_col(25, 0x0f);
+				pal_col(26, 0x16);
+				pal_col(27, 0x26);
+>>>>>>> 6d7a28b6822ade23a746837b3c6ce5646afd0390
 			}
 			
 			// blinking boss if low hp
