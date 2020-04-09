@@ -33,6 +33,11 @@
 #define CMD_LEFT		 		0x01
 #define CMD_RIGHT		 		0x02
 
+#define BOSS_START		 		0x01
+#define BOSS_KILLED		 		0xff
+#define BOSS_DEFEATED	 		0xfe
+
+
 #define BOSS_MAX_HP				6
 
 unsigned char isNtsc;
@@ -46,6 +51,7 @@ unsigned char fxFaze = 0;
 unsigned char bossHealth = 15;
 unsigned char tileset;
 unsigned int muspos;
+unsigned int bossAttractTimer = 0;
 
 unsigned char paletteId = 0;
 unsigned char paletteIn[6][16]={
@@ -1291,7 +1297,7 @@ void fx_galaga(void) {
 
 	// Autopilot
 	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
-		if (covidQty == COVIDS_MAX) {
+		if (covidQty == COVIDS_MAX || isboss) {
 			if (starship_x8 < starship_toX) {
 				starship_command = CMD_RIGHT;
 			} else {
@@ -1603,7 +1609,8 @@ void fx_highscore(void) {
 			fxFaze++;
 			if ((fxFaze&3) == 0) {
 				isboss = 1;
-				bossHealth = starship_state&STARSHIP_AUTOPILOT ? 6 : 15;
+				// bossHealth = starship_state&STARSHIP_AUTOPILOT ? 6 : 15;
+				bossAttractTimer = 60*30;
 			}
 		}
 	}
@@ -1719,14 +1726,14 @@ unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
 void bossFight(void)
 {
 	if (isboss) {
-		if (isboss==0xff) {
+		if (isboss==BOSS_KILLED) {
 			music_stop();
 			bossX -= 32;
 			bossDefeatedCounter = 0;
 			bossDefeatedPhase = 0;
 			--isboss;
 		} 
-		if (isboss==0xfe) {
+		if (isboss==BOSS_DEFEATED) {
 			if (!bossDefeatedCounter) {
 				for (i=0; i<4; ++i) {
 					bossExplodeX[i] = rand8()&31;
@@ -1749,12 +1756,13 @@ void bossFight(void)
 				music_play(0);
 			}
 		}
-		if (isboss==0x01) {
+		if (isboss==BOSS_START) {
 			bossX = 56 + (2 * covidXtable[bossIndex])/3;
 			bossY = covidYtable[bossIndex]+9;
 			
 			spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
 			
+
 			if (bossAttack) {
 				if (bossAttack == 1) {
 					//do attack
@@ -1774,6 +1782,14 @@ void bossFight(void)
 
 
 			} else {
+
+				starship_toX = bossX;
+				if (bossY>0x87) {
+					if (starship_x8>bossX)
+						starship_toX = bossX+40;
+					else
+						starship_toX = bossX-40;
+				}
 				pal_col(22, 0x16);
 				bossIndex = (bossIndex + 1) & 511;
 				if (bossAttackTimeout) {
@@ -1781,8 +1797,14 @@ void bossFight(void)
 				} else {
 					if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
 						bossAttack = 60;
+						if (rand8()>127)
+							starship_toX = 0;
+						else
+							starship_toX = 255;
 					}
 				}
+				if (!bossAttractTimer)
+					isboss=0;
 			}
 
 			//boss collision
@@ -1834,7 +1856,7 @@ void bossFight(void)
 				pal_col(25, 0x30);
 				pal_col(26, 0x30);
 				pal_col(27, 0x30);
-				if (bossHealth)
+				if (bossHealth && !(starship_state&STARSHIP_AUTOPILOT))
 					--bossHealth;
 				if (!bossHealth) {
 					isboss = 0xff;
@@ -1866,6 +1888,8 @@ void bossFight(void)
 				}
 			}
 		}
+		if (bossAttractTimer)
+			--bossAttractTimer;
 	}
 }
 
@@ -1876,12 +1900,12 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	//fx_NesDev();
+	fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
-	//fx_Krujeva();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1912,7 +1936,7 @@ void main(void)
 	music_stop();
 	music_play(1);
 
-	isboss = 1;
+	//isboss = 1;
 
 	while(1)
 	{
@@ -1950,7 +1974,7 @@ void main(void)
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 
-		// if (muspos > MUS_PATTERN*3)
+		if (muspos > MUS_PATTERN*3)
 			fx_galaga();		
 
 		
