@@ -40,6 +40,7 @@ unsigned char covidQty, covidLiveQty;
 
 extern unsigned char FT_BUF[];
 
+unsigned char fxFaze = 0;
 unsigned char bossHealth = 15;
 unsigned char tileset;
 unsigned int muspos;
@@ -1577,8 +1578,14 @@ void fx_highscore(void) {
 			hs_strings_y += 16;
 		}
 		--highscore_timer;
-		if (!highscore_timer)
+		if (!highscore_timer) {
 			ishighscore = 0;
+			fxFaze++;
+			if ((fxFaze&3) == 0) {
+				isboss = 1;
+				bossHealth = starship_state&STARSHIP_AUTOPILOT ? 6 : 15;
+			}
+		}
 	}
 }
 
@@ -1772,7 +1779,7 @@ void bossFight(void)
 		}
 		
 		// blinking boss if low hp
-		if (bossHealth<6 && !bossFlash) {
+		if (bossHealth < (starship_state&STARSHIP_AUTOPILOT ? 3 : 6) && !bossFlash) {
 			if (!(nesclock&4)) {
 				pal_col(21, 0x0f);
 				pal_col(22, 0x16);
