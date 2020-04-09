@@ -33,6 +33,8 @@
 #define CMD_LEFT		 		0x01
 #define CMD_RIGHT		 		0x02
 
+#define BOSS_MAX_HP				6
+
 unsigned char isNtsc;
 
 unsigned char covidQty, covidLiveQty;
@@ -40,7 +42,7 @@ unsigned char covidQty, covidLiveQty;
 
 extern unsigned char FT_BUF[];
 
-unsigned char bossHealth = 15;
+unsigned char bossHealth = BOSS_MAX_HP;
 unsigned char tileset;
 unsigned int muspos;
 
@@ -427,6 +429,18 @@ const unsigned char* const covid_explode[]={
 	covid_explode_8_data,
 	covid_explode_8_data
 
+};
+
+const unsigned char* const boss_explode[]={
+	covid_explode_0_data,
+	covid_explode_1_data,
+	covid_explode_2_data,
+	covid_explode_3_data,
+	covid_explode_4_data,
+	covid_explode_5_data,
+	covid_explode_6_data,
+	covid_explode_7_data,
+	covid_explode_8_data
 };
 
 
@@ -1192,7 +1206,7 @@ unsigned int covids_pointers[COVIDS_MAX];
 unsigned int covid_pointer;
 unsigned int points = 0;
 unsigned char points_array[3] = {0, 0, 0};
-unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
+unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate, damage_lag;
 unsigned char covids_states[COVIDS_MAX];
 
 const unsigned char *covidXtable;
@@ -1236,8 +1250,11 @@ void covidsInit(unsigned char phase) {
 	covid_frame = 0;
 }
 
-void earnpoint(void) {
-	++points;
+void earnpoint(unsigned char pluspoint) {
+	if (pluspoint)
+		++points;
+	else
+		--points;
 	if (points>999)
 		points=0;
 	points_array[0]=0xc0+points/100;
@@ -1261,7 +1278,7 @@ void fx_galaga(void) {
 	if (pad_prev&PAD_START) {
 		if (starship_state&STARSHIP_AUTOPILOT) {
 			points = 999;
-			earnpoint();
+			earnpoint(1);
 			starship_state &= (255 ^ STARSHIP_AUTOPILOT);
 			sfx_play(SFX_TELEGA_FLY,0);
 			pad_prev = 0;
@@ -1305,7 +1322,7 @@ void fx_galaga(void) {
 			if (pad_prev&PAD_START) {
 				starship_state |= STARSHIP_AUTOPILOT;
 				points = 999;
-				earnpoint();
+				earnpoint(1);
 				sfx_play(SFX_TELEGA_FLY,0);
 			}
 		}
@@ -1343,8 +1360,11 @@ void fx_galaga(void) {
 
 	if (starship_pause)
 		--starship_pause;
-	if (starship_stunned)
+	if (starship_stunned) {
 		--starship_stunned;
+		if (!starship_stunned)
+			damage_lag = 0;
+	}
 
 	if (!(nesclock&3)) {
 		pal_col(30, starship_pal[starship_flame]);
@@ -1414,7 +1434,7 @@ void fx_Covid19(void) {
 			covids_states[i] = 1;
 			--covidLiveQty;
 			bullet_y = 0;
-			earnpoint();
+			earnpoint(1);
 		}
 	}
 
@@ -1649,9 +1669,29 @@ const unsigned char* const boss_list[]={
 	boss_1_data
 };
 
+void restoreBossPalette(void){
+	pal_col(21, 0x0f);
+	pal_col(22, 0x16);
+	pal_col(25, 0x0f);
+	pal_col(26, 0x16);
+	pal_col(27, 0x26);
+}
 
-
-
+void hitPlayer(void) {
+	++damage_lag;
+	if (damage_lag>1)
+		return;
+	if (points)
+		earnpoint(0);
+	starship_stunned = 60*2;
+	starship_vx = 0;
+	sfx_play(SFX_COVID_ELIMINATED, 0);
+	if (bossHealth<BOSS_MAX_HP) {
+		++bossHealth;
+		if (bossHealth==6)
+			restoreBossPalette();
+	}
+}
 
 
 unsigned int bossIndex = 0;
@@ -1663,132 +1703,162 @@ unsigned char bossCovidX1;
 unsigned char bossCovidX2;
 unsigned char bossCovidX3;
 unsigned char bossX, bossY;
+unsigned char bossDefeatedCounter;
+unsigned char bossDefeatedPhase;
+
+unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
+unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
 
 void bossFight(void)
 {
 	if (isboss) {
-		
-		bossX = 56 + (2 * covidXtable[bossIndex])/3;
-		bossY = covidYtable[bossIndex]+9;
-		
-		spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
-		
-		if (bossAttack) {
-			if (bossAttack == 1) {
-				//do attack
-				bossCovidX1 = bossX;
-				bossCovidX2 = bossX - 16;
-				bossCovidX3 = bossX + 16;
-				bossCovidY = covidYtable[bossIndex] + 8;
-				bossAttackTimeout = 255;
-				sfx_play(SFX_COVID_RESPAWN,1);
-			}
-			--bossAttack;
-
-			if (!(nesclock&2))
-				pal_col(22, 0x01);
-			else
-				pal_col(22, 0x21);
-
-
-		} else {
-			pal_col(22, 0x16);
-			bossIndex = (bossIndex + 1) & 511;
-			if (bossAttackTimeout) {
-				--bossAttackTimeout;
+		if (isboss==0xff) {
+			music_stop();
+			bossX -= 32;
+			bossDefeatedCounter = 0;
+			bossDefeatedPhase = 0;
+			--isboss;
+		} 
+		if (isboss==0xfe) {
+			if (!bossDefeatedCounter) {
+				for (i=0; i<4; ++i) {
+					bossExplodeX[i] = rand8()&31;
+					bossExplodeY[i] = rand8()&15;
+				}
+				sfx_play(SFX_COVID_ELIMINATED,0);
 			} else {
-				if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
-					bossAttack = 60;
-				}
+				for (i=0; i<4; ++i)
+					spr=oam_meta_spr(bossX + bossExplodeX[i], bossY + bossExplodeY[i], spr, boss_explode[bossDefeatedCounter]);
+			}
+			if (!(nesclock&1))
+				++bossDefeatedCounter;
+			if (bossDefeatedCounter>8) {
+				earnpoint(1);
+				++bossDefeatedPhase;
+				bossDefeatedCounter = 0;
+			}
+			if (bossDefeatedPhase>10) {
+				isboss = 0;
+				music_play(0);
 			}
 		}
+		if (isboss==0x01) {
+			bossX = 56 + (2 * covidXtable[bossIndex])/3;
+			bossY = covidYtable[bossIndex]+9;
+			
+			spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
+			
+			if (bossAttack) {
+				if (bossAttack == 1) {
+					//do attack
+					bossCovidX1 = bossX;
+					bossCovidX2 = bossX - 16;
+					bossCovidX3 = bossX + 16;
+					bossCovidY = covidYtable[bossIndex] + 8;
+					bossAttackTimeout = 255;
+					sfx_play(SFX_COVID_RESPAWN,1);
+				}
+				--bossAttack;
 
-		//boss collision
-		if (!starship_stunned && starship_x8>bossX-12 && starship_x8<bossX+24-12) {
-			if (bossY >= 160) {
-				starship_stunned = 60*2;
-				starship_vx = 0;
-				sfx_play(SFX_COVID_ELIMINATED, 0);
-			}
-		}
+				if (!(nesclock&2))
+					pal_col(22, 0x01);
+				else
+					pal_col(22, 0x21);
 
-		//boss covids
-		if (bossCovidY < 200) {
-			spr = oam_meta_spr(bossCovidX1, bossCovidY + 24, spr, seq_covid19[covid_frame]);
-			spr = oam_meta_spr(bossCovidX2, bossCovidY, spr, seq_covid19[covid_frame]);
-			spr = oam_meta_spr(bossCovidX3, bossCovidY, spr, seq_covid19[covid_frame]);
 
-			// Check collision
-
-			if (starship_y<bossCovidY+24 && starship_y>bossCovidY) {
-				if ((starship_x8<bossCovidX2+24 && starship_x8>bossCovidX2) || (starship_x8<bossCovidX3+24 && starship_x8>bossCovidX3)) {
-					starship_stunned = 60*2;
-					starship_vx = 0;
-					sfx_play(SFX_COVID_ELIMINATED, 0);
+			} else {
+				pal_col(22, 0x16);
+				bossIndex = (bossIndex + 1) & 511;
+				if (bossAttackTimeout) {
+					--bossAttackTimeout;
+				} else {
+					if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
+						bossAttack = 60;
+					}
 				}
 			}
 
-			if (starship_y<bossCovidY+48 && starship_y>bossCovidY+24) {
-				if (starship_x8<bossCovidX1+24 && starship_x8>bossCovidX1) {
-					starship_stunned = 60*2;
-					starship_vx = 0;
-					sfx_play(SFX_COVID_ELIMINATED, 0);
+			//boss collision
+			if (!starship_stunned && starship_x8>bossX-12 && starship_x8<bossX+24-12) {
+				if (bossY >= 160) {
+					hitPlayer();
 				}
 			}
 
-			bossCovidX2 -= 1;
-			bossCovidX3 += 1;
-			bossCovidY += 4;
+			//boss covids
+			if (bossCovidY < 200) {
+				spr = oam_meta_spr(bossCovidX1, bossCovidY + 24, spr, seq_covid19[covid_frame]);
+				spr = oam_meta_spr(bossCovidX2, bossCovidY, spr, seq_covid19[covid_frame]);
+				spr = oam_meta_spr(bossCovidX3, bossCovidY, spr, seq_covid19[covid_frame]);
 
-			if (!(nesclock&3)) {
-				++covid_frame;
+				// Check collision
+
+				if (starship_y<bossCovidY+24 && starship_y>bossCovidY) {
+					if ((starship_x8<bossCovidX2+24 && starship_x8>bossCovidX2) || (starship_x8<bossCovidX3+24 && starship_x8>bossCovidX3)) {
+						hitPlayer();
+					}
+				}
+
+				if (starship_y<bossCovidY+48 && starship_y>bossCovidY+24) {
+					if (starship_x8<bossCovidX1+24 && starship_x8>bossCovidX1) {
+						hitPlayer();
+					}
+				}
+
+				bossCovidX2 -= 1;
+				bossCovidX3 += 1;
+				bossCovidY += 4;
+
+				if (!(nesclock&3)) {
+					++covid_frame;
+				}
+				
+				if (covid_frame>2)
+					covid_frame=0;
+
 			}
 			
-			if (covid_frame>2)
-				covid_frame=0;
+			if (bullet_x>bossX-16 && bullet_x<bossX+16 && bullet_y>bossY && bullet_y<bossY+24) {
+				bullet_y = 0;
+				sfx_play(SFX_BOSS_HIT,0);
+				earnpoint(1);
+				bossFlash = 5;
+				pal_col(21, 0x30);
+				pal_col(25, 0x30);
+				pal_col(26, 0x30);
+				pal_col(27, 0x30);
+				if (bossHealth)
+					--bossHealth;
+				if (!bossHealth) {
+					isboss = 0xff;
+					return;
+				}
+			}
 
-		}
-		
-		if (bullet_x>bossX-16 && bullet_x<bossX+16 && bullet_y>bossY && bullet_y<bossY+24) {
-			bullet_y = 0;
-			sfx_play(SFX_BOSS_HIT,0);
-			bossFlash = 5;
-			pal_col(21, 0x30);
-			pal_col(25, 0x30);
-			pal_col(26, 0x30);
-			pal_col(27, 0x30);
-			if (bossHealth)
-				--bossHealth;
-		}
-
-		if (bossFlash) {
-			--bossFlash;
-			if (!bossFlash) {
-				pal_col(21, 0x0f);
-				pal_col(25, 0x0f);
-				pal_col(26, 0x16);
-				pal_col(27, 0x26);
+			if (bossFlash) {
+				--bossFlash;
+				if (!bossFlash) {
+					pal_col(21, 0x0f);
+					pal_col(25, 0x0f);
+					pal_col(26, 0x16);
+					pal_col(27, 0x26);
+				}
+			}
+			
+			// blinking boss if low hp
+			if (bossHealth<6 && !bossFlash) {
+				if (!(nesclock&4)) {
+					restoreBossPalette();
+				}
+				else {
+					pal_col(21, 0x0f);
+					pal_col(22, 0x26);
+					pal_col(25, 0x0f);
+					pal_col(26, 0x26);
+					pal_col(27, 0x37);
+				}
 			}
 		}
-		
-		// blinking boss if low hp
-		if (bossHealth<6 && !bossFlash) {
-			if (!(nesclock&4)) {
-				pal_col(21, 0x0f);
-				pal_col(22, 0x16);
-				pal_col(25, 0x0f);
-				pal_col(26, 0x16);
-				pal_col(27, 0x26);
-			}
-			else {
-				pal_col(21, 0x0f);
-				pal_col(22, 0x26);
-				pal_col(25, 0x0f);
-				pal_col(26, 0x26);
-				pal_col(27, 0x37);
-			}
-		}
-
 	}
 }
 
@@ -1835,10 +1905,11 @@ void main(void)
 	music_stop();
 	music_play(1);
 
+	isboss = 1;
+
 	while(1)
 	{
 		
-		//isboss = 1;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
@@ -1872,7 +1943,7 @@ void main(void)
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 
-		if (muspos > MUS_PATTERN*3)
+		// if (muspos > MUS_PATTERN*3)
 			fx_galaga();		
 
 		
