@@ -34,6 +34,7 @@
 
 _cnrom_set_bank:
 	tax
+	ora secureTable, x
 	sta banktable, x
 	rts
 
@@ -1656,6 +1657,8 @@ palBrightTable8:
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
 	.byte $30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30,$30
+secureTable:
+	.byte $00, $10, $20, $30
 
 	.include "Include/famitone2.sinc"
 	

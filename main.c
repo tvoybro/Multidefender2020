@@ -1309,12 +1309,14 @@ void fx_galaga(void) {
 
 	// Autopilot
 	if (starship_state&STARSHIP_AUTOPILOT && !starship_pause) {
-		if (covidQty == COVIDS_MAX || isboss) {
-			if (starship_x8 < starship_toX) {
-				starship_command = CMD_RIGHT;
-			} else {
+		if (starship_x8 < starship_toX) {
+			starship_command = CMD_RIGHT;
+		} else {
+			if (starship_x8 > starship_toX) {
 				starship_command = CMD_LEFT;
 			}
+		}
+		if (covidQty == COVIDS_MAX || isboss) {
 			if (covidLiveQty && starship_x8==starship_toX && !bullet_y) {
 				bullet_y = starship_y-16;
 				bullet_x = starship_x8-4;
@@ -1618,6 +1620,7 @@ void fx_highscore(void) {
 		--highscore_timer;
 		if (!highscore_timer) {
 			ishighscore = 0;
+			starship_x = 100*256;
 			fxFaze++;
 			if ((fxFaze&3) == 0) {
 				isboss = 1;
@@ -1900,8 +1903,9 @@ void bossFight(void)
 				}
 			}
 		}
-		if (bossAttractTimer)
+		if (bossAttractTimer && starship_state&STARSHIP_AUTOPILOT) {
 			--bossAttractTimer;
+		}
 	}
 }
 
@@ -1945,6 +1949,7 @@ void main(void)
 	music_play(1);
 
 	//isboss = 1;
+	//bossAttractTimer = 60*30;
 
 	while(1)
 	{
@@ -1983,8 +1988,7 @@ void main(void)
 			fx_Covid19();
 
 		if (muspos > MUS_PATTERN*3)
-			fx_galaga();		
-
+			fx_galaga();
 		
 		fx_highscore();
 
