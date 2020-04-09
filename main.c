@@ -30,7 +30,8 @@
 
 unsigned char isNtsc;
 
-unsigned char covidQty = 0;
+unsigned char covidQty, covidLiveQty;
+
 
 extern unsigned char FT_BUF[];
 
@@ -1198,6 +1199,7 @@ void galagaInit(void) {
 }
 
 void covidsInit(unsigned char phase) {
+	covidLiveQty = COVIDS_MAX;
 	if (!(starship_state&STARSHIP_AUTOPILOT))
 		sfx_play(SFX_COVID_RESPAWN,2);
 	covids_rate = 24 + (rand8()&15);
@@ -1273,7 +1275,7 @@ void fx_galaga(void) {
 					--starship_x;
 				}
 			}
-			if (starship_x==starship_toX && !bullet_y) {
+			if (covidLiveQty && starship_x==starship_toX && !bullet_y) {
 				bullet_y = starship_y-16;
 				bullet_x = starship_x-4;
 				starship_pause = 30 + (rand8()&7);
@@ -1376,6 +1378,7 @@ void fx_Covid19(void) {
 			if (!(starship_state&STARSHIP_AUTOPILOT))
 				sfx_play(SFX_COVID_ELIMINATED,1);
 			covids_states[i] = 1;
+			--covidLiveQty;
 			bullet_y = 0;
 			earnpoint();
 		}
@@ -1388,7 +1391,7 @@ void fx_Covid19(void) {
 	if (covid_frame>2)
 		covid_frame=0;
 
-	if (covidQty < COVIDS_MAX && eq_Noise_Val > 5) {
+	if (covidQty < COVIDS_MAX && eq_Noise_Val > 5 && !ishighscore) {
 		++covidQty;
 	}
 
@@ -1747,6 +1750,7 @@ void bossFight(void)
 
 void main(void)
 {
+	
 	set_vram_buffer();
 	clear_vram_buffer();
  	
@@ -1788,12 +1792,18 @@ void main(void)
 
 	while(1)
 	{
-		isboss = 1;
+		
+		//isboss = 1;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
 		spr = 4;
+		
+		if (!isboss) {
+			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
+			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
+		}
 
 		if (!ishighscore) {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
@@ -1812,12 +1822,11 @@ void main(void)
 		
 		bossFight();
 
-		//if (muspos > MUS_PATTERN*3)
-			fx_galaga();
-
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
-		
+
+		if (muspos > MUS_PATTERN*3)
+			fx_galaga();		
 
 		
 		fx_highscore();
@@ -1830,13 +1839,7 @@ void main(void)
 				logoPos=0;
 		}
 
-		// ???? ???????????
-		if ((nesclock&1) == 0 && paletteId < 6) {
-			pal_bg(paletteIn[paletteId]);
-			++paletteId;
-		}
-
-		// ????????????
+		// ñäâèã öâåòîâ ñêðîëëåðà
 		if (paletteId == 6 && (nesclock&15) == 0) {
 			if (++palRollId1 >= 48) {
 				palRollId1 = 0;
@@ -1850,10 +1853,21 @@ void main(void)
 			pal_bg(palette);
 		}
 		
-		// ????????? ????
+		// ñèãàíèå äâèãàòåëÿ ñàìîëåòà
 		if ((nesclock&3) == 0) {
 			palSamoletId ^= 1;
 			pal_col(16+14, palSamolet[palSamoletId]);
+		}
+
+		pal_bg(paletteIn[paletteId]);
+		// öâåò áîêîâûõ ïëàøåê
+		if (!isboss) {
+			pal_col(16+7, paletteIn[paletteId][10]);
+		}
+
+		//fade in ñöåíû		
+		if ((nesclock&1) == 0 && paletteId < 6) {
+			++paletteId;
 		}
 
 		fx_EQ();
