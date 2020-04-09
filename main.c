@@ -1648,6 +1648,13 @@ void bossFight(void)
 			bossCovidX2 -= 1;
 			bossCovidX3 += 1;
 			bossCovidY += 4;
+
+			if (!(nesclock&3)) {
+				++covid_frame;
+			}
+			
+			if (covid_frame>2)
+				covid_frame=0;
 		}
 		
 		// blinking boss if low hp
