@@ -35,7 +35,7 @@ unsigned char covidQty, covidLiveQty;
 
 extern unsigned char FT_BUF[];
 
-unsigned char bossHealth = 30;
+unsigned char bossHealth = 15;
 unsigned char tileset;
 unsigned int muspos;
 
@@ -1735,7 +1735,7 @@ void bossFight(void)
 		}
 		
 		// blinking boss if low hp
-		if (bossHealth<10 && !bossFlash) {
+		if (bossHealth<6 && !bossFlash) {
 			if (!(nesclock&4)) {
 				pal_col(21, 0x0f);
 				pal_col(22, 0x16);
@@ -1801,13 +1801,14 @@ void main(void)
 	while(1)
 	{
 		
-		isboss = 1;
+		//isboss = 1;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
 		spr = 4;
 		
+		// side spr - sprites
 		if (!isboss) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
@@ -1817,7 +1818,8 @@ void main(void)
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
 		}
-		
+
+		//corona spr blink
 		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
 		pal_col(16+0, palette_spr[paletteSprId][0]);
 		pal_col(16+1, palette_spr[paletteSprId][1]);
@@ -1833,7 +1835,7 @@ void main(void)
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 
-		//if (muspos > MUS_PATTERN*3)
+		if (muspos > MUS_PATTERN*3)
 			fx_galaga();		
 
 		
@@ -1847,7 +1849,7 @@ void main(void)
 				logoPos=0;
 		}
 
-		// ñäâèã öâåòîâ ñêðîëëåðà
+		// scroll palette roll
 		if (paletteId == 6 && (nesclock&15) == 0) {
 			if (++palRollId1 >= 48) {
 				palRollId1 = 0;
@@ -1861,19 +1863,19 @@ void main(void)
 			pal_bg(palette);
 		}
 		
-		// ñèãàíèå äâèãàòåëÿ ñàìîëåòà
+		// galaga engine blink
 		if ((nesclock&3) == 0) {
 			palSamoletId ^= 1;
 			pal_col(16+14, palSamolet[palSamoletId]);
 		}
 
 		pal_bg(paletteIn[paletteId]);
-		// öâåò áîêîâûõ ïëàøåê
+		// side spr - palette
 		if (!isboss) {
 			pal_col(16+7, paletteIn[paletteId][10]);
 		}
 
-		//fade in ñöåíû		
+		//fade in background		
 		if ((nesclock&1) == 0 && paletteId < 6) {
 			++paletteId;
 		}
