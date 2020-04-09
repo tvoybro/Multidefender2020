@@ -73,7 +73,7 @@ unsigned char palette[16]={
 	0x30,0x2A,0x1A,0x01
 };
 
-unsigned char hs_char, hs_pointer, ishighscore;
+unsigned char hs_char, hs_pointer, ishighscore, isboss;
 unsigned char hs_strings_y;
 unsigned int highscore_timer;
 unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
@@ -1318,7 +1318,7 @@ void fx_galaga(void) {
 
 void fx_Covid19(void) {
 
-	if (ishighscore)
+	if (ishighscore || isboss)
 		return;
 
 	// Processing Covid-19 viruses
@@ -1596,10 +1596,62 @@ const unsigned char* const boss_list[]={
 	boss_1_data
 };
 
+
+unsigned int bossIndex = 0;
+unsigned char bossAttack = 0;
+unsigned char bossAttackTimeout = 255;
+unsigned char bossHealth = 30;
+unsigned char bossCovidY = 255;
+unsigned char bossCovidX1;
+unsigned char bossCovidX2;
+unsigned char bossCovidX3;
+unsigned char bossX;
 void bossFight(void)
 {
-	spr = oam_meta_spr(128, 80, spr, boss_list[(nesclock&8) ? 1 : 0]);
-	spr = oam_meta_spr(128, 20, spr, boss_list[(nesclock&8) ? 1 : 0]);
+	if (isboss) {
+		
+		bossX = 56 + (2 * covidXtable[bossIndex])/3;
+		
+		spr = oam_meta_spr((56 + 2*(covidXtable[bossIndex])/3), covidYtable[bossIndex], spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
+		
+		if (bossAttack) {
+			if (bossAttack == 1) {
+				//do attack
+				bossCovidX1 = bossX;
+				bossCovidX2 = bossX - 16;
+				bossCovidX3 = bossX + 16;
+				bossCovidY = covidYtable[bossIndex] + 8;
+				bossAttackTimeout = 255;
+			}
+			--bossAttack;
+		} else {
+			bossIndex = (bossIndex + 1) & 511;
+			if (bossAttackTimeout) {
+				--bossAttackTimeout;
+			} else {
+				if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
+					bossAttack = 60;
+				}
+			}
+		}
+
+		//boss covids
+		if (bossCovidY < 200) {
+			spr = oam_meta_spr(bossCovidX1, bossCovidY + 24, spr, seq_covid19[covid_frame]);
+			spr = oam_meta_spr(bossCovidX2, bossCovidY, spr, seq_covid19[covid_frame]);
+			spr = oam_meta_spr(bossCovidX3, bossCovidY, spr, seq_covid19[covid_frame]);
+			bossCovidX2 -= 1;
+			bossCovidX3 += 1;
+			bossCovidY += 4;
+		}
+		
+		// blinking boss if low hp
+		if (bossHealth < 10) {
+			
+		}
+		
+
+	}
 }
 
 
@@ -1608,12 +1660,12 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	fx_NesDev();
+	//fx_NesDev();
  	
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_A);
 
-	fx_Krujeva();
+	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -1643,9 +1695,10 @@ void main(void)
 
 	music_stop();
 	music_play(1);
-	
+
 	while(1)
 	{
+		isboss = 1;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
@@ -1663,16 +1716,16 @@ void main(void)
 			--paletteSprId;
 		}
 
-		if (muspos > MUS_PATTERN*3)
+		
+		bossFight();
+
+		//if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 
 		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 		
-		if (muspos < MUS_PATTERN*2 - (MUS_PATTERN/4)) {
-		
-			bossFight();
-		}
+
 		
 		fx_highscore();
 
