@@ -66,7 +66,7 @@ unsigned char _fs = 0;
 unsigned char scrollPointer = 0;
 unsigned char scrollSym = 0;
 unsigned char scrollerCharPos = 0;
-unsigned char scrollerCharIndex = 0;
+unsigned int scrollerCharIndex = 0;
 unsigned int scrollerPos = 0;
 unsigned int scrollerAddr = 0;
 unsigned int scrollpos = 0;
@@ -496,7 +496,7 @@ const char scrollerData[] =  {
 "HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND CARTRIDGE WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
 " SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLODGA, RUSSIA."
 " WE HAVE YOUR FAVORITE COMPOS: OLDSCHOOL DEMO, INTRO 256B, GRAPHICS, MUSIC. ANIMATION, WILD, ASCII AND ANSI GRAPHICS, TINY MP3. REMOTE ENTRIES ARE ALLOWED. A HAPPY AND HEALTHY DEMOPARTY SPECIAL FOR YOU!"
-" AND FOR NOW, STAY HOME AND MAKE A PROD!"
+" AND FOR NOW, STAY HOME AND MAKE A PROD!            ARE YOU STILL READING? PRESS START AND KICK SOME ASS!                                                 "
 };
 
 // -----------------------------------------------------------------------------------------------------------------
