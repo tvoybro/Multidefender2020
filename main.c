@@ -2066,12 +2066,13 @@ void main(void)
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
 
-			if (isboss)
-				bossFight();
-
 			spr=oam_spr(256-8-24,16,points_array[0],3,spr);
 			spr=oam_spr(256-8-16,16,points_array[1],3,spr);
 			spr=oam_spr(256-8-8,16,points_array[2],3,spr);
+
+			if (isboss)
+				bossFight();
+
 
 			if (muspos > MUS_PATTERN*3)
 				fx_galaga();
