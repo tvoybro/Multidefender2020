@@ -917,24 +917,22 @@ unsigned char kmfStep = 11;
 
 void fx_Krujeva(void)
 {
+	
+	isNtsc = ppu_system() == 0 ? 0 : 1;
 	pal_clear();
 	pal_spr(krujSprPal);
-	pal_bright(4);
+	pal_bg(krujBgPal);
 	cnrom_set_bank(1);
 	bank_spr(1);
-	//vram_adr(NAMETABLE_A);
-	//vram_unrle(kruj_nametable);
 	chr_to_nametable(NAMETABLE_A, NAM_krujeva);
 	cnrom_set_bank(3);
-	ppu_on_all();
-	set_nmi_user_call_on(2);
 	oam_clear();
 	oam_spr(2, 118, 0xFF, 3 | OAM_BEHIND, 0); //253 244 219 210
+	set_nmi_user_call_on(2);
 	ppu_on_all();
-	isNtsc = ppu_system() == 0 ? 0 : 1;
-	
+
 	ppu_wait_nmi();
-	pal_bg(krujBgPal);
+	pal_bright(4);
 	music_play(0);
 
 	while (krujFrm < (isNtsc ? 48 : 46)) //(isNtsc ? 48 : 46))
@@ -1990,8 +1988,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-//	fx_NesDev();
-//	fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2025,7 +2023,7 @@ void main(void)
 
 	while(1)
 	{
-		//ishighscore = 1;
+		ishighscore = 1;
 		//isboss = 1;
 		//bossAttractTimer = 60*30;
 
