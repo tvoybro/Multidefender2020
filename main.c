@@ -31,7 +31,7 @@
 #define BOSS_START		 		0x01
 #define BOSS_KILLED		 		0xff
 #define BOSS_DEFEATED	 		0xfe
-
+#define BOSS_ATTACK_TIMEOUT		0x80
 
 #define BOSS_MAX_HP				6
 
@@ -74,7 +74,7 @@ unsigned int scrollpos = 0;
 // Boss vars
 unsigned int bossIndex = 0;
 unsigned char bossAttack = 0;
-unsigned char bossAttackTimeout = 255;
+unsigned char bossAttackTimeout = BOSS_ATTACK_TIMEOUT;
 unsigned char bossCovidY = 255;
 unsigned char bossFlash = 0;
 unsigned char bossCovidX1;
@@ -1736,7 +1736,7 @@ void fx_highscore(void) {
 			isboss = 1;
 			bossAttack = 0;
 			bossCovidY = 255;
-			bossAttackTimeout = 255;
+			bossAttackTimeout = BOSS_ATTACK_TIMEOUT;
 			restoreBossPalette();
 			bossHealth = 15;
 			bossAttractTimer = 60*25;
@@ -1865,18 +1865,17 @@ void bossFight(void)
 	if (isboss==BOSS_START) {
 		bossX = 56 + (2 * covidXtable[bossIndex])/3;
 		bossY = covidYtable[bossIndex]+18;
-		
+
 		spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
-		
 
 		if (bossAttack) {
 			if (bossAttack == 1) {
 				//do attack
-				bossCovidX1 = bossX;
-				bossCovidX2 = bossX - 16;
-				bossCovidX3 = bossX + 16;
+				bossCovidX1 = bossX - 12;
+				bossCovidX2 = bossX - 16 - 12;
+				bossCovidX3 = bossX + 16 - 12;
 				bossCovidY = covidYtable[bossIndex] + 8;
-				bossAttackTimeout = 255;
+				bossAttackTimeout = BOSS_ATTACK_TIMEOUT;
 				if (!(starship_state&STARSHIP_AUTOPILOT))
 					sfx_play(SFX_COVID_RESPAWN,1);
 			}
@@ -1902,7 +1901,7 @@ void bossFight(void)
 			if (bossAttackTimeout) {
 				--bossAttackTimeout;
 			} else {
-				if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
+				if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5 && bossX > 63 && bossX < 196) {
 					bossAttack = 60;
 					if (rand8()>127)
 						starship_toX = 0;
@@ -2015,8 +2014,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	fx_NesDev();
-	fx_Krujeva();
+	//fx_NesDev();
+	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2051,8 +2050,8 @@ void main(void)
 	while(1)
 	{
 		//ishighscore = 1;
-		//isboss = 1;
-		//bossAttractTimer = 60*30;
+		isboss = 1;
+		bossAttractTimer = 60*30;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
