@@ -1644,13 +1644,13 @@ const unsigned int sineTableTextBobbling[32]={
 const char greets_list[]={
 	"SHIRU   "
 	"NINTENDO"
+	"THESUPER"
 	"DEMARCHE"
 	"EXCESSTM"
-	"THESUPER"
-	" FENOMEN"
-
 	"SANDS   "
+
 	"KPACKU  "
+	" FENOMEN"
 	"MEGUS   "
 	"SERZHSFT"
 	"GEMBABOY"
