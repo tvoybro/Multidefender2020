@@ -567,6 +567,14 @@ const unsigned int eq_Pulse2right_NT[7] = {
 }
 */
 
+void restoreBossPalette(void){
+	pal_col(21, 0x0f);
+	pal_col(22, 0x16);
+	pal_col(25, 0x0f);
+	pal_col(26, 0x16);
+	pal_col(27, 0x26);
+}
+
 void chr_to_nametable(unsigned int nametable, unsigned char *src) {
 	for (i=0;i<16;++i) {
 		vram_adr((int) src+(i*64));
@@ -1615,46 +1623,50 @@ const unsigned int sineTableTextBobbling[32]={
 
 const char greets_list[]={
 	"SHIRU   "
-	"THESUPER"
-	"ATEBIT  "
-	"FENOMEN "
-	"SANDS   "
-	"MEGUS   "
-	"KPACKU  "
+	"DEMARCHE"
 	"EXCESSTM"
+	"THESUPER"
+	" FENOMEN"
+	"   SANDS"
 
+	"KPACKU  "
+	"MEGUS   "
 	"HOOYPROG"
 	"SERZHSFT"
 	"GEMBABOY"
 	"DR. MAX "
+
 	"QUITE   "
 	"R.M.D.A "
 	"ERRORSFT"
+	"   VERVE"
 	"SPECCYPL"
-
-	"VERVE   "
-	"DEMARCHE"
 	"STARDUST"
+
 	"TITAN   "
 	"ABYSS   "
-	"LOONIES "
-	"KEWLERS "
-	"BOOZE   "
+	"ATEBIT  "
+	"   BOOZE"
+	" LOONIES"
+	" KEWLERS"
 
+	"COCOON  "
 	"FRBRSCH "
 	"FAIRLGHT"
 	"SPACEBLS"
-	"COCOON  "
 	"ASD, LSD"
 	"MFX, TBL"
+
+	"UCL     "
 	"CNSPRCY "
 	"HAUJOBB "	
-
-	"CENSOR  "
-	"CNCDBL  "
-	"UCL     "
+	"  CENSOR"
+	"  CNCDBL"
 	"RZR 1911"
+
 	"MAYHEM  "
+	"RZR 1911"
+	"RZR 1911"
 	"RZR 1911"
 	"RZR 1911"
 	"RZR 1911"
@@ -1665,11 +1677,16 @@ void fx_highscore(void) {
 		scroll(256, 0);
 		hs_strings_y = 40;
 		hiPage = hiPointer;
-		for (i=0; i<8; ++i) {
+		for (i=0; i<6; ++i) {
 			hiTextY = hs_strings_y + *(sineTableTextBobbling + highscore_strings_offsets[i]);
-			hiTextX = 70;
+			hiTextX = 20;
+
+			if (i>2)
+				hiTextX += 100;
+
 			for (j=0; j<8; ++j) {
-				spr = oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
+				oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
+				spr+=4;
 				hiTextX += 16;
 			}
 			if (nesclock&1) {
@@ -1677,20 +1694,28 @@ void fx_highscore(void) {
 				highscore_strings_offsets[i] &= 31;
 			}
 			hs_strings_y += 16;
+			
+			if (i==2)
+				hs_strings_y += 24;
+			
 			hiPage += 8;
 		}
 		--highscore_timer;
 		if (!highscore_timer) {
-			hiPointer += 64;
+			hiPointer += 6*8;
+			if (hiPointer>7*48)
+				hiPointer = 0;
 
 			pal_col(27, 0x26);
-			pal_col(25, 0x0f);
+			pal_col(28, 0x0f);
+
 
 			ishighscore = 0;
 			starship_x = 100*256;
 			fxFaze++;
-			if ((fxFaze&3) == 0) {
+			if (!(fxFaze&3)) {
 				isboss = 1;
+				restoreBossPalette();
 				bossHealth = 15;
 				bossAttractTimer = 60*30;
 			}
@@ -1765,14 +1790,6 @@ const unsigned char* const boss_list[]={
 	boss_0_data,
 	boss_1_data
 };
-
-void restoreBossPalette(void){
-	pal_col(21, 0x0f);
-	pal_col(22, 0x16);
-	pal_col(25, 0x0f);
-	pal_col(26, 0x16);
-	pal_col(27, 0x26);
-}
 
 void hitPlayer(void) {
 	++damage_lag;
