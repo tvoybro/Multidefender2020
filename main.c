@@ -71,7 +71,25 @@ unsigned int scrollerPos = 0;
 unsigned int scrollerAddr = 0;
 unsigned int scrollpos = 0;
 
+// Boss vars
+unsigned int bossIndex = 0;
+unsigned char bossAttack = 0;
+unsigned char bossAttackTimeout = 255;
+unsigned char bossCovidY = 255;
+unsigned char bossFlash = 0;
+unsigned char bossCovidX1;
+unsigned char bossCovidX2;
+unsigned char bossCovidX3;
+unsigned char bossX, bossY;
+unsigned char bossDefeatedCounter;
+unsigned char bossDefeatedPhase;
+
 #pragma bss-name (pop)
+
+
+unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
+unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
+
 
 unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
 unsigned char bossHealth = 15;
@@ -493,11 +511,10 @@ const unsigned char const starship_pal[] = {
 
 const char scrollerData[] =  {
 "HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND CARTRIDGE WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
-" SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLODGA, RUSSIA."
+" SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLOGDA, RUSSIA."
 " WE HAVE YOUR FAVORITE COMPOS: OLDSCHOOL DEMO, INTRO 256B, GRAPHICS, MUSIC. ANIMATION, WILD, ASCII AND ANSI GRAPHICS, TINY MP3. REMOTE ENTRIES ARE ALLOWED. A HAPPY AND HEALTHY DEMOPARTY SPECIAL FOR YOU!"
-" AND FOR NOW, STAY HOME AND MAKE A PROD!            ARE YOU STILL READING? PRESS START AND KICK SOME ASS!                                                 "
+" AND FOR NOW, STAY HOME AND MAKE A PRODS!            ARE YOU STILL READING? PRESS START AND KICK SOME ASS!                                                 "
 };
-
 // -----------------------------------------------------------------------------------------------------------------
 
 unsigned char eq_Pulse1_Volume = 0;		// vol = FT_BUF[0]&0b00001111 -> 00 min 0f max -> table offset = vol div 3
@@ -1626,46 +1643,46 @@ const unsigned int sineTableTextBobbling[32]={
 
 const char greets_list[]={
 	"SHIRU   "
+	"NINTENDO"
+	"THESUPER"
 	"DEMARCHE"
 	"EXCESSTM"
-	"THESUPER"
-	" FENOMEN"
-	"   SANDS"
+	"SANDS   "
 
 	"KPACKU  "
+	"FENOMEN "
 	"MEGUS   "
-	"HOOYPROG"
 	"SERZHSFT"
 	"GEMBABOY"
-	"DR. MAX "
+	" DR. MAX"
 
 	"QUITE   "
 	"R.M.D.A "
-	"ERRORSFT"
+	"HOOYPROG"
 	"   VERVE"
 	"SPECCYPL"
 	"STARDUST"
 
 	"TITAN   "
 	"ABYSS   "
-	"ATEBIT  "
+	"ERRORSFT"
 	"   BOOZE"
 	" LOONIES"
 	" KEWLERS"
 
 	"COCOON  "
-	"FRBRSCH "
+	"ATEBIT  "
 	"FAIRLGHT"
 	"SPACEBLS"
 	"ASD, LSD"
 	"MFX, TBL"
 
-	"UCL     "
+	"RZR 1911"
 	"CNSPRCY "
 	"HAUJOBB "	
 	"  CENSOR"
+	" FRBRSCH"
 	"  CNCDBL"
-	"RZR 1911"
 
 	"MAYHEM  "
 	"EPHIDRNA"
@@ -1813,21 +1830,6 @@ void hitPlayer(void) {
 			restoreBossPalette();
 	}
 }
-
-unsigned int bossIndex = 0;
-unsigned char bossAttack = 0;
-unsigned char bossAttackTimeout = 255;
-unsigned char bossCovidY = 255;
-unsigned char bossFlash = 0;
-unsigned char bossCovidX1;
-unsigned char bossCovidX2;
-unsigned char bossCovidX3;
-unsigned char bossX, bossY;
-unsigned char bossDefeatedCounter;
-unsigned char bossDefeatedPhase;
-
-unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
-unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
 
 void bossFight(void)
 {
@@ -2015,8 +2017,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	//fx_NesDev();
-	//fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2060,11 +2062,10 @@ void main(void)
 		spr = 4;
 		
 		// side spr - sprites
-/*		if (!isboss) {
+		if (!isboss) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
-*/
 
 		fx_highscore();
 
