@@ -492,7 +492,6 @@ const unsigned char const starship_pal[] = {
 };
 
 const char scrollerData[] =  {
-//	"HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
 "HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND CARTRIDGE WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
 " SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLODGA, RUSSIA."
 " WE HAVE YOUR FAVORITE COMPOS: OLDSCHOOL DEMO, INTRO 256B, GRAPHICS, MUSIC. ANIMATION, WILD, ASCII AND ANSI GRAPHICS, TINY MP3. REMOTE ENTRIES ARE ALLOWED. A HAPPY AND HEALTHY DEMOPARTY SPECIAL FOR YOU!"
@@ -1467,8 +1466,8 @@ void fx_Covid19(void) {
 					covids_phase = (covids_phase + 1) & 3;
 					covidsInit(covids_phase);
 					if (starship_state&STARSHIP_AUTOPILOT) {
-						pal_col(27, 0x2b);
-						pal_col(25, 0x07);
+						pal_col(27, 0x04);
+						pal_col(25, 0x30);
 						ishighscore = 1;
 						highscore_timer = 60*6;
 					}
@@ -1711,7 +1710,7 @@ void fx_highscore(void) {
 				hiPointer = 0;
 
 			pal_col(27, 0x26);
-			pal_col(28, 0x0f);
+			pal_col(25, 0x0f);
 
 
 			ishighscore = 0;
@@ -1912,8 +1911,8 @@ void bossFight(void)
 			if (!bossAttractTimer) {
 				isboss=0;
 				ishighscore = 1;
-				pal_col(27, 0x2b);
-				pal_col(25, 0x07);
+				pal_col(27, 0x04);
+				pal_col(25, 0x30);
 				highscore_timer = 60*6;
 			}
 		}
