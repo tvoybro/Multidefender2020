@@ -35,7 +35,10 @@
 #define EQ_CHR_OFF 				0xCD
 #define EQ_CHR_ON 				0xA8
 
+// NOTE: You should build cc65 from source in order to use binary constants.
 #define STARSHIP_AUTOPILOT 		0b10000000
+// Otherwise you need to replace this constants with dec or hex: 0b10000000 = 0x80 = 128
+
 #define CMD_LEFT		 		0x01
 #define CMD_RIGHT		 		0x02
 
