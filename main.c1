@@ -37,45 +37,8 @@
 
 unsigned char isNtsc;
 
-
-#pragma bss-name (push,"ZEROPAGE")
-unsigned char hiTextY;
-unsigned char hiTextX;
-unsigned int hiPage;
-unsigned char hiPointer;
-unsigned char hiChr;
 unsigned char covidQty, covidLiveQty;
-unsigned char logoPos, logoX, nesclock = 0;
-unsigned char ishighscore, isboss;
-unsigned char hs_strings_y;
-unsigned int highscore_timer;
 
-unsigned char i = 0;
-unsigned char j = 0;
-
-unsigned char fxFaze = 0;
-unsigned char tileset;
-unsigned int muspos;
-unsigned int bossAttractTimer = 0;
-unsigned char buffa[64];
-
-unsigned int starship_x, starship_newx;
-signed int starship_vx;
-unsigned char starship_y, starship_state, starship_toX, starship_pause, starship_flame, starship_stunned, starship_command, starship_x8;
-unsigned char bullet_x, bullet_y, bullet_timeout;
-unsigned char _fs = 0;
-unsigned char scrollPointer = 0;
-unsigned char scrollSym = 0;
-unsigned char scrollerCharPos = 0;
-unsigned char scrollerCharIndex = 0;
-unsigned int scrollerPos = 0;
-unsigned int scrollerAddr = 0;
-unsigned int scrollpos = 0;
-
-#pragma bss-name (pop)
-
-unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
-unsigned char bossHealth = 15;
 
 extern unsigned char FT_BUF[];
 extern unsigned char NAM_krujeva[];
@@ -83,10 +46,16 @@ extern unsigned char NAM_multi_logo_A[];
 extern unsigned char NAM_multi_logo_B[];
 extern unsigned char NAM_nesdev_A[];
 
+unsigned char fxFaze = 0;
+unsigned char bossHealth = 15;
+unsigned char tileset;
+unsigned int muspos;
+unsigned int bossAttractTimer = 0;
+
+unsigned char buffa[64];
 
 unsigned char paletteId = 0;
-
-const unsigned char paletteIn[6][16]={
+unsigned char paletteIn[6][16]={
 	{0x0F,0x0F,0x0F,0x0F,
 	 0x0F,0x30,0x0F,0x0F,
 	 0x0F,0x30,0x0F,0x0F,
@@ -114,14 +83,20 @@ const unsigned char paletteIn[6][16]={
 };
 
 
-const unsigned char palette[16]={
+unsigned char palette[16]={
 	0x30,0x22,0x13,0x01,
 	0x30,0x16,0x13,0x22,
 	0x30,0x16,0x31,0x22,
 	0x30,0x2A,0x1A,0x01
 };
 
+unsigned char hs_char, hs_pointer, ishighscore, isboss;
+unsigned char hs_strings_y;
+unsigned int highscore_timer;
+unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
 
+unsigned char i = 0;
+unsigned char j = 0;
 
 unsigned char palRollId = 0;
 const unsigned char palRollList[48] = {
@@ -239,7 +214,6 @@ const unsigned char palNesdev[15][16] = {
 	0x0F,0x0F,0x22,0x32,
 	0x0F,0x0F,0x0F,0x0F},
 
-
 	//text-in-6
 	{0x0F,0x12,0x22,0x30,
 	0x0F,0x02,0x12,0x30,
@@ -261,7 +235,7 @@ const unsigned char palNesdev[15][16] = {
 	0x0F,0x0F,0x22,0x32,
 	0x0F,0x00,0x10,0x30},
 	
-/*
+	
 	//fadeout-10
 	{0x0F,0x12,0x22,0x32,
 	0x0F,0x02,0x12,0x32,
@@ -287,7 +261,6 @@ const unsigned char palNesdev[15][16] = {
 	0x0F,0x0F,0x0F,0x0F,
 	0x0F,0x0F,0x0F,0x0F,
 	0x0F,0x0F,0x0F,0x0F},
-*/
 };
 
 const unsigned char covid19_0_data[]={
@@ -492,7 +465,23 @@ const unsigned char const starship_pal[] = {
 	0x17, 0x27, 0x05, 0x27
 };
 
+unsigned int starship_x, starship_newx;
+signed int starship_vx;
+unsigned char starship_y, starship_state, starship_toX, starship_pause, starship_flame, starship_stunned, starship_command, starship_x8;
+unsigned char bullet_x, bullet_y, bullet_timeout;
+
 const char scrollerData[] = "HELLO WORLD! BONJOUR LE MONDE! HALO A SHAOGHAIL! SALVE MUNDI SINT! HELLO VILAG! KAUPAPA HUA! CIAO MONDO! HEJ VERDEN! SAWUBONA MHLABA! SVEIKA PASAULE! HALO DUNIA! SALU MUNDU! DOMHAN HELLO! HOLA MUNDO! ... END OF SCROLLER ...              ONCE AGAIN:";
+
+unsigned char _fs = 0;
+unsigned char scrollPointer = 0;
+unsigned char scrollSym = 0;
+unsigned char scrollerCharPos = 0;
+unsigned char scrollerCharIndex = 0;
+unsigned int scrollerPos = 0;
+unsigned int scrollerAddr = 0;
+
+unsigned int scrollpos = 0;
+unsigned char logoPos, logoX, nesclock = 0;
 
 // -----------------------------------------------------------------------------------------------------------------
 
@@ -653,7 +642,7 @@ void fx_SplitScroll(void)
 
 	if (eq_Noise_Val)
 		--eq_Noise_Val;
-	scrollerPos = (scrollerPos + 1) & 511;
+	scrollerPos = (scrollerPos + 2) & 511;
 
 
 }
@@ -685,8 +674,13 @@ unsigned char telegaX = 64;		//64+8+4;	//64;4
 unsigned char telegaY = 128+64-16;	//128+32-4;	//128+64;3
 unsigned char telegaPalId = 0;
 
-const unsigned char telegaPal[4] = {
-	0x0F,0x1C,0x21,0x30
+const unsigned char telegaPal[6][4] = {
+	{0x0F,0x0F,0x0F,0x0F},
+	{0x0F,0x02,0x02,0x02},
+	{0x0F,0x02,0x02,0x12},
+	{0x0F,0x02,0x12,0x21},
+	{0x0F,0x1C,0x21,0x31},
+	{0x0F,0x1C,0x21,0x30}
 };
 
 unsigned char nesDevPlayCtrl = 0;
@@ -694,15 +688,12 @@ unsigned char nesDevPlayCtrl = 0;
 void fx_NesDev(void)
 {
 	//nesdev
-	pal_clear();
-	//pal_bg(palNesdev[14]);
-	pal_spr(telegaPal);
-	pal_spr_bright(0);
+	pal_bg(palNesdev[14]);
+	pal_spr(palNesdev[14]);
 	cnrom_set_bank(1);
 	bank_spr(0);
 	chr_to_nametable(NAMETABLE_A, NAM_nesdev_A);
 	ppu_on_all();
-	
 	
 	while(nesdevFaze < 4)
 	{
@@ -764,17 +755,14 @@ void fx_NesDev(void)
 				}
 
 				// telega in
-				pal_spr_bright(telegaPalId > 4 ? 4 : telegaPalId);
 				if (telegaX < 192+8) {
 					telegaX += 4;	// 2 4
 					telegaY -= 3;	// 1 3
 				}
 				if ((nesclock & 3) == 0 && telegaPalId < 6) {
 					++telegaPalId;
-					//pal_spr(telegaPal[telegaPalId - 1]);
-					
+					pal_spr(telegaPal[telegaPalId - 1]);
 				}
-				
 			}
 		}
 		//fade in credits
@@ -800,8 +788,7 @@ void fx_NesDev(void)
 			
 			if (nesdevPalId < 14 && ((nesclock & 3) == 0)) {
 				++nesdevPalId;
-				pal_bg_bright(14 - nesdevPalId);
-				//pal_bg(palNesdev[nesdevPalId]);
+				pal_bg(palNesdev[nesdevPalId]);
 			}
 			if (nesclock == 128) {
 				nesdevFaze = 4;
@@ -810,10 +797,9 @@ void fx_NesDev(void)
 			// telega out
 			telegaX += 4;
 			telegaY -= 3;
-			
 			if ((nesclock&1) && telegaPalId > 0) {
 				--telegaPalId;
-				pal_spr_bright(telegaPalId > 4 ? 4 : telegaPalId);
+				pal_spr(telegaPal[telegaPalId]);
 			}
 			
 		}
@@ -828,14 +814,14 @@ unsigned char krujPalId = 0;
 unsigned char krujBgPalId = 0;
 unsigned char krujWait2 = 0;
 
-const unsigned char krujBgPal[8] = {
-	0x0F,0x0F,0x20,0x30,	0x0F,0x20,0x20,0x30
-	/*{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
+const unsigned char krujBgPal[8][8] = {
+	{0x0F,0x0F,0x20,0x30,	0x0F,0x20,0x20,0x30},
+	{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
 	{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
 	{0x0F,0x0F,0x22,0x22,	0x0F,0x22,0x22,0x22},
 	{0x0F,0x0F,0x12,0x12,	0x0F,0x12,0x12,0x12},
 	{0x0F,0x0F,0x02,0x02,	0x0F,0x02,0x02,0x02},
-	{0x0F,0x0F,0x0F,0x0F,	0x0F,0x0F,0x0F,0x0F},*/
+	{0x0F,0x0F,0x0F,0x0F,	0x0F,0x0F,0x0F,0x0F},
 };
 const unsigned char krujSprPal[16] = {
 	0x0F,0x30,0x0F,0x0F,
@@ -919,7 +905,6 @@ void fx_Krujeva(void)
 {
 	pal_clear();
 	pal_spr(krujSprPal);
-	pal_bright(4);
 	cnrom_set_bank(1);
 	bank_spr(1);
 	//vram_adr(NAMETABLE_A);
@@ -934,7 +919,7 @@ void fx_Krujeva(void)
 	isNtsc = ppu_system() == 0 ? 0 : 1;
 	
 	ppu_wait_nmi();
-	pal_bg(krujBgPal);
+	pal_bg(krujBgPal[0]);
 	music_play(0);
 
 	while (krujFrm < (isNtsc ? 48 : 46)) //(isNtsc ? 48 : 46))
@@ -945,11 +930,10 @@ void fx_Krujeva(void)
 		clear_vram_buffer();
 		
 		
-		if (krujFrm > 44 && krujBgPalId < 4) {
+		if (krujFrm > 44 && krujBgPalId < 6) {
 			if ((nesclock&3) == 0) {
 				++krujBgPalId;
-				//pal_bg(krujBgPal[krujBgPalId]);
-				pal_bg_bright(4- krujBgPalId);
+				pal_bg(krujBgPal[krujBgPalId]);
 			}
 		}
 
@@ -963,7 +947,7 @@ void fx_Krujeva(void)
 				if (krujAnimaLenId1 < 43) {
 					j = krujAnimaLen1[krujAnimaLenId1];
 					for (i = 0; i < j; i++) {
-						krujChr = krujAnimaChr1[krujAnimaId1][2];
+						krujChr = *(krujAnimaChr1 + krujAnimaId1 + 2);
 						if (krujChr != 0) {
 							krujHi = 256 * krujAnimaChr1[krujAnimaId1][0];
 							krujLo = krujAnimaChr1[krujAnimaId1][1];
@@ -1297,7 +1281,9 @@ void earnpoint(unsigned char pluspoint) {
 }
 
 void fx_galaga(void) {
-
+	
+	if (ishighscore)
+		return;
 
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
@@ -1429,6 +1415,9 @@ void fx_galaga(void) {
 
 void fx_Covid19(void) {
 
+	if (ishighscore || isboss)
+		return;
+
 	// Processing Covid-19 viruses
 	for(i=0;i<COVIDS_MAX;++i)
 	{
@@ -1455,8 +1444,6 @@ void fx_Covid19(void) {
 					covids_phase = (covids_phase + 1) & 3;
 					covidsInit(covids_phase);
 					if (starship_state&STARSHIP_AUTOPILOT) {
-						pal_col(27, 0x2b);
-						pal_col(25, 0x07);
 						ishighscore = 1;
 						highscore_timer = 60*6;
 					}
@@ -1613,82 +1600,29 @@ const unsigned int sineTableTextBobbling[32]={
 0
 };
 
-const char greets_list[]={
-	"SHIRU   "
-	"THESUPER"
-	"ATEBIT  "
-	"FENOMEN "
-	"SANDS   "
-	"MEGUS   "
-	"KPACKU  "
-	"EXCESSTM"
-
-	"HOOYPROG"
-	"SERZHSFT"
-	"GEMBABOY"
-	"DR. MAX "
-	"QUITE   "
-	"R.M.D.A "
-	"ERRORSFT"
-	"SPECCYPL"
-
-	"VERVE   "
-	"DEMARCHE"
-	"STARDUST"
-	"TITAN   "
-	"ABYSS   "
-	"LOONIES "
-	"KEWLERS "
-	"BOOZE   "
-
-	"FRBRSCH "
-	"FAIRLGHT"
-	"SPACEBLS"
-	"COCOON  "
-	"ASD, LSD"
-	"MFX, TBL"
-	"CNSPRCY "
-	"HAUJOBB "	
-
-	"CENSOR  "
-	"CNCDBL  "
-	"UCL     "
-	"RZR 1911"
-	"MAYHEM  "
-	"RZR 1911"
-	"RZR 1911"
-	"RZR 1911"
-};
-
 void fx_highscore(void) {
 	if (ishighscore) {
+
+		//pal_col(27, 0x02); // char main color
+		//pal_col(25, 0x22); // char shadow color
+
 		scroll(256, 0);
+
 		hs_strings_y = 40;
-		hiPage = hiPointer;
-		for (i=0; i<8; ++i) {
-			hiTextY = hs_strings_y + *(sineTableTextBobbling + highscore_strings_offsets[i]);
-			hiTextX = 70;
-	
-			for (j=0; j<8; ++j) {
-				hiChr = greets_list[hiPage+j]+144;
-				oam_spr(hiTextX, hiTextY, hiChr, 2, spr);
-				spr+=4;
-				hiTextX += 16;
-			}
-			if (nesclock&1) {
+
+		for (i=0;i<8;++i)
+		{
+
+			spr=oam_meta_spr(70, hs_strings_y+sineTableTextBobbling[highscore_strings_offsets[i]], spr, highscore_table[i]);
+
+			if (!(nesclock&1)) {
 				++highscore_strings_offsets[i];
 				highscore_strings_offsets[i] &= 31;
 			}
 			hs_strings_y += 16;
-			hiPage += 8;
 		}
 		--highscore_timer;
 		if (!highscore_timer) {
-			hiPointer += 64;
-
-			pal_col(27, 0x26);
-			pal_col(25, 0x0f);
-
 			ishighscore = 0;
 			starship_x = 100*256;
 			fxFaze++;
@@ -1700,7 +1634,6 @@ void fx_highscore(void) {
 		}
 	}
 }
-
 
 const unsigned char boss_0_data[]={
 	-32,- 6,0x30,2,
@@ -1845,7 +1778,7 @@ void bossFight(void)
 		}
 		if (isboss==BOSS_START) {
 			bossX = 56 + (2 * covidXtable[bossIndex])/3;
-			bossY = covidYtable[bossIndex]+18;
+			bossY = covidYtable[bossIndex]+9;
 			
 			spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
 			
@@ -1993,8 +1926,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-//	fx_NesDev();
-//	fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2015,7 +1948,6 @@ void main(void)
 
 	pal_bg(paletteIn[0]);
 	pal_spr(palette_spr_init);	
-	pal_bg_bright(4);
 	cnrom_set_bank(0);
 	bank_spr(1);
 	ppu_on_all();
@@ -2038,11 +1970,11 @@ void main(void)
 		spr = 4;
 		
 		// side spr - sprites
-/*		if (!isboss) {
+		if (!isboss) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
-*/
+
 		if (!ishighscore) {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
@@ -2061,10 +1993,10 @@ void main(void)
 		
 		bossFight();
 
-		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4) && !(ishighscore || isboss))
+		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 			fx_Covid19();
 
-		if (muspos > MUS_PATTERN*3 && !ishighscore)
+		if (muspos > MUS_PATTERN*3)
 			fx_galaga();
 		
 		fx_highscore();
@@ -2108,8 +2040,7 @@ void main(void)
 			++paletteId;
 		}
 
-		if (!ishighscore)
-			fx_EQ();
+		fx_EQ();
 		fx_SplitScroll();
 		++nesclock;
 
