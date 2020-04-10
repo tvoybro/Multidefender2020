@@ -65,6 +65,7 @@ unsigned int highscore_timer;
 
 unsigned char i = 0;
 unsigned char j = 0;
+unsigned char k = 0;
 
 unsigned char fxFaze = 0;
 unsigned char tileset;
@@ -1006,64 +1007,18 @@ void fx_Krujeva(void)
 		if (krujFrm > 43) {
 			if (krujWait == 0) {
 				spr = 4;
-				
 				j = 0;
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-				
+				k = 0;
+				for (i = 15; i; --i) {
+					spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+					spr = oam_spr(kmfList2[k++], kmfList2[k++], 0x01, 3, spr);
+				}
 				j = 0;
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList2[j++], kmfList2[j++], 0x01, 3, spr);
-				
-				j = 0;
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-
-				j = 0;
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
-				spr = oam_spr(kmfList4[j++], kmfList4[j++], 0x01, 3, spr);
+				k = 0;
+				for (i = 10; i; --i) {
+					spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+					spr = oam_spr(kmfList4[k++], kmfList4[k++], 0x01, 3, spr);
+				}
 			}
 			if (krujWait == 1) {
 				if (kmfStep) {
