@@ -1,4 +1,15 @@
-// Multimatograf 2020 gamevitro
+/* -----------------------------------------------------------------------------
+
+	MultiDefender: Multimatograf 2020 gamevitro for NES/Famicom
+	Code: mr287cc, tmk/demarche
+	Music: n1k-0/stardust
+	Visuals: adam bazaroff/excess team
+
+	Mapper: CNROM
+
+	Feel free to do anything you want with this code, consider it Public Domain
+
+-------------------------------------------------------------------------------- */
 
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
@@ -1856,6 +1867,7 @@ void bossFight(void)
 		if (bossDefeatedPhase>10) {
 			isboss = 0;
 			music_play(0);
+			// Congratulations, you defended Multimatograf from nasty coronavirus with a score of 1000 points.
 		}
 	}
 	if (isboss==BOSS_START) {
