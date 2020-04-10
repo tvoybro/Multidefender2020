@@ -1677,12 +1677,12 @@ const char greets_list[]={
 	"ASD, LSD"
 	"MFX, TBL"
 
-	"RZR 1911"
+	"RZR1911 "
 	"CNSPRCY "
 	"HAUJOBB "	
 	"  CENSOR"
 	" FRBRSCH"
-	"  CNCDBL"
+	"    CNCD"
 
 	"MAYHEM  "
 	"EPHIDRNA"
