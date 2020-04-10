@@ -2014,8 +2014,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	//fx_NesDev();
-	//fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2050,8 +2050,8 @@ void main(void)
 	while(1)
 	{
 		//ishighscore = 1;
-		isboss = 1;
-		bossAttractTimer = 60*30;
+		//isboss = 1;
+		//bossAttractTimer = 60*30;
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
