@@ -1233,7 +1233,7 @@ void fx_galaga(void) {
 			}
 		}
 		if (covidQty == COVIDS_MAX || isboss) {
-			if (covidLiveQty && starship_x8==starship_toX && !bullet_y) {
+			if (covidLiveQty && (starship_x8 >= starship_toX - 1 && starship_x8 <= starship_toX + 1) && !bullet_y) {
 				bullet_y = starship_y-16;
 				bullet_x = starship_x8-4;
 				starship_pause = 30 + (rand8()&7);
@@ -1331,10 +1331,21 @@ void fx_Covid19(void) {
 	// Processing Covid-19 viruses
 	for(i=0;i<COVIDS_MAX;++i)
 	{
+
 		covid_pointer = covids_pointers[i];
 		covid_x = covidXtable[covid_pointer];
 		covid_y = covidYtable[covid_pointer];
 
+		// check collision
+		if (i < covidQty && bullet_x>covid_x && bullet_x<covid_x+24 && bullet_y>covid_y && bullet_y<covid_y+24 && !covids_states[i]) {
+			if (!(starship_state&STARSHIP_AUTOPILOT))
+				sfx_play(SFX_COVID_ELIMINATED,1);
+			covids_states[i] = 1;
+			--covidLiveQty;
+			bullet_y = 0;
+			earnpoint(1);
+		}
+		// move
 		if (!covids_states[i]) {
 			if (i < covidQty) {
 				spr=oam_meta_spr(covid_x, covid_y, spr, seq_covid19[covid_frame]);
@@ -1365,14 +1376,6 @@ void fx_Covid19(void) {
 			
 		}
 
-		if (i < covidQty && bullet_x>covid_x && bullet_x<covid_x+24 && bullet_y>covid_y && bullet_y<covid_y+24 && !covids_states[i]) {
-			if (!(starship_state&STARSHIP_AUTOPILOT))
-				sfx_play(SFX_COVID_ELIMINATED,1);
-			covids_states[i] = 1;
-			--covidLiveQty;
-			bullet_y = 0;
-			earnpoint(1);
-		}
 	}
 
 	if (!(nesclock&3)) {
@@ -1949,13 +1952,11 @@ void main(void)
 			if (isboss)
 				bossFight();
 
-
 			if (muspos > MUS_PATTERN*3)
 				fx_galaga();
 
 			if (!isboss && muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 				fx_Covid19();
-
 
 			fx_EQ();
 		}
