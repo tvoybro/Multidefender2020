@@ -1830,92 +1830,95 @@ unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
 
 void bossFight(void)
 {
-	if (isboss) {
-		if (isboss==BOSS_KILLED) {
-			music_stop();
-			bossX -= 32;
+
+	if (isboss==BOSS_KILLED) {
+		music_stop();
+		bossX -= 32;
+		bossDefeatedCounter = 0;
+		bossDefeatedPhase = 0;
+		--isboss;
+	} 
+	if (isboss==BOSS_DEFEATED) {
+		if (!bossDefeatedCounter) {
+			for (i=0; i<4; ++i) {
+				bossExplodeX[i] = rand8()&31;
+				bossExplodeY[i] = rand8()&15;
+			}
+			sfx_play(SFX_COVID_ELIMINATED,0);
+		} else {
+			for (i=0; i<4; ++i)
+				spr=oam_meta_spr(bossX + bossExplodeX[i], bossY + bossExplodeY[i], spr, boss_explode[bossDefeatedCounter]);
+		}
+		if (!(nesclock&1))
+			++bossDefeatedCounter;
+		if (bossDefeatedCounter>8) {
+			earnpoint(1);
+			++bossDefeatedPhase;
 			bossDefeatedCounter = 0;
-			bossDefeatedPhase = 0;
-			--isboss;
-		} 
-		if (isboss==BOSS_DEFEATED) {
-			if (!bossDefeatedCounter) {
-				for (i=0; i<4; ++i) {
-					bossExplodeX[i] = rand8()&31;
-					bossExplodeY[i] = rand8()&15;
-				}
-				sfx_play(SFX_COVID_ELIMINATED,0);
+		}
+		if (bossDefeatedPhase>10) {
+			isboss = 0;
+			music_play(0);
+		}
+	}
+	if (isboss==BOSS_START) {
+		bossX = 56 + (2 * covidXtable[bossIndex])/3;
+		bossY = covidYtable[bossIndex]+18;
+		
+		spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
+		
+
+		if (bossAttack) {
+			if (bossAttack == 1) {
+				//do attack
+				bossCovidX1 = bossX;
+				bossCovidX2 = bossX - 16;
+				bossCovidX3 = bossX + 16;
+				bossCovidY = covidYtable[bossIndex] + 8;
+				bossAttackTimeout = 255;
+				if (!(starship_state&STARSHIP_AUTOPILOT))
+					sfx_play(SFX_COVID_RESPAWN,1);
+			}
+			--bossAttack;
+
+			if (!(nesclock&2))
+				pal_col(22, 0x01);
+			else
+				pal_col(22, 0x25);
+
+
+		} else {
+
+			starship_toX = bossX;
+			if (bossY>0x87) {
+				if (starship_x8>bossX)
+					starship_toX = bossX+40;
+				else
+					starship_toX = bossX-40;
+			}
+			pal_col(22, 0x16);
+			bossIndex = (bossIndex + 1) & 511;
+			if (bossAttackTimeout) {
+				--bossAttackTimeout;
 			} else {
-				for (i=0; i<4; ++i)
-					spr=oam_meta_spr(bossX + bossExplodeX[i], bossY + bossExplodeY[i], spr, boss_explode[bossDefeatedCounter]);
+				if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
+					bossAttack = 60;
+					if (rand8()>127)
+						starship_toX = 0;
+					else
+						starship_toX = 255;
+				}
 			}
-			if (!(nesclock&1))
-				++bossDefeatedCounter;
-			if (bossDefeatedCounter>8) {
-				earnpoint(1);
-				++bossDefeatedPhase;
-				bossDefeatedCounter = 0;
-			}
-			if (bossDefeatedPhase>10) {
-				isboss = 0;
-				music_play(0);
+			if (!bossAttractTimer) {
+				isboss=0;
+				ishighscore = 1;
+				pal_col(27, 0x2b);
+				pal_col(25, 0x07);
+				highscore_timer = 60*6;
 			}
 		}
-		if (isboss==BOSS_START) {
-			bossX = 56 + (2 * covidXtable[bossIndex])/3;
-			bossY = covidYtable[bossIndex]+18;
-			
-			spr = oam_meta_spr(bossX, bossY, spr, boss_list[(nesclock&(bossAttack ? 4 : 8)) ? 1 : 0]);
-			
 
-			if (bossAttack) {
-				if (bossAttack == 1) {
-					//do attack
-					bossCovidX1 = bossX;
-					bossCovidX2 = bossX - 16;
-					bossCovidX3 = bossX + 16;
-					bossCovidY = covidYtable[bossIndex] + 8;
-					bossAttackTimeout = 255;
-					if (!(starship_state&STARSHIP_AUTOPILOT))
-						sfx_play(SFX_COVID_RESPAWN,1);
-				}
-				--bossAttack;
-
-				if (!(nesclock&2))
-					pal_col(22, 0x01);
-				else
-					pal_col(22, 0x25);
-
-
-			} else {
-
-				starship_toX = bossX;
-				if (bossY>0x87) {
-					if (starship_x8>bossX)
-						starship_toX = bossX+40;
-					else
-						starship_toX = bossX-40;
-				}
-				pal_col(22, 0x16);
-				bossIndex = (bossIndex + 1) & 511;
-				if (bossAttackTimeout) {
-					--bossAttackTimeout;
-				} else {
-					if ( covidYtable[bossIndex] < 55 && eq_Noise_Val > 5) {
-						bossAttack = 60;
-						if (rand8()>127)
-							starship_toX = 0;
-						else
-							starship_toX = 255;
-					}
-				}
-				if (!bossAttractTimer) {
-					isboss=0;
-					ishighscore = 1;
-					highscore_timer = 60*6;
-				}
-			}
-
+		if (isboss) {
 			//boss collision
 			if (!starship_stunned && starship_x8>bossX-12 && starship_x8<bossX+24-12) {
 				if (bossY >= 160) {
@@ -1998,9 +2001,9 @@ void bossFight(void)
 				}
 			}
 		}
-		if (bossAttractTimer && starship_state&STARSHIP_AUTOPILOT) {
-			--bossAttractTimer;
-		}
+	}
+	if (bossAttractTimer && starship_state&STARSHIP_AUTOPILOT) {
+		--bossAttractTimer;
 	}
 }
 
@@ -2011,8 +2014,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	fx_NesDev();
-	fx_Krujeva();
+	//fx_NesDev();
+	//fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2046,7 +2049,7 @@ void main(void)
 
 	while(1)
 	{
-		ishighscore = 1;
+		//ishighscore = 1;
 		//isboss = 1;
 		//bossAttractTimer = 60*30;
 
@@ -2061,31 +2064,36 @@ void main(void)
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
 */
+
+		fx_highscore();
+
 		if (!ishighscore) {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
+		
+
+			//corona spr blink
+			
+			paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
+			pal_col(16+0, palette_spr[paletteSprId][0]);
+			pal_col(16+1, palette_spr[paletteSprId][1]);
+			pal_col(16+2, palette_spr[paletteSprId][2]);
+			pal_col(16+3, palette_spr[paletteSprId][3]);
+			if (paletteSprId && (nesclock&7) == 0) {
+				--paletteSprId;
+			}
+
+			if (isboss)
+				bossFight();
+
+			if (!isboss && muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
+				fx_Covid19();
+
+			if (muspos > MUS_PATTERN*3)
+				fx_galaga();
+
 		}
 
-		//corona spr blink
-		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
-		pal_col(16+0, palette_spr[paletteSprId][0]);
-		pal_col(16+1, palette_spr[paletteSprId][1]);
-		pal_col(16+2, palette_spr[paletteSprId][2]);
-		pal_col(16+3, palette_spr[paletteSprId][3]);
-		if (paletteSprId && (nesclock&7) == 0) {
-			--paletteSprId;
-		}
-
-		
-		bossFight();
-
-		if (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4) && !(ishighscore || isboss))
-			fx_Covid19();
-
-		if (muspos > MUS_PATTERN*3 && !ishighscore)
-			fx_galaga();
-		
-		fx_highscore();
 
 		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
 
