@@ -141,18 +141,8 @@ const unsigned char paletteIn[6][16]={
 	{0x30,0x22,0x13,0x01,
 	 0x30,0x16,0x13,0x22,
 	 0x30,0x16,0x31,0x22,
-	 0x30,0x2A,0x1A,0x01},
+	 0x30,0x2A,0x1A,0x01}
 };
-
-
-const unsigned char palette[16]={
-	0x30,0x22,0x13,0x01,
-	0x30,0x16,0x13,0x22,
-	0x30,0x16,0x31,0x22,
-	0x30,0x2A,0x1A,0x01
-};
-
-
 
 unsigned char palRollId = 0;
 const unsigned char palRollList[48] = {
@@ -2039,7 +2029,7 @@ void main(void)
 
 
 		// scroll palette roll
-		if (paletteId == 6 && (nesclock&15) == 0) {
+		if (paletteId == 5 && (nesclock&15) == 0) {
 			if (++palRollId >= 48) {
 				palRollId = 0;
 			}
@@ -2067,7 +2057,7 @@ void main(void)
 		}
 
 		//fade in background		
-		if ((nesclock&1) == 0 && paletteId < 6) {
+		if ((nesclock&1) == 0 && paletteId < 5) {
 			++paletteId;
 		}
 
