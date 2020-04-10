@@ -1693,55 +1693,54 @@ const char greets_list[]={
 };
 
 void fx_highscore(void) {
-	if (ishighscore) {
-		scroll(256, 0);
-		hs_strings_y = 40;
-		hiPage = hiPointer;
-		for (i=0; i<6; ++i) {
-			hiTextY = hs_strings_y + *(sineTableTextBobbling + highscore_strings_offsets[i]);
-			hiTextX = 20;
 
-			if (i>2)
-				hiTextX += 100;
+	scroll(256, 0);
+	hs_strings_y = 40;
+	hiPage = hiPointer;
+	for (i=0; i<6; ++i) {
+		hiTextY = hs_strings_y + *(sineTableTextBobbling + highscore_strings_offsets[i]);
+		hiTextX = 20;
 
-			for (j=0; j<8; ++j) {
-				oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
-				spr+=4;
-				hiTextX += 16;
-			}
-			if (nesclock&1) {
-				++highscore_strings_offsets[i];
-				highscore_strings_offsets[i] &= 31;
-			}
-			hs_strings_y += 16;
-			
-			if (i==2)
-				hs_strings_y += 24;
-			
-			hiPage += 8;
+		if (i>2)
+			hiTextX += 100;
+
+		for (j=0; j<8; ++j) {
+			oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
+			spr+=4;
+			hiTextX += 16;
 		}
-		--highscore_timer;
-		if (!highscore_timer) {
-			hiPointer += 6*8;
-			if (hiPointer>6*48)
-				hiPointer = 0;
+		if (nesclock&1) {
+			++highscore_strings_offsets[i];
+			highscore_strings_offsets[i] &= 31;
+		}
+		hs_strings_y += 16;
+		
+		if (i==2)
+			hs_strings_y += 24;
+		
+		hiPage += 8;
+	}
+	--highscore_timer;
+	if (!highscore_timer) {
+		hiPointer += 6*8;
+		if (hiPointer>6*48)
+			hiPointer = 0;
 
-			pal_col(27, 0x26);
-			pal_col(25, 0x0f);
+		pal_col(27, 0x26);
+		pal_col(25, 0x0f);
 
 
-			ishighscore = 0;
-			starship_x = 100*256;
-			fxFaze++;
-			if (!(fxFaze&3)) {
-				isboss = 1;
-				bossAttack = 0;
-				bossCovidY = 255;
-				bossAttackTimeout = 255;
-				restoreBossPalette();
-				bossHealth = 15;
-				bossAttractTimer = 60*30;
-			}
+		ishighscore = 0;
+		starship_x = 100*256;
+		fxFaze++;
+		if (!(fxFaze&3)) {
+			isboss = 1;
+			bossAttack = 0;
+			bossCovidY = 255;
+			bossAttackTimeout = 255;
+			restoreBossPalette();
+			bossHealth = 15;
+			bossAttractTimer = 60*25;
 		}
 	}
 }
@@ -2067,9 +2066,9 @@ void main(void)
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
 
-		fx_highscore();
-
-		if (!ishighscore) {
+		if (ishighscore) {
+			fx_highscore();
+		} else {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
 		
@@ -2094,6 +2093,7 @@ void main(void)
 			if (muspos > MUS_PATTERN*3)
 				fx_galaga();
 
+			fx_EQ();
 		}
 
 
@@ -2136,8 +2136,6 @@ void main(void)
 			++paletteId;
 		}
 
-		if (!ishighscore)
-			fx_EQ();
 		fx_SplitScroll();
 		++nesclock;
 
