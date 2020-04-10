@@ -2069,18 +2069,6 @@ void main(void)
 		} else {
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
-		
-
-			//corona spr blink
-			
-			paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
-			pal_col(16+0, palette_spr[paletteSprId][0]);
-			pal_col(16+1, palette_spr[paletteSprId][1]);
-			pal_col(16+2, palette_spr[paletteSprId][2]);
-			pal_col(16+3, palette_spr[paletteSprId][3]);
-			if (paletteSprId && (nesclock&7) == 0) {
-				--paletteSprId;
-			}
 
 			if (isboss)
 				bossFight();
@@ -2132,6 +2120,16 @@ void main(void)
 		} else {
 			pal_col(13, palRollList[i]);
 			pal_col(14, palRollList[palRollId]);
+		}
+
+		//corona spr blink
+		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
+		pal_col(16+0, palette_spr[paletteSprId][0]);
+		pal_col(16+1, palette_spr[paletteSprId][1]);
+		pal_col(16+2, palette_spr[paletteSprId][2]);
+		pal_col(16+3, palette_spr[paletteSprId][3]);
+		if (paletteSprId && (nesclock&7) == 0) {
+			--paletteSprId;
 		}
 
 		//fade in background		
