@@ -71,7 +71,25 @@ unsigned int scrollerPos = 0;
 unsigned int scrollerAddr = 0;
 unsigned int scrollpos = 0;
 
+// Boss vars
+unsigned int bossIndex = 0;
+unsigned char bossAttack = 0;
+unsigned char bossAttackTimeout = 255;
+unsigned char bossCovidY = 255;
+unsigned char bossFlash = 0;
+unsigned char bossCovidX1;
+unsigned char bossCovidX2;
+unsigned char bossCovidX3;
+unsigned char bossX, bossY;
+unsigned char bossDefeatedCounter;
+unsigned char bossDefeatedPhase;
+
 #pragma bss-name (pop)
+
+
+unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
+unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
+
 
 unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
 unsigned char bossHealth = 15;
@@ -1637,7 +1655,7 @@ const char greets_list[]={
 	"HOOYPROG"
 	"SERZHSFT"
 	"GEMBABOY"
-	"DR. MAX "
+	" DR. MAX"
 
 	"QUITE   "
 	"R.M.D.A "
@@ -1660,12 +1678,12 @@ const char greets_list[]={
 	"ASD, LSD"
 	"MFX, TBL"
 
-	"UCL     "
+	"RZR 1911"
 	"CNSPRCY "
 	"HAUJOBB "	
 	"  CENSOR"
+	"     UCL"
 	"  CNCDBL"
-	"RZR 1911"
 
 	"MAYHEM  "
 	"EPHIDRNA"
@@ -1813,21 +1831,6 @@ void hitPlayer(void) {
 			restoreBossPalette();
 	}
 }
-
-unsigned int bossIndex = 0;
-unsigned char bossAttack = 0;
-unsigned char bossAttackTimeout = 255;
-unsigned char bossCovidY = 255;
-unsigned char bossFlash = 0;
-unsigned char bossCovidX1;
-unsigned char bossCovidX2;
-unsigned char bossCovidX3;
-unsigned char bossX, bossY;
-unsigned char bossDefeatedCounter;
-unsigned char bossDefeatedPhase;
-
-unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
-unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
 
 void bossFight(void)
 {
