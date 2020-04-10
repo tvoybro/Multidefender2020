@@ -43,7 +43,6 @@ unsigned char hiTextY;
 unsigned char hiTextX;
 unsigned int hiPage;
 unsigned char hiPointer;
-unsigned char hiChr;
 unsigned char covidQty, covidLiveQty;
 unsigned char logoPos, logoX, nesclock = 0;
 unsigned char ishighscore, isboss;
@@ -649,6 +648,7 @@ void fx_SplitScroll(void)
 		eq_Noise_Val = 7;
 	}
 
+	//gray_line();
 	xy_split(scrollerPos, 210 + 5 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
 
 	if (eq_Noise_Val)
@@ -1668,11 +1668,8 @@ void fx_highscore(void) {
 		for (i=0; i<8; ++i) {
 			hiTextY = hs_strings_y + *(sineTableTextBobbling + highscore_strings_offsets[i]);
 			hiTextX = 70;
-	
 			for (j=0; j<8; ++j) {
-				hiChr = greets_list[hiPage+j]+144;
-				oam_spr(hiTextX, hiTextY, hiChr, 2, spr);
-				spr+=4;
+				spr = oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
 				hiTextX += 16;
 			}
 			if (nesclock&1) {
@@ -2028,7 +2025,7 @@ void main(void)
 
 	while(1)
 	{
-
+		//ishighscore = 1;
 		//isboss = 1;
 		//bossAttractTimer = 60*30;
 
