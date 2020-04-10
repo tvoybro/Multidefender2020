@@ -1330,10 +1330,6 @@ void fx_galaga(void) {
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
-	spr=oam_spr(256-8-24,16,points_array[0],3,spr);
-	spr=oam_spr(256-8-16,16,points_array[1],3,spr);
-	spr=oam_spr(256-8-8,16,points_array[2],3,spr);
-
 	// Disable autopilot if any joypad button pressed
 	if (pad_prev&PAD_START) {
 		if (starship_state&STARSHIP_AUTOPILOT) {
@@ -2073,11 +2069,16 @@ void main(void)
 			if (isboss)
 				bossFight();
 
-			if (!isboss && muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
-				fx_Covid19();
+			spr=oam_spr(256-8-24,16,points_array[0],3,spr);
+			spr=oam_spr(256-8-16,16,points_array[1],3,spr);
+			spr=oam_spr(256-8-8,16,points_array[2],3,spr);
 
 			if (muspos > MUS_PATTERN*3)
 				fx_galaga();
+
+			if (!isboss && muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
+				fx_Covid19();
+
 
 			fx_EQ();
 		}
