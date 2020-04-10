@@ -1,4 +1,15 @@
-// Multimatograf 2020 gamevitro
+/* -----------------------------------------------------------------------------
+
+	MultiDefender: Multimatograf 2020 gamevitro for NES/Famicom
+	Code: mr287cc, tmk/demarche
+	Music: n1k-0/stardust
+	Visuals: adam bazaroff/excess team
+
+	Mapper: CNROM
+
+	Feel free to do anything you want with this code, consider it Public Domain
+
+-------------------------------------------------------------------------------- */
 
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
@@ -24,7 +35,10 @@
 #define EQ_CHR_OFF 				0xCD
 #define EQ_CHR_ON 				0xA8
 
+// NOTE: You should build cc65 from source in order to use binary constants.
 #define STARSHIP_AUTOPILOT 		0b10000000
+// Otherwise you need to replace this constants with dec or hex: 0b10000000 = 0x80 = 128
+
 #define CMD_LEFT		 		0x01
 #define CMD_RIGHT		 		0x02
 
@@ -439,7 +453,7 @@ const unsigned char const starship_pal[] = {
 };
 
 const char scrollerData[] =  {
-"HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND CARTRIDGE WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
+"HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND THIS CART WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
 " SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLOGDA, RUSSIA."
 " WE HAVE YOUR FAVORITE COMPOS: OLDSCHOOL DEMO, INTRO 256B, GRAPHICS, MUSIC. ANIMATION, WILD, ASCII AND ANSI GRAPHICS, TINY MP3. REMOTE ENTRIES ARE ALLOWED. A HAPPY AND HEALTHY DEMOPARTY SPECIAL FOR YOU!"
 " AND FOR NOW, STAY HOME AND MAKE A PRODS!            ARE YOU STILL READING? PRESS START AND KICK SOME ASS!                                                 "
@@ -1247,10 +1261,6 @@ void fx_galaga(void) {
 	pad_prev=pad_trigger(0);
 	pad = pad_poll(0);
 
-	spr=oam_spr(256-8-24,16,points_array[0],3,spr);
-	spr=oam_spr(256-8-16,16,points_array[1],3,spr);
-	spr=oam_spr(256-8-8,16,points_array[2],3,spr);
-
 	// Disable autopilot if any joypad button pressed
 	if (pad_prev&PAD_START) {
 		if (starship_state&STARSHIP_AUTOPILOT) {
@@ -1777,6 +1787,7 @@ void bossFight(void)
 		if (bossDefeatedPhase>10) {
 			isboss = 0;
 			music_play(0);
+			// Congratulations, you defended Multimatograf from nasty coronavirus with a score of 1000 points.
 		}
 	}
 	if (isboss==BOSS_START) {
@@ -1987,14 +1998,20 @@ void main(void)
 			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 			scroll(scrollpos, 0);
 
+			spr=oam_spr(256-8-24,16,points_array[0],3,spr);
+			spr=oam_spr(256-8-16,16,points_array[1],3,spr);
+			spr=oam_spr(256-8-8,16,points_array[2],3,spr);
+
 			if (isboss)
 				bossFight();
+
+
+			if (muspos > MUS_PATTERN*3)
+				fx_galaga();
 
 			if (!isboss && muspos > MUS_PATTERN*2 - (MUS_PATTERN/4))
 				fx_Covid19();
 
-			if (muspos > MUS_PATTERN*3)
-				fx_galaga();
 
 			fx_EQ();
 		}

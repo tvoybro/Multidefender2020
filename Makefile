@@ -28,6 +28,7 @@ $(OBJ): $(wildcard *.h *.sinc)
 
 clean:
 	rm -f $(NAME) *.o
+	rm labels.txt
 
 run:
 	@echo Launch ROM...
