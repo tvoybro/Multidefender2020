@@ -42,7 +42,7 @@ unsigned char isNtsc;
 unsigned char hiTextY;
 unsigned char hiTextX;
 unsigned int hiPage;
-unsigned char hiPointer;
+unsigned int hiPointer;
 unsigned char covidQty, covidLiveQty;
 unsigned char logoPos, logoX, nesclock = 0;
 unsigned char ishighscore, isboss;
@@ -1669,11 +1669,11 @@ const char greets_list[]={
 	"RZR 1911"
 
 	"MAYHEM  "
-	"RZR 1911"
-	"RZR 1911"
-	"RZR 1911"
-	"RZR 1911"
-	"RZR 1911"
+	"EPHIDRNA"
+	"LOGICOMA"
+	"BITFELLS"
+	" MERCURY"
+	"   ELUDE"
 };
 
 void fx_highscore(void) {
