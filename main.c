@@ -1719,6 +1719,9 @@ void fx_highscore(void) {
 			fxFaze++;
 			if (!(fxFaze&3)) {
 				isboss = 1;
+				bossAttack = 0;
+				bossCovidY = 255;
+				bossAttackTimeout = 255;
 				restoreBossPalette();
 				bossHealth = 15;
 				bossAttractTimer = 60*30;
@@ -1811,7 +1814,6 @@ void hitPlayer(void) {
 			restoreBossPalette();
 	}
 }
-
 
 unsigned int bossIndex = 0;
 unsigned char bossAttack = 0;
