@@ -143,6 +143,7 @@ const unsigned char palette[16]={
 unsigned char palRollId = 0;
 const unsigned char palRollList[48] = {
 0x21,
+0x21,
 0x22,
 0x22,
 0x23,
@@ -188,8 +189,7 @@ const unsigned char palRollList[48] = {
 0x32,
 0x32,
 0x31,
-0x31,
-0x21
+0x31
 };
 
 
@@ -769,7 +769,7 @@ void fx_NesDev(void)
 			if (nesclock >= 128 && (nesclock & 3) == 0) {
 				if (nesdevPalId2 < 3) {
 				pal_bg(palNesdev2[nesdevPalId2]);
-				nesdevPalId2++;
+				++nesdevPalId2;
 				} else {
 					pal_bg(palNesdev[nesdevPalId]);
 				}
@@ -986,11 +986,11 @@ void fx_Krujeva(void)
 			krujWait = 0;
 			if (++krujPalId == 3) {
 				krujPalId = 0;
-				krujFrm++;
+				++krujFrm;
 				//do char 1
 				if (krujAnimaLenId1 < 43) {
 					j = krujAnimaLen1[krujAnimaLenId1];
-					for (i = 0; i < j; i++) {
+					for (i = 0; i < j; ++i) {
 						krujChr = krujAnimaChr1[krujAnimaId1][2];
 						if (krujChr != 0) {
 							krujHi = 256 * krujAnimaChr1[krujAnimaId1][0];
@@ -1023,7 +1023,7 @@ void fx_Krujeva(void)
 			} else {
 				if (krujAnimaLenId2 < 41) {
 					j = krujAnimaLen2[krujAnimaLenId2];
-					for (i = 0; i < j; i++) {
+					for (i = 0; i < j; ++i) {
 						krujChr = krujAnimaChr2[krujAnimaId2][2];
 						if (krujChr != 0) {
 							krujHi = 256 * krujAnimaChr2[krujAnimaId2][0];
@@ -1048,7 +1048,7 @@ void fx_Krujeva(void)
 		if (krujWait == 2 && krujPalId == 0) {
 			if (krujAnimaLenId3 < 10 && krujFrm >= krujAnimaFrame3[krujAnimaLenId3]) {
 				j = krujAnimaLen3[krujAnimaLenId3];
-				for (i = 0; i < j; i++) {
+				for (i = 0; i < j; ++i) {
 					krujChr = krujAnimaChr3[krujAnimaId3][2];
 					krujHi = 256 * krujAnimaChr3[krujAnimaId3][0];
 					krujLo = krujAnimaChr3[krujAnimaId3][1];
@@ -1182,7 +1182,7 @@ void fx_Krujeva(void)
 			if (krujAnimaLenId1 < 43) {
 				spr = 4;
 				j = krujAnimaLen1[krujAnimaLenId1];
-				for (i = 0; i < j; i++) {
+				for (i = 0; i < j; ++i) {
 					// +0=y +1=spr +2=attr +3=x
 					// oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
 					krujChr = krujAnimaSpr1[krujAnimaId1+i][1];
@@ -1207,7 +1207,7 @@ void fx_Krujeva(void)
 		if (krujWait == 3 && krujOffest2 == 0) {
 			if (krujAnimaLenId2 < 41) {
 				j = krujAnimaLen2[krujAnimaLenId2];
-				for (i = 0; i < j; i++) {
+				for (i = 0; i < j; ++i) {
 					// +0=y +1=spr +2=attr +3=x
 					// oam_spr(unsigned char x,unsigned char y,unsigned char chrnum,unsigned char attr,unsigned char sprid);
 					krujChr = krujAnimaSpr2[krujAnimaId2+i][1];
@@ -1729,10 +1729,9 @@ void fx_highscore(void) {
 		pal_col(27, 0x26);
 		pal_col(25, 0x0f);
 
-
 		ishighscore = 0;
 		starship_x = 100*256;
-		fxFaze++;
+		++fxFaze;
 		if (!(fxFaze&3)) {
 			isboss = 1;
 			bossAttack = 0;
@@ -2128,8 +2127,13 @@ void main(void)
 		if (i >= 48) {
 			i = 0;
 		}
-		pal_col(13, palRollList[palRollId]);
-		pal_col(14, palRollList[i]);
+		if (nesclock&1) {
+			pal_col(13, palRollList[palRollId]);
+			pal_col(14, palRollList[i]);
+		} else {
+			pal_col(13, palRollList[i]);
+			pal_col(14, palRollList[palRollId]);
+		}
 
 		//fade in background		
 		if ((nesclock&1) == 0 && paletteId < 6) {
