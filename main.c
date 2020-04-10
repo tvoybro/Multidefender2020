@@ -1650,7 +1650,7 @@ const char greets_list[]={
 	"SANDS   "
 
 	"KPACKU  "
-	" FENOMEN"
+	"FENOMEN "
 	"MEGUS   "
 	"SERZHSFT"
 	"GEMBABOY"
@@ -2017,8 +2017,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
  	
-	//fx_NesDev();
-	//fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2062,11 +2062,10 @@ void main(void)
 		spr = 4;
 		
 		// side spr - sprites
-/*		if (!isboss) {
+		if (!isboss) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
-*/
 
 		fx_highscore();
 
