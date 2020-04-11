@@ -498,31 +498,6 @@ const unsigned int eq_Pulse2right_NT[7] = {
 	NAMETABLE_A-EQOFFSET+0x248+14, NAMETABLE_A-EQOFFSET+0x208+14, NAMETABLE_A-EQOFFSET+0x1c8+14, NAMETABLE_A-EQOFFSET+0x188+14, NAMETABLE_A-EQOFFSET+0x148+14, NAMETABLE_A-EQOFFSET+0x108+14, NAMETABLE_A-EQOFFSET+0x0c8+14
 };
 
-/*void fx_EQ(void)
-{
-	if (eq_Triangle_Volume) {
-		--eq_Triangle_Volume;
-	}
-	
-	if (FT_BUF[6] & 1)
-		eq_Triangle_Volume = 5;
-
-	eq_Noise_Volume = eq_noise_approx[FT_BUF[9] & 0x0f];
-	eq_Pulse1_Volume = eq_pulse1_approx[FT_BUF[0] & 0x0f];
-	eq_Pulse2_Volume = eq_pulse1_approx[FT_BUF[3] & 0x0f];
-
-
-	for (i=0; i<5; ++i){
-		eqValues[0][4-i] = i>=eq_Triangle_Volume ? EQ_CHR_ON : EQ_CHR_OFF;
-		eqValues[1][4-i] = i>=eq_Noise_Volume ? EQ_CHR_ON : EQ_CHR_OFF;
-		eqValues[2][4-i] = i>=eq_Pulse1_Volume ? EQ_CHR_ON : EQ_CHR_OFF;
-		eqValues[3][4-i] = i>=eq_Pulse2_Volume ? EQ_CHR_ON : EQ_CHR_OFF;
-	}
-	
-	set_nmi_user_call_on(1);
-}
-*/
-
 void restoreBossPalette(void){
 	pal_col(21, 0x0f);
 	pal_col(22, 0x16);
@@ -865,6 +840,16 @@ const unsigned char kmfDir3[20] = {0xfc,0x4, 0xfd,0x3, 0xfc,0x3, 0xfe,0x2, 0xfd,
 unsigned char kmfDir4[20] = {0x4,0x4, 0x4,0x3, 0x3,0x3, 0x4,0x2, 0x3,0x2, 0x2,0x2, 0x4,0x1, 0x3,0x1, 0x2,0x1, 0x1,0x1 };
 
 unsigned char kmfStep = 11;
+
+void initBoss(void) {
+	isboss = 1;
+	bossAttack = 0;
+	bossCovidY = 255;
+	bossAttackTimeout = BOSS_ATTACK_TIMEOUT;
+	bossHealth = 15;
+	bossAttractTimer = 60*25;
+	restoreBossPalette();
+}
 
 void fx_Krujeva(void)
 {
@@ -1362,15 +1347,19 @@ void fx_Covid19(void) {
 				++covids_hit;
 				++covids_states[i];
 				if (covids_hit==COVIDS_MAX) {
-					covids_phase = (covids_phase + 1) & 3;
-					covidsInit(covids_phase);
-					if (starship_state&STARSHIP_AUTOPILOT) {
-						pal_col(27, 0x04);
-						pal_col(25, 0x30);
-						ishighscore = 1;
-						highscore_timer = 60*6;
+					if (points>48) {
+						initBoss();
+					} else {
+						covids_phase = (covids_phase + 1) & 3;
+						covidsInit(covids_phase);
+						if (starship_state&STARSHIP_AUTOPILOT) {
+							pal_col(27, 0x04);
+							pal_col(25, 0x30);
+							ishighscore = 1;
+							highscore_timer = 60*6;
+						}
+						covidQty = 0;
 					}
-					covidQty = 0;
 				}
 			}
 			
@@ -1607,13 +1596,7 @@ void fx_highscore(void) {
 		starship_x = 100*256;
 		++fxFaze;
 		if (!(fxFaze&3)) {
-			isboss = 1;
-			bossAttack = 0;
-			bossCovidY = 255;
-			bossAttackTimeout = BOSS_ATTACK_TIMEOUT;
-			bossHealth = 15;
-			bossAttractTimer = 60*25;
-			restoreBossPalette();
+			initBoss();
 		}
 	}
 }
