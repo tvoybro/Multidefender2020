@@ -228,7 +228,7 @@ const unsigned char palette_spr[5][4]={
 	{0x0f,0x38,0x26,0x30},
 };
 unsigned char palSamoletId = 0;
-const unsigned char palSamolet[2] = {0x24, 0x1e};
+const unsigned char palSamolet[2] = {0x26, 0x34};
 
 const unsigned char palNesdevBlink[3][16] = {
 	{0x0F,0x12,0x22,0x30,
@@ -1211,7 +1211,7 @@ void hitPlayer(void)
 		earnpoint(0);
 	}
 	starship_stunned = 60*1;
-	starship_protect = 60*2;
+	starship_protect = 60*2+30;
 	if (!(starship_state & STARSHIP_AUTOPILOT)) {
 		sfx_play(SFX_COVID_ELIMINATED, 0);
 	}
