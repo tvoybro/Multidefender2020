@@ -32,6 +32,7 @@ FT_SFX_STREAMS = 4			        ;number of sound effects played at once, 1..4
     .export _NAM_multi_logo_A
     .export _NAM_multi_logo_B
     .export _NAM_nesdev_A
+	.export _NAM_gameover_A
 
 FT_BASE_ADR		=$0100	;page in RAM, should be $xx00
 
@@ -285,7 +286,9 @@ _NAM_multi_logo_B:
 	.incbin "Include/NAM_multi_logo_B.nam"
 _NAM_nesdev_A:
 	.incbin "Include/NAM_nesdev_A.nam"
-	
+_NAM_gameover_A:
+	.incbin "Include/bg_congratulation_2.nam"
+
 .segment "CHR3"
 	.incbin "NESst/kruj_charset_0.chr"
 	

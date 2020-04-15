@@ -54,7 +54,8 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
-#define	PLAY_TIME				6*60-1
+#define	PLAY_TIME				4
+//6*60-1
 
 
 #define COVID_COLOR				0
@@ -132,6 +133,7 @@ extern unsigned char NAM_krujeva[];
 extern unsigned char NAM_multi_logo_A[];
 extern unsigned char NAM_multi_logo_B[];
 extern unsigned char NAM_nesdev_A[];
+extern unsigned char NAM_gameover_A[];
 
 
 unsigned char paletteId = 0;
@@ -1975,19 +1977,38 @@ void gameInit()
 	playTimeFrm = 59;
 }
 
-//Congratulations, you defended Multimatograf from nasty coronavirus with a score of 1000 points.
+//     CONGRATULATIONS
+// YOU DEFENDED MULTIMATOGRAF
+//   FROM NASTY CORONAVIRUS
+// WITH A SCORE OF 999 POINTS
 
 const char txt_time_out[] = {
 	"TIMEOUT"
 };
 
+void initGameover(void)
+{
+	oam_clear();
+	ppu_wait_nmi();
+
+	ppu_off();
+	cnrom_set_bank(1);
+	chr_to_nametable(NAMETABLE_A, NAM_gameover_A);
+	chr_to_nametable(NAMETABLE_B, NAM_gameover_A);
+	cnrom_set_bank(0);
+	isgameover = 2;
+	ppu_on_all();
+	bank_bg(1);
+	bank_spr(1);
+}
+
 void fx_gameover(void)
 {
-
-	pal_col(27, 0x04);
-	pal_col(25, 0x30);
-
-	scroll(256-8, 0);
+	if (isgameover == 1) {
+		initGameover();
+	}
+	
+	scroll(256-4,0);
 	// side spr - sprites
 	spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 	spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
@@ -1996,17 +2017,6 @@ void fx_gameover(void)
 	spr = oam_spr(128-4-8, 120, points_array[0], 2, spr);
 	spr = oam_spr(128-4+0, 120, points_array[1], 2, spr);
 	spr = oam_spr(128-4+8, 120, points_array[2], 2, spr);
-	
-	// text time out
-	spr = oam_spr(128-32, 120-43, txt_time_out[0] + 144, 2, spr);
-	spr = oam_spr(128-24, 120-43, txt_time_out[1] + 144, 2, spr);
-	spr = oam_spr(128-16, 120-43, txt_time_out[2] + 144, 2, spr);
-	spr = oam_spr(128-8,  120-43, txt_time_out[3] + 144, 2, spr);
-	spr = oam_spr(128+8,  120-43, txt_time_out[4] + 144, 2, spr);
-	spr = oam_spr(128+16, 120-43, txt_time_out[5] + 144, 2, spr);
-	spr = oam_spr(128+24, 120-43, txt_time_out[6] + 144, 2, spr);
-
-	
 
 }
 
@@ -2070,7 +2080,9 @@ void main(void)
 					spr = oam_spr(8, 16, 0xA0 + (playTime > 15 ? (playTime+60)/60 : 0), 3, spr);
 				}
 			} else {
-				isgameover = 1;				
+				if (!isgameover) {
+					isgameover = 1;
+				}
 			}
 		}
 		
@@ -2078,7 +2090,7 @@ void main(void)
 		pad_prev=pad_trigger(0);
 		pad = pad_poll(0);
 		// Disable autopilot if any joypad button pressed
-		if (pad_prev&PAD_START) {
+		if (!isgameover && (pad_prev & PAD_START)) {
 			if (starship_state&STARSHIP_AUTOPILOT) {
 				sfx_play(SFX_TELEGA_FLY,0);
 			} else {
@@ -2181,7 +2193,9 @@ void main(void)
 			++paletteId;
 		}
 
-		fx_SplitScroll();
+		if (!isgameover) {
+			fx_SplitScroll();
+		}
 
 		++nesclock;
 		ppu_wait_nmi();
