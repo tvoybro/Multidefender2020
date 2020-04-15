@@ -1976,6 +1976,11 @@ void gameInit()
 }
 
 //Congratulations, you defended Multimatograf from nasty coronavirus with a score of 1000 points.
+
+const char txt_time_out[] = {
+	"TIMEOUT"
+};
+
 void fx_gameover(void)
 {
 
@@ -1988,9 +1993,20 @@ void fx_gameover(void)
 	spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 	
 	// score
-	spr = oam_spr(128-4-8, 136, points_array[0], 2, spr);
-	spr = oam_spr(128-4+0, 136, points_array[1], 2, spr);
-	spr = oam_spr(128-4+8, 136, points_array[2], 2, spr);
+	spr = oam_spr(128-4-8, 120, points_array[0], 2, spr);
+	spr = oam_spr(128-4+0, 120, points_array[1], 2, spr);
+	spr = oam_spr(128-4+8, 120, points_array[2], 2, spr);
+	
+	// text time out
+	spr = oam_spr(128-32, 120-43, txt_time_out[0] + 144, 2, spr);
+	spr = oam_spr(128-24, 120-43, txt_time_out[1] + 144, 2, spr);
+	spr = oam_spr(128-16, 120-43, txt_time_out[2] + 144, 2, spr);
+	spr = oam_spr(128-8,  120-43, txt_time_out[3] + 144, 2, spr);
+	spr = oam_spr(128+8,  120-43, txt_time_out[4] + 144, 2, spr);
+	spr = oam_spr(128+16, 120-43, txt_time_out[5] + 144, 2, spr);
+	spr = oam_spr(128+24, 120-43, txt_time_out[6] + 144, 2, spr);
+
+	
 
 }
 
