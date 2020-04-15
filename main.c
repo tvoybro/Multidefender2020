@@ -54,6 +54,8 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
+#define	PLAY_TIME				6*60-1
+
 unsigned char isNtsc;
 
 
@@ -64,7 +66,7 @@ unsigned int hiPage;
 unsigned int hiPointer;
 unsigned char covidQty, covidLiveQty;
 unsigned char logoPos, logoX, nesclock = 0;
-unsigned char ishighscore, isboss;
+unsigned char ishighscore, isboss, isgameover;
 unsigned char hs_strings_y;
 unsigned int highscore_timer;
 
@@ -107,13 +109,13 @@ unsigned char bossDefeatedPhase;
 
 #pragma bss-name (pop)
 
-
 unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
 unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
 
-
 unsigned char highscore_strings_offsets[8] = { 0, 2, 4, 6, 8, 10, 12, 14 };
 unsigned char bossHealth = BOSS_HEALTH;
+unsigned int  playTime;
+unsigned char playTimeFrm;
 
 extern unsigned char FT_BUF[];
 extern unsigned char NAM_krujeva[];
@@ -1542,7 +1544,7 @@ const char greets_list[]={
 
 void fx_highscore(void) {
 
-	scroll(256, 0);
+	scroll(256-8, 0);
 	hs_strings_y = 40;
 	hiPage = hiPointer;
 	for (i=0; i<6; ++i) {
@@ -1553,8 +1555,7 @@ void fx_highscore(void) {
 			hiTextX += 100;
 
 		for (j=0; j<8; ++j) {
-			oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
-			spr+=4;
+			spr = oam_spr(hiTextX, hiTextY, greets_list[hiPage+j]+144, 2, spr);
 			hiTextX += 16;
 		}
 		if (nesclock&1) {
@@ -1706,7 +1707,6 @@ void bossFight(void)
 			isboss = 0;
 			covidsInit();
 			return;
-			// Congratulations, you defended Multimatograf from nasty coronavirus with a score of 1000 points.
 		}
 	}
 	if (isboss == BOSS_START) {
@@ -1864,10 +1864,28 @@ void gameInit()
 	fxFaze = 0;
 	initBoss();
 	isboss = 0;
-	covids_phase = 0;
+	ishighscore = 0;
+	isgameover = 0;
+	covids_phase = rand8()&3;
 	covidsInit();
 	pad_prev = 0;
-	ishighscore = 0;
+	playTime = PLAY_TIME;
+	playTimeFrm = 59;
+}
+
+//Congratulations, you defended Multimatograf from nasty coronavirus with a score of 1000 points.
+void fx_gameover(void)
+{
+	scroll(256-8, 0);
+	// side spr - sprites
+	spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
+	spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
+	
+	// score
+	spr = oam_spr(128-8-4,136,points_array[0],3,spr);
+	spr = oam_spr(128-4,136,points_array[1],3,spr);
+	spr = oam_spr(128+8-4,136,points_array[2],3,spr);
+	
 }
 
 
@@ -1915,6 +1933,25 @@ void main(void)
 		//ishighscore = 1;
 		//isboss = 1;
 		//bossAttractTimer = 60*30;
+
+		spr = 4;
+		
+		if (!(starship_state&STARSHIP_AUTOPILOT)) {
+			if (playTime) {
+				if (playTimeFrm) {
+					--playTimeFrm;
+				} else {
+					playTimeFrm = 59;
+					--playTime;
+				}
+				if (playTime > 30 || nesclock&4) {
+					spr = oam_spr(8, 16, 0xA0 + (playTime > 15 ? (playTime+60)/60 : 0), 3, spr);
+				}
+			} else {
+				isgameover = 1;				
+			}
+		}
+		
 		
 		pad_prev=pad_trigger(0);
 		pad = pad_poll(0);
@@ -1934,40 +1971,41 @@ void main(void)
 			covidsInit();
 		}
 
-
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
-		spr = 4;
-
 		// side spr - sprites
-		if (!isboss) {
+		if (!isboss && starship_state&STARSHIP_AUTOPILOT) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
 
-		if (ishighscore) {
-			fx_highscore();
+		if (isgameover) {
+			fx_gameover();
 		} else {
-			scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
-			scroll(scrollpos, 0);
+			if (ishighscore) {
+				fx_highscore();
+			} else {
+				scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
+				scroll(scrollpos, 0);
 
-			if (isboss) {
-				bossFight();
+				if (isboss) {
+					bossFight();
+				}
+
+				if (muspos > MUS_PATTERN*3 || (!(starship_state&STARSHIP_AUTOPILOT))) {
+					spr = oam_spr(256-8-24,16,points_array[0],3,spr);
+					spr = oam_spr(256-8-16,16,points_array[1],3,spr);
+					spr = oam_spr(256-8-8,16,points_array[2],3,spr);
+					fx_galaga();
+				}
+
+				if (!isboss && (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4) || (!(starship_state&STARSHIP_AUTOPILOT)))) {
+					fx_Covid19();
+				}
+
+				fx_EQ();
 			}
-
-			if (muspos > MUS_PATTERN*3 || (!(starship_state&STARSHIP_AUTOPILOT))) {
-				spr = oam_spr(256-8-24,16,points_array[0],3,spr);
-				spr = oam_spr(256-8-16,16,points_array[1],3,spr);
-				spr = oam_spr(256-8-8,16,points_array[2],3,spr);
-				fx_galaga();
-			}
-
-			if (!isboss && (muspos > MUS_PATTERN*2 - (MUS_PATTERN/4) || (!(starship_state&STARSHIP_AUTOPILOT)))) {
-				fx_Covid19();
-			}
-
-			fx_EQ();
 		}
 
 
