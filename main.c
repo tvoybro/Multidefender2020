@@ -15,6 +15,8 @@
 #include "Include/nesdoug.h"
 #include "Include/font4x4.h"
 
+#include "Include/bg_winners.h"
+
 #define high_byte(a) *((unsigned char*)&a+1)
 #define low_byte(a) *((unsigned char*)&a)
 
@@ -54,9 +56,9 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
-#define	PLAY_TIME				6*60-1
+#define	PLAY_TIME				15
 //6*60-1
-
+#define	WINNERS_TIME			10*60
 
 #define COVID_COLOR				0
 #define COVID_SUPER_COLOR		2
@@ -135,9 +137,12 @@ extern unsigned char NAM_multi_logo_B[];
 extern unsigned char NAM_nesdev_A[];
 extern unsigned char NAM_gameover_A[];
 
+unsigned char winnersText[14*9] = {};
+unsigned int winnersTime;
+unsigned int winnersScore[9] = {};
+unsigned char hasWinners = 0;
 
 unsigned char paletteId = 0;
-
 const unsigned char paletteIn[6][16]={
 	{0x0F,0x0F,0x0F,0x0F,
 	 0x0F,0x30,0x0F,0x0F,
@@ -2003,11 +2008,113 @@ void gameInit()
 //   FROM NASTY CORONAVIRUS
 // WITH A SCORE OF 999 POINTS
 
-const char txt_time_out[] = {
-	"TIMEOUT"
+const char txt_winners_default[] = {
+	"UNKNOWN....00"
 };
 
 unsigned char input_name[11] = {};
+
+void initMain(void) {
+ 	ppu_off();
+	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
+	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
+	scroll(scrollpos, 0);
+	oam_clear();
+
+	cnrom_set_bank(1);
+ 	chr_to_nametable(NAMETABLE_A, NAM_multi_logo_A);
+ 	chr_to_nametable(NAMETABLE_B, NAM_multi_logo_B);
+
+	pal_bg(paletteIn[0]);
+	pal_spr(palette_spr_init);	
+
+	pal_bg_bright(4);
+
+	cnrom_set_bank(0);
+	bank_spr(1);
+	bank_bg(0);
+	
+	//paletteId = 0;
+
+	ppu_on_all();
+}
+
+void initWinners(void)
+{
+	ppu_off();
+	set_nmi_user_call_off();
+	oam_clear();
+	
+	vram_adr(NAMETABLE_A);
+	vram_unrle(bg_winners);
+	vram_adr(NAMETABLE_B);
+	vram_unrle(bg_winners);
+	cnrom_set_bank(0);
+	bank_bg(1);
+	bank_spr(1);
+	scroll(256-4, 0);
+
+	// recalc winner table
+	if (isgameover) {
+		hasWinners = 1;
+		// search place in table
+		i = 0;
+		while (i < 9 && winnersScore[i] >= points) {
+			i++;
+		}
+		// move table
+		if (i < 8) {
+			for (j = 8; j > i; --j) {
+				winnersScore[j] = winnersScore[j - 1];
+				for (k = 0; k < 14; ++k) {
+					winnersText[j*14 + k] = winnersText[(j-1)*14 + k];
+				}
+			}
+		}
+		// set new record
+		if (i < 9) {
+			winnersScore[i] = points;
+			for (j = 0; j < 11; ++j) {
+				winnersText[i*14 + j] = input_name[j] == 0xB0 ? 0xBE : input_name[j];
+			}
+			winnersText[i*14 + 11] = points_array[0];
+			winnersText[i*14 + 12] = points_array[1];
+			winnersText[i*14 + 13] = points_array[2];
+		}
+		isgameover = 0;
+	}
+	// paint winners
+	for (i = 0; i < 9; ++i) {
+		for (j = 0; j < 11; ++j) {
+			vram_adr(0x24E6 + 64 * i + j);
+			vram_put(winnersText[i*14 + j]);
+		}
+		for (j = 0; j < 3; j++) {
+			vram_adr(0x24F6 + 64 * i + j);
+			vram_put(winnersText[i*14 + 11 + j]);
+		}
+	}
+	winnersTime = WINNERS_TIME;
+	ppu_on_all();
+	++iswinners;
+}
+
+void fx_winners(void)
+{
+	if (iswinners == 1) {
+		initWinners();
+		starship_state = 1 | STARSHIP_AUTOPILOT;
+		covidsInit();
+	}
+	if (winnersTime) {
+		--winnersTime;
+	} else {
+		iswinners = 0;
+		initMain();
+	}
+	scroll(256-4, 0);
+}
+
 
 void initGameover(void)
 {
@@ -2043,30 +2150,9 @@ void nameDelSym(void)
 	sfx_play(SFX_COVID_ELIMINATED, 0);
 }
 
-
-void initWinners(void)
-{
-	ppu_off();
-	set_nmi_user_call_off();
-	oam_clear();
-
-	// recalc winner table
-	if (isgameover) {
-		isgameover = 0;
-	}
-	scroll(256-4, 0);
-	ppu_on_all();
-}
-
-void fx_winners(void)
-{
-	if (iswinners == 1) {
-		initWinners();
-	}
-}
-
 void fx_gameover(void)
 {
+	
 	if (isgameover == 1) {
 		initGameover();
 	}
@@ -2106,7 +2192,10 @@ void fx_gameover(void)
 	if (pad_prev & PAD_B) {
 		nameDelSym();
 	}
-	
+	if (pad_prev & PAD_START) {
+		sfx_play(SFX_TELEGA_FLY, 0);
+		iswinners = 1;
+	}
 	if (pad_prev & PAD_A) {
 		if (bossY == 0) {
 			i = 0xC0 + bossX;
@@ -2134,12 +2223,22 @@ void fx_gameover(void)
 	}
 }
 
-
 void main(void)
 {
 	
 	set_vram_buffer();
 	clear_vram_buffer();
+	
+	// default winners table
+	if (hasWinners == 0) {
+		for (i = 0; i < 9; ++i) {
+			for (j = 0; j < 13; ++j) {
+				winnersText[i*14 + j] = txt_winners_default[j] + 144;
+			}
+			winnersText[i*14 + 13] = 0xC9 - i;
+			winnersScore[i] = 9 - i;
+		}
+	}
 
 	//fx_NesDev();
 	//fx_Krujeva();
@@ -2147,26 +2246,7 @@ void main(void)
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
 
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-	ppu_wait_nmi();
-
- 	ppu_off();
-	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
-	scroll(scrollpos, 0);
-	oam_clear();
-
-	cnrom_set_bank(1);
- 	chr_to_nametable(NAMETABLE_A, NAM_multi_logo_A);
- 	chr_to_nametable(NAMETABLE_B, NAM_multi_logo_B);
-
-	pal_bg(paletteIn[0]);
-	pal_spr(palette_spr_init);	
-	pal_bg_bright(4);
-	cnrom_set_bank(0);
-	bank_spr(1);
-	ppu_on_all();
+	initMain();
 
 	galagaInit();
 	covidsInit();
@@ -2194,8 +2274,13 @@ void main(void)
 					spr = oam_spr(8, 16, 0xA0 + (playTime > 15 ? (playTime+60)/60 : 0), 3, spr);
 				}
 			} else {
-				if (!isgameover) {
-					isgameover = 1;
+				if (!isgameover && !iswinners) {
+					//isgameover = 1;
+					if (points > winnersScore[8]) {
+						isgameover = 1;
+					} else {
+						iswinners = 1;
+					}
 				}
 			}
 		}
@@ -2213,6 +2298,17 @@ void main(void)
 			gameInit();
 			starship_state ^= STARSHIP_AUTOPILOT;
 		}
+		
+		if (!isgameover && (starship_state&STARSHIP_AUTOPILOT) && (pad_prev & PAD_SELECT)) {
+			if (!iswinners) {
+				iswinners = 1;
+				sfx_play(SFX_TELEGA_OUT,0);
+			} else {
+				iswinners = 0;
+				initMain();
+			}
+		}
+		
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
