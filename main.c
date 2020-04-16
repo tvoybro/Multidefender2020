@@ -54,7 +54,7 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
-#define	PLAY_TIME				4
+#define	PLAY_TIME				1
 //6*60-1
 
 
@@ -1986,20 +1986,39 @@ const char txt_time_out[] = {
 	"TIMEOUT"
 };
 
+unsigned char input_name[11] = {};
+
 void initGameover(void)
 {
-	oam_clear();
-	ppu_wait_nmi();
-
 	ppu_off();
+	set_nmi_user_call_off();
+	oam_clear();
 	cnrom_set_bank(1);
 	chr_to_nametable(NAMETABLE_A, NAM_gameover_A);
 	chr_to_nametable(NAMETABLE_B, NAM_gameover_A);
 	cnrom_set_bank(0);
-	isgameover = 2;
-	ppu_on_all();
 	bank_bg(1);
 	bank_spr(1);
+	++isgameover;
+	scroll(256-4, 0);
+	bossX = 0;
+	bossY = 0;
+	bossCovidX1 = 0;
+	ppu_on_all();
+	for (i = 0; i < 11; ++i) {
+		input_name[i] = 0xB0;
+	}
+}
+
+void nameDelSym(void) {
+	input_name[bossCovidX1] = 0xB0;
+	one_vram_buffer(0xB0, 0x25EA + bossCovidX1);
+	if (bossCovidX1) {
+		--bossCovidX1;
+	}
+	input_name[bossCovidX1] = 0xB0;
+	one_vram_buffer(0xB0, 0x25EA + bossCovidX1);
+	sfx_play(SFX_COVID_ELIMINATED, 0);
 }
 
 void fx_gameover(void)
@@ -2008,15 +2027,66 @@ void fx_gameover(void)
 		initGameover();
 	}
 	
-	scroll(256-4,0);
+	scroll(256-4, 0);
 	// side spr - sprites
-	spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
-	spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
+
+	// show score
+	spr = oam_spr(160-4-8, 128-41, points_array[0], 2, spr);
+	spr = oam_spr(160-4+0, 128-41, points_array[1], 2, spr);
+	spr = oam_spr(160-4+8, 128-41, points_array[2], 2, spr);
 	
-	// score
-	spr = oam_spr(128-4-8, 120, points_array[0], 2, spr);
-	spr = oam_spr(128-4+0, 120, points_array[1], 2, spr);
-	spr = oam_spr(128-4+8, 120, points_array[2], 2, spr);
+	// show cursor
+	spr = oam_spr(6*8+1 + 16*bossX, 17*8-3 + 16*bossY, 0x6C, 3, spr);
+	spr = oam_spr(7*8+1 + 16*bossX, 17*8-3 + 16*bossY, 0x6D, 3, spr);
+	spr = oam_spr(6*8+1 + 16*bossX, 18*8-4 + 16*bossY, 0x6E, 3, spr);
+	spr = oam_spr(7*8+1 + 16*bossX, 18*8-4 + 16*bossY, 0x6F, 3, spr);
+	
+	// name cursor
+	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8-3, 0x5F, 3, spr);
+	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 16*8-1, 0x5F, 3, spr);
+
+	// control cursor
+	if ((pad_prev & PAD_RIGHT) && bossX < 9) {
+		++bossX;
+	}
+	if ((pad_prev & PAD_LEFT) && bossX) {
+		--bossX;
+	}
+	if ((pad_prev & PAD_DOWN) && bossY < 3) {
+		++bossY;
+	}
+	if ((pad_prev & PAD_UP) && bossY) {
+		--bossY;
+	}
+	if (pad_prev & PAD_B) {
+		nameDelSym();
+	}
+	
+	if (pad_prev & PAD_A) {
+		if (bossY == 0) {
+			i = 0xC0 + bossX;
+		} else {
+			i = 0xD1 + bossX + 10*(bossY-1);
+		}
+		if (bossY == 3 & (bossX == 6 || bossX == 7)) {
+			i = 0xB0;	
+		}
+		if (bossY == 3 & bossX > 7) {
+			if (bossX == 8) {
+				nameDelSym();
+			} else {
+				sfx_play(SFX_TELEGA_FLY, 0);
+			}
+		} else {
+			input_name[bossCovidX1] = i;
+			one_vram_buffer(i, 0x25EA + bossCovidX1);
+			sfx_play(SFX_SHOT, 0);
+			if (bossCovidX1 < 10) {
+				++bossCovidX1;
+			};
+		}
+	}
+	
 
 }
 
@@ -2026,7 +2096,7 @@ void main(void)
 	
 	set_vram_buffer();
 	clear_vram_buffer();
- 	
+
 	//fx_NesDev();
 	//fx_Krujeva();
 
@@ -2087,7 +2157,7 @@ void main(void)
 		}
 		
 		
-		pad_prev=pad_trigger(0);
+		pad_prev = pad_trigger(0);
 		pad = pad_poll(0);
 		// Disable autopilot if any joypad button pressed
 		if (!isgameover && (pad_prev & PAD_START)) {
@@ -2104,7 +2174,7 @@ void main(void)
 		clear_vram_buffer();
 
 		// side spr - sprites
-		if (!isboss && starship_state&STARSHIP_AUTOPILOT) {
+		if (!isboss && !isgameover && starship_state&STARSHIP_AUTOPILOT) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
@@ -2193,9 +2263,16 @@ void main(void)
 			++paletteId;
 		}
 
-		if (!isgameover) {
-			fx_SplitScroll();
+		// gameover pal
+		if (isgameover) {
+			pal_col(1, 0x23);
+			pal_col(9, 0x32);
 		}
+
+
+		//if (!isgameover) {
+			fx_SplitScroll();
+		//}
 
 		++nesclock;
 		ppu_wait_nmi();

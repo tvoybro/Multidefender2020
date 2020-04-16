@@ -287,7 +287,7 @@ _NAM_multi_logo_B:
 _NAM_nesdev_A:
 	.incbin "Include/NAM_nesdev_A.nam"
 _NAM_gameover_A:
-	.incbin "Include/bg_congratulation_2.nam"
+	.incbin "Include/bg_congratulation.nam"
 
 .segment "CHR3"
 	.incbin "NESst/kruj_charset_0.chr"
