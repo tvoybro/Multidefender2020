@@ -54,7 +54,7 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
-#define	PLAY_TIME				1
+#define	PLAY_TIME				6*60-1
 //6*60-1
 
 
@@ -73,7 +73,7 @@ unsigned int hiPage;
 unsigned int hiPointer;
 unsigned char covidQty, covidLiveQty;
 unsigned char logoPos, logoX, nesclock = 0;
-unsigned char ishighscore, isboss, isgameover;
+unsigned char ishighscore, isboss, isgameover, iswinners;
 unsigned char hs_strings_y;
 unsigned int highscore_timer;
 
@@ -1392,20 +1392,36 @@ void fx_Covid19(void) {
 			//new super covid
 			if (superCovid && bossCovidY >= 200 && superCovidHp == 0 && superCovidDelay == 0) {
 				sfx_play(SFX_BOSS_SPAWN, 0);
-				--superCovid;
 				superCovidHp = SUPER_COVID_HP;
 				bossCovidY = 16;
 				bossCovidX1 = starship_x8 - 16;
 				bossCovidX2 = rand8() & 3;
+				bossCovidX3 = 3;
+				if (superCovid == 3) {
+					++superCovidHp;
+					bossCovidX3 = 1;
+				}
 				if (bossCovidX2 < 2) {
 					bossCovidX2 = starship_x8 > 128 ? 1 : 0;
+					bossCovidX3 = bossCovidX3 == 1 ? 1 : 2;
 				}
-				restoreBossPalette();
+				--superCovid;
 			}
 		}
+
+		if (superCovidHp != SUPER_COVID_HP) {
+			pal_col(25, 0x0f);
+			pal_col(26, 0x1a);
+			pal_col(27, 0x2a);
+		} else {
+			pal_col(25, 0x0f);
+			pal_col(26, 0x16);
+			pal_col(27, 0x26);
+		}
+
 		if (bossCovidY < 200) {
-			if (superCovidHp == SUPER_COVID_HP) {
-				bossCovidY += bossCovidX2 < 2 ? 2 : 3;
+			if (superCovidHp >= SUPER_COVID_HP) {
+				bossCovidY += bossCovidX3 + (bossCovidX3 == 1 ? nesclock&1 : 0);
 				switch (bossCovidX2) {
 					case 0:
 						++bossCovidX1;
@@ -1421,11 +1437,16 @@ void fx_Covid19(void) {
 					}
 				}
 			}
-			if (bullet_x > bossCovidX1 && bullet_x < bossCovidX1 + 24 && bullet_y > bossCovidY && bullet_y < bossCovidY + 24 && superCovidHp == SUPER_COVID_HP) {
+			if (bullet_x > bossCovidX1 && bullet_x < bossCovidX1 + 24 && bullet_y > bossCovidY && bullet_y < bossCovidY + 24 && superCovidHp >= SUPER_COVID_HP) {
 				superCovidHp--;
-				sfx_play(SFX_COVID_ELIMINATED, 1);
-				earnpoint(1);
 				bullet_y = 0;
+				earnpoint(1);
+				if (superCovidHp == SUPER_COVID_HP) {
+					earnpoint(1);
+					sfx_play(SFX_BOSS_HIT, 0);
+				} else {
+					sfx_play(SFX_COVID_ELIMINATED, 1);
+				}
 			}
 
 			if (superCovidHp && superCovidHp < SUPER_COVID_HP) {
@@ -2010,7 +2031,8 @@ void initGameover(void)
 	}
 }
 
-void nameDelSym(void) {
+void nameDelSym(void)
+{
 	input_name[bossCovidX1] = 0xB0;
 	one_vram_buffer(0xB0, 0x25EA + bossCovidX1);
 	if (bossCovidX1) {
@@ -2021,29 +2043,52 @@ void nameDelSym(void) {
 	sfx_play(SFX_COVID_ELIMINATED, 0);
 }
 
+
+void initWinners(void)
+{
+	ppu_off();
+	set_nmi_user_call_off();
+	oam_clear();
+
+	// recalc winner table
+	if (isgameover) {
+		isgameover = 0;
+	}
+	scroll(256-4, 0);
+	ppu_on_all();
+}
+
+void fx_winners(void)
+{
+	if (iswinners == 1) {
+		initWinners();
+	}
+}
+
 void fx_gameover(void)
 {
 	if (isgameover == 1) {
 		initGameover();
 	}
-	
+
 	scroll(256-4, 0);
-	// side spr - sprites
 
 	// show score
 	spr = oam_spr(160-4-8, 128-41, points_array[0], 2, spr);
 	spr = oam_spr(160-4+0, 128-41, points_array[1], 2, spr);
 	spr = oam_spr(160-4+8, 128-41, points_array[2], 2, spr);
 	
-	// show cursor
+	// select cursor
 	spr = oam_spr(6*8+1 + 16*bossX, 17*8-3 + 16*bossY, 0x6C, 3, spr);
 	spr = oam_spr(7*8+1 + 16*bossX, 17*8-3 + 16*bossY, 0x6D, 3, spr);
 	spr = oam_spr(6*8+1 + 16*bossX, 18*8-4 + 16*bossY, 0x6E, 3, spr);
 	spr = oam_spr(7*8+1 + 16*bossX, 18*8-4 + 16*bossY, 0x6F, 3, spr);
 	
 	// name cursor
-	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8-3, 0x5F, 3, spr);
-	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 16*8-1, 0x5F, 3, spr);
+	//spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8-3, 0x5F, 3, spr);
+	//spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 16*8-1, 0x5F, 3, spr);
+	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8-1, 0x5D, 3 | OAM_BEHIND, spr);
+	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8, 0x5D, 3 | OAM_BEHIND, spr);
 
 	// control cursor
 	if ((pad_prev & PAD_RIGHT) && bossX < 9) {
@@ -2076,6 +2121,7 @@ void fx_gameover(void)
 				nameDelSym();
 			} else {
 				sfx_play(SFX_TELEGA_FLY, 0);
+				iswinners = 1;
 			}
 		} else {
 			input_name[bossCovidX1] = i;
@@ -2086,8 +2132,6 @@ void fx_gameover(void)
 			};
 		}
 	}
-	
-
 }
 
 
@@ -2179,8 +2223,12 @@ void main(void)
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
 
-		if (isgameover) {
-			fx_gameover();
+		if (isgameover || iswinners) {
+			if (iswinners) {
+				fx_winners();
+			} else {
+				fx_gameover();
+			}
 		} else {
 			if (ishighscore) {
 				fx_highscore();
