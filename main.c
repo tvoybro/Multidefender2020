@@ -58,7 +58,7 @@
 
 #define	PLAY_TIME				15
 //6*60-1
-#define	WINNERS_TIME			10*60
+#define	WINNERS_TIME			15*60
 
 #define COVID_COLOR				0
 #define COVID_SUPER_COLOR		2
@@ -649,10 +649,10 @@ void fx_SplitScroll(void)
 	if ((FT_BUF[9] & 0x0f)>9 && !eq_Noise_Val) {
 		eq_Noise_Val = 7;
 	}
-
+	bank_bg(0);
 	//gray_line();
 	xy_split(scrollerPos, 210 + 5 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
-
+	
 	if (eq_Noise_Val)
 		--eq_Noise_Val;
 	scrollerPos = (scrollerPos + 1) & 511;
@@ -2015,25 +2015,25 @@ const char txt_winners_default[] = {
 unsigned char input_name[11] = {};
 
 void initMain(void) {
- 	ppu_off();
-	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
-	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
-	scroll(scrollpos, 0);
-	oam_clear();
 
+ 	ppu_off();
+	set_nmi_user_call_off();
 	cnrom_set_bank(1);
+	bank_bg(0);
+	bank_spr(1);
+
  	chr_to_nametable(NAMETABLE_A, NAM_multi_logo_A);
  	chr_to_nametable(NAMETABLE_B, NAM_multi_logo_B);
 
+	oam_clear();
+	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
+	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
+	scroll(scrollpos, 0);
+
 	pal_bg(paletteIn[0]);
 	pal_spr(palette_spr_init);	
-
 	pal_bg_bright(4);
-
 	cnrom_set_bank(0);
-	bank_spr(1);
-	bank_bg(0);
-	
 	//paletteId = 0;
 
 	ppu_on_all();
@@ -2052,7 +2052,7 @@ void initWinners(void)
 	cnrom_set_bank(0);
 	bank_bg(1);
 	bank_spr(1);
-	scroll(256-4, 0);
+	//scroll(256-4, 0);
 
 	// recalc winner table
 	if (isgameover) {
@@ -2086,15 +2086,16 @@ void initWinners(void)
 	// paint winners
 	for (i = 0; i < 9; ++i) {
 		for (j = 0; j < 11; ++j) {
-			vram_adr(0x24E6 + 64 * i + j);
+			vram_adr(0x24E8 + 64 * i + j);
 			vram_put(winnersText[i*14 + j]);
 		}
 		for (j = 0; j < 3; j++) {
-			vram_adr(0x24F6 + 64 * i + j);
+			vram_adr(0x24F4 + 64 * i + j);
 			vram_put(winnersText[i*14 + 11 + j]);
 		}
 	}
 	winnersTime = WINNERS_TIME;
+	set_nmi_user_call_on(4);
 	ppu_on_all();
 	++iswinners;
 }
@@ -2128,7 +2129,7 @@ void initGameover(void)
 	bank_bg(1);
 	bank_spr(1);
 	++isgameover;
-	scroll(256-4, 0);
+	//scroll(256-4, 0);
 	bossX = 0;
 	bossY = 0;
 	bossCovidX1 = 0;
@@ -2141,18 +2142,17 @@ void initGameover(void)
 void nameDelSym(void)
 {
 	input_name[bossCovidX1] = 0xB0;
-	one_vram_buffer(0xB0, 0x25EA + bossCovidX1);
+	one_vram_buffer(0xB0, 0x262A + bossCovidX1);
 	if (bossCovidX1) {
 		--bossCovidX1;
 	}
 	input_name[bossCovidX1] = 0xB0;
-	one_vram_buffer(0xB0, 0x25EA + bossCovidX1);
+	one_vram_buffer(0xB0, 0x262A + bossCovidX1);
 	sfx_play(SFX_COVID_ELIMINATED, 0);
 }
 
 void fx_gameover(void)
 {
-	
 	if (isgameover == 1) {
 		initGameover();
 	}
@@ -2165,16 +2165,14 @@ void fx_gameover(void)
 	spr = oam_spr(160-4+8, 128-41, points_array[2], 2, spr);
 	
 	// select cursor
-	spr = oam_spr(6*8+1 + 16*bossX, 17*8-3 + 16*bossY, 0x6C, 3, spr);
-	spr = oam_spr(7*8+1 + 16*bossX, 17*8-3 + 16*bossY, 0x6D, 3, spr);
-	spr = oam_spr(6*8+1 + 16*bossX, 18*8-4 + 16*bossY, 0x6E, 3, spr);
-	spr = oam_spr(7*8+1 + 16*bossX, 18*8-4 + 16*bossY, 0x6F, 3, spr);
+	spr = oam_spr(6*8+1 + 16*bossX, 19*8-3 + 16*bossY, 0x6C, 3, spr);
+	spr = oam_spr(7*8+1 + 16*bossX, 19*8-3 + 16*bossY, 0x6D, 3, spr);
+	spr = oam_spr(6*8+1 + 16*bossX, 20*8-4 + 16*bossY, 0x6E, 3, spr);
+	spr = oam_spr(7*8+1 + 16*bossX, 20*8-4 + 16*bossY, 0x6F, 3, spr);
 	
 	// name cursor
-	//spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8-3, 0x5F, 3, spr);
-	//spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 16*8-1, 0x5F, 3, spr);
-	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8-1, 0x5D, 3 | OAM_BEHIND, spr);
-	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 15*8, 0x5D, 3 | OAM_BEHIND, spr);
+	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 17*8-1, 0x5D, 3 | OAM_BEHIND, spr);
+	spr = oam_spr(10*8 + 4 + 8*bossCovidX1, 17*8, 0x5D, 3 | OAM_BEHIND, spr);
 
 	// control cursor
 	if ((pad_prev & PAD_RIGHT) && bossX < 9) {
@@ -2214,7 +2212,7 @@ void fx_gameover(void)
 			}
 		} else {
 			input_name[bossCovidX1] = i;
-			one_vram_buffer(i, 0x25EA + bossCovidX1);
+			one_vram_buffer(i, 0x262A + bossCovidX1);
 			sfx_play(SFX_SHOT, 0);
 			if (bossCovidX1 < 10) {
 				++bossCovidX1;
@@ -2240,10 +2238,10 @@ void main(void)
 		}
 	}
 
-	//fx_NesDev();
-	//fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
-	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
+	//oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
 
 	initMain();
@@ -2289,7 +2287,7 @@ void main(void)
 		pad_prev = pad_trigger(0);
 		pad = pad_poll(0);
 		// Disable autopilot if any joypad button pressed
-		if (!isgameover && (pad_prev & PAD_START)) {
+		if (!isgameover && !iswinners && (pad_prev & PAD_START)) {
 			if (starship_state&STARSHIP_AUTOPILOT) {
 				sfx_play(SFX_TELEGA_FLY,0);
 			} else {
@@ -2351,9 +2349,6 @@ void main(void)
 			}
 		}
 
-
-		oam_spr(20*8, 201, 0x01, 1 | OAM_BEHIND, 0);
-
 		// logo bg scroll
 		if (nesclock&1 && muspos > MUS_PATTERN) {
 			++logoPos;
@@ -2391,6 +2386,7 @@ void main(void)
 			pal_col(13, palRollList[i]);
 			pal_col(14, palRollList[palRollId]);
 		}
+		
 
 		//corona spr blink
 		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
@@ -2408,15 +2404,19 @@ void main(void)
 		}
 
 		// gameover pal
-		if (isgameover) {
+		if (isgameover || iswinners) {
 			pal_col(1, 0x23);
 			pal_col(9, 0x32);
+			pal_col(15, 0x22);
+			pal_col(14, 0x31);
+			pal_col(13, 0x13);
 		}
 
 
-		//if (!isgameover) {
+		if (!isgameover && !iswinners) {
+			oam_spr(24*8, 201, 0x01, 1 | OAM_BEHIND, 0);
 			fx_SplitScroll();
-		//}
+		}
 
 		++nesclock;
 		ppu_wait_nmi();
