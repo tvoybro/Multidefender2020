@@ -56,7 +56,7 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
-#define	PLAY_TIME				15
+#define	PLAY_TIME				6*60-1
 //6*60-1
 #define	WINNERS_TIME			15*60
 
@@ -1197,13 +1197,11 @@ unsigned char covids_states[COVIDS_MAX];
 const unsigned char *covidXtable;
 const unsigned char *covidYtable;
 
-void earnpoint(unsigned char pluspoint) {
-	if (pluspoint)
-		++points;
-	else
-		--points;
-	if (points>999)
-		points=0;
+void earnpoint(signed char pluspoint) {
+	points += pluspoint;
+	if (points > 999) {
+		points = 0;
+	}
 	points_array[0]=0xc0+points/100;
 	points_array[1]=0xc0+points/10%10;
 	points_array[2]=0xc0+points%10; 
@@ -1215,7 +1213,7 @@ void hitPlayer(void)
 		return;
 	}
 	if (points) {
-		earnpoint(0);
+		earnpoint(-1);
 	}
 	starship_stunned = 60*1;
 	starship_protect = 60*2+30;
@@ -1393,7 +1391,7 @@ void fx_Covid19(void) {
 
 	//super covid
 	if (!(starship_state & STARSHIP_AUTOPILOT)) {
-		if (covidLiveQty && covidLiveQty < 5) {
+		if (covidLiveQty < 5) {
 			//new super covid
 			if (superCovid && bossCovidY >= 200 && superCovidHp == 0 && superCovidDelay == 0) {
 				sfx_play(SFX_BOSS_SPAWN, 0);
@@ -1445,9 +1443,8 @@ void fx_Covid19(void) {
 			if (bullet_x > bossCovidX1 && bullet_x < bossCovidX1 + 24 && bullet_y > bossCovidY && bullet_y < bossCovidY + 24 && superCovidHp >= SUPER_COVID_HP) {
 				superCovidHp--;
 				bullet_y = 0;
-				earnpoint(1);
+				earnpoint(2);
 				if (superCovidHp == SUPER_COVID_HP) {
-					earnpoint(1);
 					sfx_play(SFX_BOSS_HIT, 0);
 				} else {
 					sfx_play(SFX_COVID_ELIMINATED, 1);
@@ -1509,18 +1506,20 @@ void fx_Covid19(void) {
 			if (covids_states[i] == 27 + 9) {
 				++covids_hit;
 				++covids_states[i];
-				if (covids_hit == COVIDS_MAX) {
-					covidsInit();
-					if (starship_state & STARSHIP_AUTOPILOT) {
-						pal_col(27, 0x04);
-						pal_col(25, 0x30);
-						ishighscore = 1;
-						highscore_timer = 60*6;
-					}
-				}
 			}
 		}
 	}
+	
+	if (covids_hit == COVIDS_MAX && !superCovid && (!superCovidHp || bossCovidY >= 200)) {
+		covidsInit();
+		if (starship_state & STARSHIP_AUTOPILOT) {
+			pal_col(27, 0x04);
+			pal_col(25, 0x30);
+			ishighscore = 1;
+			highscore_timer = 60*6;
+		}
+	}
+	
 
 	if (!(nesclock & 3)) {
 		++covid_frame;
@@ -1938,7 +1937,7 @@ void bossFight(void)
 
 			}
 			
-			if (bullet_x > bossX - 16 && bullet_x < bossX + 16 && bullet_y > bossY && bullet_y < bossY + 24) {
+			if (bullet_x > bossX - 16 && bullet_x < bossX + 10 && bullet_y > bossY && bullet_y < bossY + 24) {
 				bullet_y = 0;
 				if (!(starship_state & STARSHIP_AUTOPILOT)) {
 					sfx_play(SFX_BOSS_HIT,0);
@@ -2238,8 +2237,8 @@ void main(void)
 		}
 	}
 
-	fx_NesDev();
-	fx_Krujeva();
+	//fx_NesDev();
+	//fx_Krujeva();
 
 	//oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 	set_nmi_user_call_off();
@@ -2254,10 +2253,6 @@ void main(void)
 
 	while(1)
 	{
-		//ishighscore = 1;
-		//isboss = 1;
-		//bossAttractTimer = 60*30;
-
 		spr = 4;
 		
 		if (!(starship_state&STARSHIP_AUTOPILOT)) {
@@ -2312,7 +2307,7 @@ void main(void)
 		clear_vram_buffer();
 
 		// side spr - sprites
-		if (!isboss && !isgameover && starship_state&STARSHIP_AUTOPILOT) {
+		if (!isboss && starship_state&STARSHIP_AUTOPILOT) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
@@ -2352,8 +2347,9 @@ void main(void)
 		// logo bg scroll
 		if (nesclock&1 && muspos > MUS_PATTERN) {
 			++logoPos;
-			if (logoPos>127)
-				logoPos=0;
+			if (logoPos > 127) {
+				logoPos = 0;
+			}
 		}
 
 		// galaga engine blink
