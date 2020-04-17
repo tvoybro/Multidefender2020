@@ -30,9 +30,9 @@ FT_SFX_STREAMS = 4			        ;number of sound effects played at once, 1..4
 
     .export _NAM_krujeva
     .export _NAM_multi_logo_A
-    .export _NAM_multi_logo_B
-    .export _NAM_nesdev_A
 	.export _NAM_gameover_A
+	.export _NAM_bg_info_A
+	.export _NAM_bg_winners_A
 
 FT_BASE_ADR		=$0100	;page in RAM, should be $xx00
 
@@ -282,13 +282,13 @@ _NAM_krujeva:
 	.incbin "Include/NAM_krujeva.nam"
 _NAM_multi_logo_A:
 	.incbin "Include/NAM_multi_logo_A.nam"
-_NAM_multi_logo_B:
-	.incbin "Include/NAM_multi_logo_B.nam"
-_NAM_nesdev_A:
-	.incbin "Include/NAM_nesdev_A.nam"
 _NAM_gameover_A:
 	.incbin "Include/bg_congratulation.nam"
-
+_NAM_bg_info_A:
+	.incbin "Include/bg_info.nam"
+_NAM_bg_winners_A:
+	.incbin "Include/bg_winners_2.nam"
+	
 .segment "CHR3"
 	.incbin "NESst/kruj_charset_0.chr"
 	

@@ -15,7 +15,9 @@
 #include "Include/nesdoug.h"
 #include "Include/font4x4.h"
 
-#include "Include/bg_winners.h"
+
+#include "Include/NAM_multi_logo_B.h"
+#include "Include/NAM_nesdev_A.h"
 
 #define high_byte(a) *((unsigned char*)&a+1)
 #define low_byte(a) *((unsigned char*)&a)
@@ -65,17 +67,15 @@
 
 #define SUPER_COVID_HP		8*4
 
-unsigned char isNtsc;
-
-
 #pragma bss-name (push,"ZEROPAGE")
+unsigned char isNtsc;
 unsigned char hiTextY;
 unsigned char hiTextX;
 unsigned int hiPage;
 unsigned int hiPointer;
 unsigned char covidQty, covidLiveQty;
 unsigned char logoPos, logoX, nesclock = 0;
-unsigned char ishighscore, isboss, isgameover, iswinners;
+unsigned char ishighscore, isboss, isgameover, iswinners, isinfo;
 unsigned char hs_strings_y;
 unsigned int highscore_timer;
 
@@ -102,8 +102,8 @@ unsigned int scrollerPos = 0;
 unsigned int scrollerAddr = 0;
 unsigned int scrollpos = 0;
 
-unsigned char superCovid;
-unsigned char superCovidHp;
+unsigned char superCovid = 0;
+unsigned char superCovidHp = 0;
 unsigned char superCovidDelay;
 
 // Boss vars
@@ -120,7 +120,20 @@ unsigned char bossX, bossY;
 unsigned char bossDefeatedCounter;
 unsigned char bossDefeatedPhase;
 
+unsigned char zzz_zeropage_end;
+
 #pragma bss-name (pop)
+
+unsigned char palSamoletId = 0;
+unsigned char eq_Pulse1_Volume = 0;		// vol = FT_BUF[0]&0b00001111 -> 00 min 0f max -> table offset = vol div 3
+unsigned char eq_Pulse2_Volume = 0;		// FT_BUF[3]&0b00001111 -> 00 min 0f max
+unsigned char eq_Triangle_Volume = 0;			// FT_BUF[6]&0b00001111 -> 0f enabled 00 disabled
+unsigned char eq_Noise_Volume = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
+unsigned char eq_Noise_Val = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
+unsigned char eq_Noise_Val_prev = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
+unsigned char spr;
+
+unsigned char input_name[11];
 
 unsigned char bossExplodeX[] = { 0, 0, 0, 0 };
 unsigned char bossExplodeY[] = { 0, 0, 0, 0 };
@@ -130,103 +143,105 @@ unsigned char bossHealth = BOSS_HEALTH;
 unsigned int  playTime;
 unsigned char playTimeFrm;
 
+
+unsigned int winnersTime;
+
+unsigned char paletteId = 0;
+unsigned char palRollId = 0;
+unsigned char paletteSprId = 0;
+
+unsigned int nt_Offset;
+
+unsigned char i, j, eq_Tile, pad, pad_prev;
+unsigned char eqValues[4][5]={
+	{0,0,0,0,0},
+	{0,0,0,0,0},
+	{0,0,0,0,0},
+	{0,0,0,0,0}
+};
+unsigned char nesdevPalId = 0;
+unsigned char nesdevPalId2 = 0;
+unsigned char nesdevPalId3 = 0;
+unsigned char nesdevFaze = 0;
+unsigned char telegaX = 64;		//64+8+4;	//64;4
+unsigned char telegaY = 128+64-16;	//128+32-4;	//128+64;3
+unsigned char telegaPalId = 0;
+
+unsigned char nesDevPlayCtrl = 0;
+
+unsigned char krujWait = 0;
+unsigned char krujFrm = 0;
+unsigned char krujPalId = 0;
+unsigned char krujBgPalId = 0;
+unsigned char krujWait2 = 0;
+
+unsigned char krujAnimaId1 = 0;
+unsigned char krujAnimaLenId1 = 0;
+unsigned char krujAnimaId2 = 0;
+unsigned char krujAnimaLenId2 = 0;
+unsigned char krujAnimaId3 = 0;
+unsigned char krujAnimaLenId3 = 0;
+
+unsigned char krujOffest2 = 3;
+
+unsigned char krujCheckId = 0;
+
+unsigned char krujChr = 0;
+unsigned int krujHi = 0;
+unsigned char krujLo = 0;
+unsigned char krujX = 0;
+unsigned char krujY = 0;
+unsigned char krujAttr = 0;
+
+unsigned char krujFill = 0;
+unsigned char krujFillAdr = 0;
+unsigned char krujFillVal1 = 0b01010101;
+unsigned char krujFillVal2 = 0b01010101;
+
+unsigned char kmfList1[30] = { 0x90,0x71, 0xab,0x71, 0xc6,0x71, 0xe1,0x71, 0x90,0x8c, 0xab,0x8c, 0xc6,0x8c, 0xe1,0x8c, 0x90,0xa7, 0xab,0xa7, 0xc6,0xa7, 0xe1,0xa7, 0x90,0xc2, 0xab,0xc2, 0xc6,0xc2 };
+unsigned char kmfList2[30] = { 0x19,0x71, 0x34,0x71, 0x4f,0x71, 0x6a,0x71, 0x19,0x8c, 0x34,0x8c, 0x4f,0x8c, 0x6a,0x8c, 0x19,0xa7, 0x34,0xa7, 0x4f,0xa7, 0x6a,0xa7, 0x34,0xc2, 0x4f,0xc2, 0x6a,0xc2 };
+unsigned char kmfList3[20] = { 0xe1,0xfa, 0xc6,0x15, 0xe1,0x15, 0xab,0x30, 0xc6,0x30, 0xe1,0x30, 0x90,0x4b, 0xab,0x4b, 0xc6,0x4b, 0xe1,0x4b };
+unsigned char kmfList4[20] = { 0x19,0xfa, 0x19,0x15, 0x34,0x15, 0x19,0x30, 0x34,0x30, 0x4f,0x30, 0x19,0x4b, 0x34,0x4b, 0x4f,0x4b, 0x6a,0x4b };
+
+unsigned char kmfStep = 11;
+
+unsigned int covids_pointers[COVIDS_MAX];
+unsigned int covid_pointer;
+unsigned int points = 0;
+unsigned char points_array[3] = {0, 0, 0};
+unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
+unsigned char covids_states[COVIDS_MAX];
+
+unsigned char zWinnersHas = 0;
+unsigned char zWinnersText[14*9];
+unsigned int zWinnersScore[9];
+//------------------------------------
+
 extern unsigned char FT_BUF[];
 extern unsigned char NAM_krujeva[];
 extern unsigned char NAM_multi_logo_A[];
-extern unsigned char NAM_multi_logo_B[];
-extern unsigned char NAM_nesdev_A[];
 extern unsigned char NAM_gameover_A[];
+extern unsigned char NAM_bg_info_A[];
+extern unsigned char NAM_bg_winners_A[];
 
-unsigned char winnersText[14*9] = {};
-unsigned int winnersTime;
-unsigned int winnersScore[9] = {};
-unsigned char hasWinners = 0;
 
-unsigned char paletteId = 0;
-const unsigned char paletteIn[6][16]={
-	{0x0F,0x0F,0x0F,0x0F,
-	 0x0F,0x30,0x0F,0x0F,
-	 0x0F,0x30,0x0F,0x0F,
-	 0x0F,0x0F,0x0F,0x0F},
-	{0x02,0x0F,0x0F,0x0F,
-	 0x02,0x30,0x0F,0x0F,
-	 0x02,0x30,0x0F,0x0F,
-	 0x02,0x0F,0x0F,0x0F},
-	{0x12,0x0F,0x0F,0x0F,
-	 0x12,0x30,0x0F,0x0F,
-	 0x12,0x30,0x01,0x0F,
-	 0x12,0x0F,0x0F,0x0F},
-	{0x22,0x0F,0x0F,0x0F,
-	 0x22,0x36,0x0F,0x0F,
-	 0x22,0x36,0x11,0x0F,
-	 0x22,0x0A,0x0F,0x0F},
-	{0x32,0x02,0x03,0x0F,
-	 0x32,0x26,0x03,0x02,
-	 0x32,0x26,0x21,0x02,
-	 0x32,0x1A,0x0A,0x0F},
-	{0x30,0x22,0x13,0x01,
-	 0x30,0x16,0x13,0x22,
-	 0x30,0x16,0x31,0x22,
-	 0x30,0x2A,0x1A,0x01}
+//------------------------------------
+
+const unsigned char palette[16] = {
+	0x30,0x22,0x13,0x01,
+	0x30,0x16,0x13,0x22,
+	0x30,0x16,0x31,0x22,
+	0x30,0x2A,0x1A,0x01
 };
 
-unsigned char palRollId = 0;
 const unsigned char palRollList[48] = {
-0x21,
-0x21,
-0x22,
-0x22,
-0x23,
-0x23,
-0x24,
-0x24,
-0x25,
-0x25,
-0x26,
-0x26,
-0x27,
-0x27,
-0x28,
-0x28,
-0x29,
-0x29,
-0x2A,
-0x2A,
-0x2B,
-0x2B,
-0x2C,
-0x2C,
-0x3C,
-0x3C,
-0x3B,
-0x3B,
-0x3A,
-0x3A,
-0x39,
-0x39,
-0x38,
-0x38,
-0x37,
-0x37,
-0x36,
-0x36,
-0x35,
-0x35,
-0x34,
-0x34,
-0x33,
-0x33,
-0x32,
-0x32,
-0x31,
-0x31
+	0x21,0x21,0x22,0x22,0x23,0x23,0x24,0x24,0x25,0x25,0x26,0x26,0x27,0x27,0x28,0x28,0x29,0x29,0x2A,0x2A,0x2B,0x2B,0x2C,0x2C,0x3C,0x3C,0x3B,0x3B,0x3A,0x3A,0x39,0x39,0x38,0x38,0x37,0x37,0x36,0x36,0x35,0x35,0x34,0x34,0x33,0x33,0x32,0x32,0x31,0x31
 };
 
-
-unsigned char paletteSprId = 0;
 const unsigned char palette_spr_init[16]={
 	0x0f,0x00,0x06,0x10,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30
 };
+
 const unsigned char palette_spr[5][4]={
 	{0x0f,0x00,0x06,0x10},
 	{0x0f,0x10,0x06,0x36},
@@ -234,7 +249,7 @@ const unsigned char palette_spr[5][4]={
 	{0x0f,0x27,0x16,0x30},
 	{0x0f,0x38,0x26,0x30},
 };
-unsigned char palSamoletId = 0;
+
 const unsigned char palSamolet[2] = {0x26, 0x34};
 
 const unsigned char palNesdevBlink[3][16] = {
@@ -350,7 +365,6 @@ const unsigned char* const seq_covid19super[]={
 	covid19super_2_data
 };
 
-
 const unsigned char* const seq_covid19[]={
 	covid19_0_data,
 	covid19_1_data,
@@ -440,57 +454,15 @@ const unsigned char covid_explode_8_data[]={
 
 const unsigned char* const covid_explode[]={
 	covid_explode_0_data,
-	covid_explode_0_data,
-	covid_explode_0_data,
-	covid_explode_0_data,
-	covid_explode_0_data,
-	covid_explode_1_data,
-	covid_explode_1_data,
-	covid_explode_1_data,
 	covid_explode_1_data,
 	covid_explode_2_data,
-	covid_explode_2_data,
-	covid_explode_2_data,
-	covid_explode_2_data,
-	covid_explode_3_data,
-	covid_explode_3_data,
-	covid_explode_3_data,
 	covid_explode_3_data,
 	covid_explode_4_data,
-	covid_explode_4_data,
-	covid_explode_4_data,
-	covid_explode_4_data,
-	covid_explode_5_data,
-	covid_explode_5_data,
-	covid_explode_5_data,
 	covid_explode_5_data,
 	covid_explode_6_data,
-	covid_explode_6_data,
-	covid_explode_6_data,
-	covid_explode_6_data,
-	covid_explode_7_data,
-	covid_explode_7_data,
-	covid_explode_7_data,
 	covid_explode_7_data,
 	covid_explode_8_data,
-	covid_explode_8_data,
-	covid_explode_8_data,
-	covid_explode_8_data
-
 };
-
-const unsigned char* const boss_explode[]={
-	covid_explode_0_data,
-	covid_explode_1_data,
-	covid_explode_2_data,
-	covid_explode_3_data,
-	covid_explode_4_data,
-	covid_explode_5_data,
-	covid_explode_6_data,
-	covid_explode_7_data,
-	covid_explode_8_data
-};
-
 
 const unsigned char spr_starship[]={
 
@@ -507,28 +479,13 @@ const unsigned char const starship_pal[] = {
 };
 
 const char scrollerData[] =  {
-"HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND THIS CART WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
-" SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLOGDA, RUSSIA."
-" WE HAVE YOUR FAVORITE COMPOS: OLDSCHOOL DEMO, INTRO 256B, GRAPHICS, MUSIC. ANIMATION, WILD, ASCII AND ANSI GRAPHICS, TINY MP3. REMOTE ENTRIES ARE ALLOWED. A HAPPY AND HEALTHY DEMOPARTY SPECIAL FOR YOU!"
-" AND FOR NOW, STAY HOME AND MAKE A PRODS!            ARE YOU STILL READING? PRESS START AND KICK SOME ASS!                                                 "
+	"HEY MAN! DID YOU WASH YOUR HANDS? HAVE YOU STOCKED UP ON TOILET PAPER? HOPE YOU WIPED OUT YOUR HANDS AND THIS CART WITH DEMO-SPIRIT BEFORE INSERTING IT INTO THE CONSOLE? OKAY!"
+	" SO, RIGHT AFTER THE END OF THE VIRUS APOCALYPSE, WE ARE WAITING FOR ALL SURVIVORS AT MULTIMATOGRAF 2020 THIS SUMMER! THIS IS AN OLDSCHOOL-AIMED DEMOPARTY TAKING PLACE IN VOLOGDA, RUSSIA."
+	" WE HAVE YOUR FAVORITE COMPOS: OLDSCHOOL DEMO, INTRO 256B, GRAPHICS, MUSIC. ANIMATION, WILD, ASCII AND ANSI GRAPHICS, TINY MP3. REMOTE ENTRIES ARE ALLOWED. A HAPPY AND HEALTHY DEMOPARTY SPECIAL FOR YOU!"
+	" AND FOR NOW, STAY HOME AND MAKE A PRODS!            ARE YOU STILL READING? PRESS START AND KICK SOME ASS!                                                 "
 };
 // -----------------------------------------------------------------------------------------------------------------
 
-unsigned char eq_Pulse1_Volume = 0;		// vol = FT_BUF[0]&0b00001111 -> 00 min 0f max -> table offset = vol div 3
-unsigned char eq_Pulse2_Volume = 0;		// FT_BUF[3]&0b00001111 -> 00 min 0f max
-unsigned char eq_Triangle_Volume = 0;			// FT_BUF[6]&0b00001111 -> 0f enabled 00 disabled
-unsigned char eq_Noise_Volume = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
-unsigned char eq_Noise_Val = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
-unsigned char eq_Noise_Val_prev = 0;		// FT_BUF[9]&0b00001111 -> 00 min 0f max
-unsigned char spr;
-unsigned int nt_Offset;
-unsigned char i, j, eq_Tile, pad, pad_prev;
-unsigned char eqValues[4][5]={
-	{0,0,0,0,0},
-	{0,0,0,0,0},
-	{0,0,0,0,0},
-	{0,0,0,0,0}
-};
 const unsigned int eq_pulse1_approx[15] = {
 	0x00, 0x00, 0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x05, 0x06, 0x06
 };
@@ -538,28 +495,14 @@ const unsigned int eq_noise_approx[15] = {
 };
 
 // -----------------------------------------------------------------------------------------------------------------
-const unsigned int eq_Tri_NT[5] = {
-	NAMETABLE_A-EQOFFSET+0x28e, NAMETABLE_A-EQOFFSET+0x24e, NAMETABLE_A-EQOFFSET+0x20e, NAMETABLE_A-EQOFFSET+0x1ce, NAMETABLE_A-EQOFFSET+0x18e
-};
-
-const unsigned int eq_Noise_NT[6] = {
-	NAMETABLE_A-EQOFFSET+0x28c, NAMETABLE_A-EQOFFSET+0x24c, NAMETABLE_A-EQOFFSET+0x20c, NAMETABLE_A-EQOFFSET+0x1cc, NAMETABLE_A-EQOFFSET+0x18c, NAMETABLE_A-EQOFFSET+0x14c
-};
-
-const unsigned int eq_Pulse1left_NT[7] = {
-	NAMETABLE_A-EQOFFSET+0x28a, NAMETABLE_A-EQOFFSET+0x24a, NAMETABLE_A-EQOFFSET+0x20a, NAMETABLE_A-EQOFFSET+0x1ca, NAMETABLE_A-EQOFFSET+0x18a, NAMETABLE_A-EQOFFSET+0x14a, NAMETABLE_A-EQOFFSET+0x10a
-};
-const unsigned int eq_Pulse1right_NT[7] = {
-	NAMETABLE_A-EQOFFSET+0x294, NAMETABLE_A-EQOFFSET+0x254, NAMETABLE_A-EQOFFSET+0x214, NAMETABLE_A-EQOFFSET+0x1d4, NAMETABLE_A-EQOFFSET+0x194, NAMETABLE_A-EQOFFSET+0x154, NAMETABLE_A-EQOFFSET+0x114
-};
-
-const unsigned int eq_Pulse2left_NT[7] = {
-	NAMETABLE_A-EQOFFSET+0x248, NAMETABLE_A-EQOFFSET+0x208, NAMETABLE_A-EQOFFSET+0x1c8, NAMETABLE_A-EQOFFSET+0x188, NAMETABLE_A-EQOFFSET+0x148, NAMETABLE_A-EQOFFSET+0x108, NAMETABLE_A-EQOFFSET+0x0c8
-};
-
-const unsigned int eq_Pulse2right_NT[7] = {
-	NAMETABLE_A-EQOFFSET+0x248+14, NAMETABLE_A-EQOFFSET+0x208+14, NAMETABLE_A-EQOFFSET+0x1c8+14, NAMETABLE_A-EQOFFSET+0x188+14, NAMETABLE_A-EQOFFSET+0x148+14, NAMETABLE_A-EQOFFSET+0x108+14, NAMETABLE_A-EQOFFSET+0x0c8+14
-};
+void chr_to_nametable(unsigned int nametable, unsigned char *src) {
+	for (i = 0; i < 16; ++i) {
+		vram_adr((int) src+(i*64));
+		vram_read(buffa, 64);
+		vram_adr(nametable+(i*64));
+		vram_write(buffa, 64);
+	}
+}
 
 void restoreBossPalette(void){
 	pal_col(21, 0x0f);
@@ -567,15 +510,6 @@ void restoreBossPalette(void){
 	pal_col(25, 0x0f);
 	pal_col(26, 0x16);
 	pal_col(27, 0x26);
-}
-
-void chr_to_nametable(unsigned int nametable, unsigned char *src) {
-	for (i=0;i<16;++i) {
-		vram_adr((int) src+(i*64));
-		vram_read(buffa, 64);
-		vram_adr(nametable+(i*64));
-		vram_write(buffa, 64);
-	}
 }
 
 void fx_EQ(void)
@@ -679,19 +613,10 @@ const unsigned char spr_telega[]={
 	128
 };
 
-unsigned char nesdevPalId = 0;
-unsigned char nesdevPalId2 = 0;
-unsigned char nesdevPalId3 = 0;
-unsigned char nesdevFaze = 0;
-unsigned char telegaX = 64;		//64+8+4;	//64;4
-unsigned char telegaY = 128+64-16;	//128+32-4;	//128+64;3
-unsigned char telegaPalId = 0;
 
 const unsigned char telegaPal[4] = {
 	0x0F,0x1C,0x21,0x30
 };
-
-unsigned char nesDevPlayCtrl = 0;
 
 void fx_NesDev(void)
 {
@@ -702,7 +627,10 @@ void fx_NesDev(void)
 	pal_bright(0);
 	cnrom_set_bank(1);
 	bank_spr(0);
-	chr_to_nametable(NAMETABLE_A, NAM_nesdev_A);
+
+	vram_adr(NAMETABLE_A);
+	vram_unrle(NAM_nesdev_A);
+	
 	ppu_on_all();
 
 	while(nesdevFaze < 4)
@@ -812,12 +740,6 @@ void fx_NesDev(void)
 	ppu_off();
 }
 
-unsigned char krujWait = 0;
-unsigned char krujFrm = 0;
-unsigned char krujPalId = 0;
-unsigned char krujBgPalId = 0;
-unsigned char krujWait2 = 0;
-
 const unsigned char krujBgPal[8] = {
 	0x0F,0x0F,0x20,0x30,	0x0F,0x20,0x20,0x30
 	/*{0x0F,0x0F,0x22,0x32,	0x0F,0x22,0x22,0x32},
@@ -833,15 +755,6 @@ const unsigned char krujSprPal[16] = {
 	0x0F,0x30,0x30,0x30,
 	0x0F,0x0F,0x30,0x16
 };
-
-unsigned char krujAnimaId1 = 0;
-unsigned char krujAnimaLenId1 = 0;
-unsigned char krujAnimaId2 = 0;
-unsigned char krujAnimaLenId2 = 0;
-unsigned char krujAnimaId3 = 0;
-unsigned char krujAnimaLenId3 = 0;
-
-unsigned char krujOffest2 = 3;
 
 const unsigned char krujAnimaLen1[43] = {
 4, 2, 3, 3, 3, 4, 4, 4, 6, 6, 4, 6, 4, 4, 6, 4, 6, 4, 6, 2, 2, 4, 4, 4, 6, 4, 4, 3, 3, 3, 10, 10, 6, 6, 12, 8, 4, 6, 6, 4, 12, 6, 10
@@ -872,37 +785,12 @@ const unsigned char krujAnimaFrame3[10] = {
 0,3,7, 9,10,    14,17,21, 23,24
 };
 
-
-unsigned char krujCheckId = 0;
 const unsigned char krujCheck[2][2] = { {4,3}, {4,4} };
-
-unsigned char krujChr = 0;
-unsigned int krujHi = 0;
-unsigned char krujLo = 0;
-unsigned char krujX = 0;
-unsigned char krujY = 0;
-unsigned char krujAttr = 0;
-
-unsigned char krujFill = 0;
-unsigned char krujFillAdr = 0;
-unsigned char krujFillVal1 = 0b01010101;
-unsigned char krujFillVal2 = 0b01010101;
-
-//unsigned char kmfList1[30] = { 0x8c,0x7a, 0xa8,0x7a, 0xc4,0x7a, 0xe0,0x7a, 0x8c,0x96, 0xa8,0x96, 0xc4,0x96, 0xe0,0x96, 0x8c,0xb2, 0xa8,0xb2, 0xc4,0xb2, 0xe0,0xb2, 0x8c,0xce, 0xa8,0xce, 0xc4,0xce };
-//unsigned char kmfList2[30] = { 0x10,0x7a, 0x2c,0x7a, 0x48,0x7a, 0x64,0x7a, 0x10,0x96, 0x2c,0x96, 0x48,0x96, 0x64,0x96, 0x10,0xb2, 0x2c,0xb2, 0x48,0xb2, 0x64,0xb2, 0x2c,0xce, 0x48,0xce, 0x64,0xce };
-//unsigned char kmfList3[20] = { 0xe0,0xFD, 0xc4,0x1a, 0xe0,0x1a, 0xa8,0x36, 0xc4,0x36, 0xe0,0x36, 0x8c,0x52, 0xa8,0x52, 0xc4,0x52, 0xe0,0x52 };
-//unsigned char kmfList4[20] = { 0x10,0xFD, 0x10,0x1a, 0x2c,0x1a, 0x10,0x36, 0x2c,0x36, 0x48,0x36, 0x10,0x52, 0x2c,0x52, 0x48,0x52, 0x64,0x52 };
-unsigned char kmfList1[30] = { 0x90,0x71, 0xab,0x71, 0xc6,0x71, 0xe1,0x71, 0x90,0x8c, 0xab,0x8c, 0xc6,0x8c, 0xe1,0x8c, 0x90,0xa7, 0xab,0xa7, 0xc6,0xa7, 0xe1,0xa7, 0x90,0xc2, 0xab,0xc2, 0xc6,0xc2 };
-unsigned char kmfList2[30] = { 0x19,0x71, 0x34,0x71, 0x4f,0x71, 0x6a,0x71, 0x19,0x8c, 0x34,0x8c, 0x4f,0x8c, 0x6a,0x8c, 0x19,0xa7, 0x34,0xa7, 0x4f,0xa7, 0x6a,0xa7, 0x34,0xc2, 0x4f,0xc2, 0x6a,0xc2 };
-unsigned char kmfList3[20] = { 0xe1,0xfa, 0xc6,0x15, 0xe1,0x15, 0xab,0x30, 0xc6,0x30, 0xe1,0x30, 0x90,0x4b, 0xab,0x4b, 0xc6,0x4b, 0xe1,0x4b };
-unsigned char kmfList4[20] = { 0x19,0xfa, 0x19,0x15, 0x34,0x15, 0x19,0x30, 0x34,0x30, 0x4f,0x30, 0x19,0x4b, 0x34,0x4b, 0x4f,0x4b, 0x6a,0x4b };
 
 const unsigned char kmfDir1[30] = {0xff,0xff, 0xfe,0xff, 0xfd,0xff, 0xfc,0xff, 0xff,0xfe, 0xfe,0xfe, 0xfd,0xfe, 0xfc,0xfe, 0xff,0xfd, 0xfe,0xfd, 0xfd,0xfd, 0xfc,0xfd, 0xff,0xfc, 0xfe,0xfc, 0xfd,0xfc };
 const unsigned char kmfDir2[30] = {0x4,0xff, 0x3,0xff, 0x2,0xff, 0x1,0xff, 0x4,0xfe, 0x3,0xfe, 0x2,0xfe, 0x1,0xfe, 0x4,0xfd, 0x3,0xfd, 0x2,0xfd, 0x1,0xfd, 0x3,0xfc, 0x2,0xfc, 0x1,0xfc };
 const unsigned char kmfDir3[20] = {0xfc,0x4, 0xfd,0x3, 0xfc,0x3, 0xfe,0x2, 0xfd,0x2, 0xfc,0x2, 0xff,0x1, 0xfe,0x1, 0xfd,0x1, 0xfc,0x1 };
-unsigned char kmfDir4[20] = {0x4,0x4, 0x4,0x3, 0x3,0x3, 0x4,0x2, 0x3,0x2, 0x2,0x2, 0x4,0x1, 0x3,0x1, 0x2,0x1, 0x1,0x1 };
-
-unsigned char kmfStep = 11;
+const unsigned char kmfDir4[20] = {0x4,0x4, 0x4,0x3, 0x3,0x3, 0x4,0x2, 0x3,0x2, 0x2,0x2, 0x4,0x1, 0x3,0x1, 0x2,0x1, 0x1,0x1 };
 
 void initBoss(void) {
 	isboss = 1;
@@ -1187,13 +1075,6 @@ const unsigned char covid_pathY4[512] = {
 56, 56, 56, 57, 57, 58, 58, 59, 60, 61, 61, 62, 63, 65, 66, 67, 68, 69, 71, 72, 74, 75, 77, 78, 80, 81, 83, 85, 87, 88, 90, 92, 93, 95, 97, 99, 100, 102, 104, 106, 107, 109, 111, 112, 114, 116, 117, 119, 120, 122, 123, 125, 126, 127, 128, 130, 131, 132, 133, 134, 134, 135, 136, 136, 137, 137, 138, 138, 138, 138, 138, 138, 138, 138, 138, 138, 137, 137, 136, 136, 135, 135, 134, 133, 132, 132, 131, 130, 129, 128, 127, 126, 125, 124, 123, 121, 120, 119, 118, 117, 116, 114, 113, 112, 111, 110, 108, 107, 106, 105, 104, 103, 101, 100, 99, 98, 97, 96, 95, 94, 94, 93, 92, 91, 90, 90, 89, 89, 88, 87, 87, 86, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 75, 74, 73, 71, 70, 69, 67, 66, 64, 63, 61, 60, 58, 57, 55, 54, 52, 51, 49, 48, 46, 45, 43, 42, 40, 39, 37, 36, 35, 33, 32, 31, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 19, 18, 18, 17, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 18, 18, 19, 19, 20, 21, 21, 22, 23, 24, 25, 26, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 46, 47, 48, 49, 51, 52, 53, 54, 56, 57, 58, 59, 60, 61, 62, 64, 65, 66, 67, 68, 69, 70, 71, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 88, 89, 91, 92, 93, 95, 96, 98, 100, 101, 103, 104, 106, 107, 109, 110, 112, 113, 115, 116, 118, 119, 121, 122, 123, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 136, 137, 137, 138, 138, 138, 138, 138, 138, 138, 138, 138, 137, 137, 136, 135, 134, 133, 132, 131, 130, 128, 127, 125, 123, 122, 120, 118, 116, 114, 112, 110, 107, 105, 103, 101, 98, 96, 93, 91, 88, 86, 83, 81, 78, 76, 73, 71, 68, 65, 63, 60, 58, 56, 53, 51, 49, 46, 44, 42, 40, 38, 36, 34, 32, 30, 29, 27, 25, 24, 23, 21, 20, 19, 18, 18, 17, 16, 16, 16, 16, 16, 16, 16, 16, 17, 18, 18, 19, 20, 21, 23, 24, 25, 27, 28, 30, 32, 33, 35, 37, 39, 41, 43, 45, 47, 49, 52, 54, 56, 58, 60, 63, 65, 67, 69, 72, 74, 76, 78, 80, 83, 85, 87, 89, 91, 93, 94, 96, 98, 100, 101, 103, 104, 105, 106, 108, 109, 110, 110, 111, 112, 112, 112, 113, 113, 113, 113, 112, 112, 112, 111, 111, 110, 110, 109, 108, 107, 106, 105, 104, 103, 102, 101, 100, 98, 97, 96, 95, 93, 92, 90, 89, 88, 86, 85, 83, 82, 80, 79, 78, 76, 75, 73, 72, 71, 70, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 59, 58, 58, 57, 57, 56, 56, 56, 56
 };
 
-unsigned int covids_pointers[COVIDS_MAX];
-unsigned int covid_pointer;
-unsigned int points = 0;
-unsigned char points_array[3] = {0, 0, 0};
-unsigned char covid_x, covid_y, covids_hit, covids_phase, covid_frame, covids_rate;
-unsigned char covids_states[COVIDS_MAX];
-
 const unsigned char *covidXtable;
 const unsigned char *covidYtable;
 
@@ -1443,7 +1324,7 @@ void fx_Covid19(void) {
 			if (bullet_x > bossCovidX1 && bullet_x < bossCovidX1 + 24 && bullet_y > bossCovidY && bullet_y < bossCovidY + 24 && superCovidHp >= SUPER_COVID_HP) {
 				superCovidHp--;
 				bullet_y = 0;
-				earnpoint(2);
+				earnpoint(superCovidHp > SUPER_COVID_HP ? 3 : 2);
 				if (superCovidHp == SUPER_COVID_HP) {
 					sfx_play(SFX_BOSS_HIT, 0);
 				} else {
@@ -1452,7 +1333,7 @@ void fx_Covid19(void) {
 			}
 
 			if (superCovidHp && superCovidHp < SUPER_COVID_HP) {
-				spr = oam_meta_spr(bossCovidX1, bossCovidY, spr, covid_explode[superCovidHp]);
+				spr = oam_meta_spr(bossCovidX1, bossCovidY, spr, covid_explode[superCovidHp/4 <= 9 ? superCovidHp/4 : 9]);
 				--superCovidHp;
 				if (!superCovidHp) {
 					bossCovidY = 200;
@@ -1500,7 +1381,7 @@ void fx_Covid19(void) {
 			starship_toX = covid_x + 12;
 		} else {
 			if (covids_states[i] < 27 + 9) {
-				spr = oam_meta_spr(covid_x, covid_y, spr, covid_explode[covids_states[i]]);
+				spr = oam_meta_spr(covid_x, covid_y, spr, covid_explode[covids_states[i]/4 <= 9 ? covids_states[i]/4 : 9]);
 				++covids_states[i];
 			}
 			if (covids_states[i] == 27 + 9) {
@@ -1510,7 +1391,7 @@ void fx_Covid19(void) {
 		}
 	}
 	
-	if (covids_hit == COVIDS_MAX && !superCovid && (!superCovidHp || bossCovidY >= 200)) {
+	if (covids_hit == COVIDS_MAX && (starship_state & STARSHIP_AUTOPILOT || (!superCovid && (!superCovidHp || bossCovidY >= 200)))) {
 		covidsInit();
 		if (starship_state & STARSHIP_AUTOPILOT) {
 			pal_col(27, 0x04);
@@ -1823,7 +1704,7 @@ void bossFight(void)
 			sfx_play(SFX_COVID_ELIMINATED, 0);
 		} else {
 			for (i = 0; i < 4; ++i) {
-				spr = oam_meta_spr(bossX + bossExplodeX[i], bossY + bossExplodeY[i], spr, boss_explode[bossDefeatedCounter]);
+				spr = oam_meta_spr(bossX + bossExplodeX[i], bossY + bossExplodeY[i], spr, covid_explode[bossDefeatedCounter]);
 			}
 		}
 		if (!(nesclock & 1))
@@ -2011,8 +1892,6 @@ const char txt_winners_default[] = {
 	"UNKNOWN....00"
 };
 
-unsigned char input_name[11] = {};
-
 void initMain(void) {
 
  	ppu_off();
@@ -2022,63 +1901,100 @@ void initMain(void) {
 	bank_spr(1);
 
  	chr_to_nametable(NAMETABLE_A, NAM_multi_logo_A);
- 	chr_to_nametable(NAMETABLE_B, NAM_multi_logo_B);
+	vram_adr(NAMETABLE_B);
+	vram_unrle(NAM_multi_logo_B);
 
 	oam_clear();
 	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
+
+	scrollerCharIndex = 0;
 	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
 	scroll(scrollpos, 0);
 
-	pal_bg(paletteIn[0]);
+	pal_bg(palette);
 	pal_spr(palette_spr_init);	
-	pal_bg_bright(4);
 	cnrom_set_bank(0);
-	//paletteId = 0;
+
+	paletteId = 0;
+	pal_bright(0);
+
+	isinfo = 0;
 
 	ppu_on_all();
 }
 
-void initWinners(void)
+void initInfo(void)
 {
 	ppu_off();
 	set_nmi_user_call_off();
 	oam_clear();
-	
-	vram_adr(NAMETABLE_A);
-	vram_unrle(bg_winners);
-	vram_adr(NAMETABLE_B);
-	vram_unrle(bg_winners);
+
+	cnrom_set_bank(1);
+
+	chr_to_nametable(NAMETABLE_A, NAM_bg_info_A);
+	chr_to_nametable(NAMETABLE_B, NAM_bg_info_A);
+
 	cnrom_set_bank(0);
 	bank_bg(1);
 	bank_spr(1);
-	//scroll(256-4, 0);
+	
+	paletteId = 0;
+	pal_bright(0);
+	scroll(256-4, 0);
+	
+	iswinners = 0;
+	isinfo = 1;
+	
+	ppu_on_all();
+}
+
+
+void initWinners(void)
+{
+	
+	ppu_off();
+	set_nmi_user_call_off();
+	oam_clear();
+
+	cnrom_set_bank(1);
+
+	chr_to_nametable(NAMETABLE_A, NAM_bg_winners_A);
+	chr_to_nametable(NAMETABLE_B, NAM_bg_winners_A);
+
+	cnrom_set_bank(0);
+	bank_bg(1);
+	bank_spr(1);
+
+	paletteId = 0;
+	pal_bright(0);
+	scroll(256-4, 0);
 
 	// recalc winner table
 	if (isgameover) {
-		hasWinners = 1;
+		zWinnersHas = 2;
 		// search place in table
 		i = 0;
-		while (i < 9 && winnersScore[i] >= points) {
+		while (i < 9 && zWinnersScore[i] >= points) {
 			i++;
 		}
 		// move table
 		if (i < 8) {
 			for (j = 8; j > i; --j) {
-				winnersScore[j] = winnersScore[j - 1];
+				zWinnersScore[j] = zWinnersScore[j - 1];
 				for (k = 0; k < 14; ++k) {
-					winnersText[j*14 + k] = winnersText[(j-1)*14 + k];
+					zWinnersText[j*14 + k] = zWinnersText[(j-1)*14 + k];
 				}
 			}
 		}
 		// set new record
 		if (i < 9) {
-			winnersScore[i] = points;
+			zWinnersScore[i] = points;
 			for (j = 0; j < 11; ++j) {
-				winnersText[i*14 + j] = input_name[j] == 0xB0 ? 0xBE : input_name[j];
+				zWinnersText[i*14 + j] = input_name[j] == 0xB0 ? 0xBE : input_name[j];
 			}
-			winnersText[i*14 + 11] = points_array[0];
-			winnersText[i*14 + 12] = points_array[1];
-			winnersText[i*14 + 13] = points_array[2];
+			zWinnersText[i*14 + 11] = points_array[0];
+			zWinnersText[i*14 + 12] = points_array[1];
+			zWinnersText[i*14 + 13] = points_array[2];
 		}
 		isgameover = 0;
 	}
@@ -2086,17 +2002,16 @@ void initWinners(void)
 	for (i = 0; i < 9; ++i) {
 		for (j = 0; j < 11; ++j) {
 			vram_adr(0x24E8 + 64 * i + j);
-			vram_put(winnersText[i*14 + j]);
+			vram_put(zWinnersText[i*14 + j]);
 		}
 		for (j = 0; j < 3; j++) {
 			vram_adr(0x24F4 + 64 * i + j);
-			vram_put(winnersText[i*14 + 11 + j]);
+			vram_put(zWinnersText[i*14 + 11 + j]);
 		}
 	}
 	winnersTime = WINNERS_TIME;
-	set_nmi_user_call_on(4);
-	ppu_on_all();
 	++iswinners;
+	ppu_on_all();
 }
 
 void fx_winners(void)
@@ -2112,7 +2027,6 @@ void fx_winners(void)
 		iswinners = 0;
 		initMain();
 	}
-	scroll(256-4, 0);
 }
 
 
@@ -2128,7 +2042,11 @@ void initGameover(void)
 	bank_bg(1);
 	bank_spr(1);
 	++isgameover;
-	//scroll(256-4, 0);
+
+	paletteId = 0;
+	pal_bright(0);
+	scroll(256-4, 0);
+
 	bossX = 0;
 	bossY = 0;
 	bossCovidX1 = 0;
@@ -2155,8 +2073,6 @@ void fx_gameover(void)
 	if (isgameover == 1) {
 		initGameover();
 	}
-
-	scroll(256-4, 0);
 
 	// show score
 	spr = oam_spr(160-4-8, 128-41, points_array[0], 2, spr);
@@ -2227,21 +2143,19 @@ void main(void)
 	clear_vram_buffer();
 	
 	// default winners table
-	if (hasWinners == 0) {
+	if (zWinnersHas == 0) {
+		zWinnersHas = 1;
 		for (i = 0; i < 9; ++i) {
 			for (j = 0; j < 13; ++j) {
-				winnersText[i*14 + j] = txt_winners_default[j] + 144;
+				zWinnersText[i*14 + j] = txt_winners_default[j] + 144;
 			}
-			winnersText[i*14 + 13] = 0xC9 - i;
-			winnersScore[i] = 9 - i;
+			zWinnersText[i*14 + 13] = 0xC9 - i;
+			zWinnersScore[i] = 9 - i;
 		}
 	}
 
-	//fx_NesDev();
-	//fx_Krujeva();
-
-	//oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
-	set_nmi_user_call_off();
+	fx_NesDev();
+	fx_Krujeva();
 
 	initMain();
 
@@ -2268,8 +2182,7 @@ void main(void)
 				}
 			} else {
 				if (!isgameover && !iswinners) {
-					//isgameover = 1;
-					if (points > winnersScore[8]) {
+					if (points > zWinnersScore[8]) {
 						isgameover = 1;
 					} else {
 						iswinners = 1;
@@ -2277,7 +2190,6 @@ void main(void)
 				}
 			}
 		}
-		
 		
 		pad_prev = pad_trigger(0);
 		pad = pad_poll(0);
@@ -2288,34 +2200,40 @@ void main(void)
 			} else {
 				sfx_play(SFX_TELEGA_OUT,0);
 			}
+			if (isinfo) {
+				initMain();
+			}
 			gameInit();
 			starship_state ^= STARSHIP_AUTOPILOT;
 		}
 		
 		if (!isgameover && (starship_state&STARSHIP_AUTOPILOT) && (pad_prev & PAD_SELECT)) {
-			if (!iswinners) {
-				iswinners = 1;
-				sfx_play(SFX_TELEGA_OUT,0);
-			} else {
-				iswinners = 0;
+			if (isinfo) {
 				initMain();
+			} else {
+				if (iswinners) {
+					initInfo();
+				} else {
+					iswinners = 1;
+					sfx_play(SFX_TELEGA_OUT,0);
+				}
 			}
 		}
-		
 
 		muspos = get_mus_pos();
 		clear_vram_buffer();
 
 		// side spr - sprites
-		if (!isboss && starship_state&STARSHIP_AUTOPILOT) {
+		if (!isboss && !isinfo && (isgameover || starship_state&STARSHIP_AUTOPILOT)) {
 			spr = oam_spr(1, 12*8-1, 0x10, 1 | OAM_FLIP_V | OAM_FLIP_H, spr);
 			spr = oam_spr(256-8, 13*8-1, 0x10, 1, spr);
 		}
 
-		if (isgameover || iswinners) {
+		if (isgameover || iswinners || isinfo) {
 			if (iswinners) {
 				fx_winners();
-			} else {
+			}
+			if (isgameover) {
 				fx_gameover();
 			}
 		} else {
@@ -2358,14 +2276,15 @@ void main(void)
 			pal_col(16+14, palSamolet[palSamoletId]);
 		}
 
-		pal_bg(paletteIn[paletteId]);
+		// set defaulkt palette for main part
+		pal_bg(palette);
+
 		// side spr - palette
 		if (!isboss) {
-			pal_col(16+7, paletteIn[paletteId][10]);
+			pal_col(16+7, palette[10]);
 		}
 
-
-		// scroll palette roll
+		// bottom scroll palette roll
 		if (paletteId == 5 && (nesclock&15) == 0) {
 			if (++palRollId >= 48) {
 				palRollId = 0;
@@ -2382,9 +2301,8 @@ void main(void)
 			pal_col(13, palRollList[i]);
 			pal_col(14, palRollList[palRollId]);
 		}
-		
 
-		//corona spr blink
+		// corona spr blink
 		paletteSprId = eq_Noise_Val > 4 ? 4 : paletteSprId;
 		pal_col(16+0, palette_spr[paletteSprId][0]);
 		pal_col(16+1, palette_spr[paletteSprId][1]);
@@ -2394,22 +2312,30 @@ void main(void)
 			--paletteSprId;
 		}
 
-		//fade in background		
+		// fade in
 		if (paletteId < 5 && (nesclock&1) == 0) {
+			pal_bright(paletteId);
 			++paletteId;
 		}
 
 		// gameover pal
-		if (isgameover || iswinners) {
+		if (isgameover || iswinners || isinfo) {
 			pal_col(1, 0x23);
 			pal_col(9, 0x32);
 			pal_col(15, 0x22);
 			pal_col(14, 0x31);
 			pal_col(13, 0x13);
+			if (isinfo) {
+				pal_col(10, 0x34);
+				pal_col(13, 0x34);
+				pal_col(14, 0x32);
+				pal_col(15, 0x13);
+			}
 		}
 
 
-		if (!isgameover && !iswinners) {
+		// bottom text scrolling
+		if (!isgameover && !iswinners && !isinfo) {
 			oam_spr(24*8, 201, 0x01, 1 | OAM_BEHIND, 0);
 			fx_SplitScroll();
 		}
@@ -2419,3 +2345,4 @@ void main(void)
 		oam_clear();
 	}
 }
+unsigned char zzz_ram_end;
