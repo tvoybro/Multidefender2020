@@ -2158,10 +2158,10 @@ void fx_gameover(void)
 	if (pad_prev & PAD_B) {
 		nameDelSym();
 	}
-	if (pad_prev & PAD_START) {
+	/*if (pad_prev & PAD_START) {
 		sfx_play(SFX_TELEGA_FLY, 0);
 		iswinners = 1;
-	}
+	}*/
 	if (pad_prev & PAD_A) {
 		if (bossY == 0) {
 			i = 0xC0 + bossX;
