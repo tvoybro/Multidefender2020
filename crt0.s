@@ -287,7 +287,7 @@ _NAM_gameover_A:
 _NAM_bg_info_A:
 	.incbin "Include/bg_info.nam"
 _NAM_bg_winners_A:
-	.incbin "Include/bg_winners_2.nam"
+	.incbin "Include/bg_winners.nam"
 	
 .segment "CHR3"
 	.incbin "NESst/kruj_charset_0.chr"

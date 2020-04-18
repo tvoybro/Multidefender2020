@@ -68,7 +68,7 @@
 #define SUPER_COVID_HP		8*4
 
 #pragma bss-name (push,"ZEROPAGE")
-unsigned char isNtsc;
+unsigned char checkNtsc;
 unsigned char hiTextY;
 unsigned char hiTextX;
 unsigned int hiPage;
@@ -87,7 +87,6 @@ unsigned char fxFaze = 1;
 unsigned char tileset;
 unsigned int muspos;
 unsigned int bossAttractTimer = 0;
-unsigned char buffa[64];
 
 unsigned int starship_x, starship_newx;
 signed int starship_vx;
@@ -143,7 +142,7 @@ unsigned char bossHealth = BOSS_HEALTH;
 unsigned int  playTime;
 unsigned char playTimeFrm;
 
-
+unsigned int playVictory;
 unsigned int winnersTime;
 
 unsigned char paletteId = 0;
@@ -215,6 +214,9 @@ unsigned char covids_states[COVIDS_MAX];
 unsigned char zWinnersHas = 0;
 unsigned char zWinnersText[14*9];
 unsigned int zWinnersScore[9];
+
+unsigned char buffa[128];
+
 //------------------------------------
 
 extern unsigned char FT_BUF[];
@@ -496,11 +498,12 @@ const unsigned int eq_noise_approx[15] = {
 
 // -----------------------------------------------------------------------------------------------------------------
 void chr_to_nametable(unsigned int nametable, unsigned char *src) {
-	for (i = 0; i < 16; ++i) {
-		vram_adr((int) src+(i*64));
-		vram_read(buffa, 64);
-		vram_adr(nametable+(i*64));
-		vram_write(buffa, 64);
+	for (i = 0; i < 8; ++i) {
+		ppu_wait_nmi();
+		vram_adr((int) src+(i*128));
+		vram_read(buffa, 128);
+		vram_adr(nametable+(i*128));
+		vram_write(buffa, 128);
 	}
 }
 
@@ -561,20 +564,20 @@ void fx_SplitScroll(void)
 		scrollSym = scrollerData[scrollerCharIndex];
 		if (!scrollSym) {
 			scrollSym = ' ';
-			scrollerCharIndex=0;
-		} else
+			scrollerCharIndex = 0;
+		} else {
 			++scrollerCharIndex;
-		if (scrollerCharPos & 0x10)
+		}
+		if (scrollerCharPos & 0x10) {
 			scrollerAddr = NAMETABLE_A + 32*27;
-		else
+		} else {
 			scrollerAddr = NAMETABLE_B + 32*27;
-
+		}
 		scrollerAddr += (scrollerCharPos & 15) << 1;
-
 		_fs = 0;
-		while(tbl_ascii[_fs] != scrollSym) 
+		while(tbl_ascii[_fs] != scrollSym) {
 			++_fs;
-
+		}
 		multi_vram_buffer_horz(tbl_alphabet[_fs], 2, scrollerAddr);
 		multi_vram_buffer_horz(tbl_alphabet[_fs]+2, 2, scrollerAddr+32);
 		scrollerCharPos = (scrollerCharPos + 1) & 31;
@@ -583,14 +586,13 @@ void fx_SplitScroll(void)
 	if ((FT_BUF[9] & 0x0f)>9 && !eq_Noise_Val) {
 		eq_Noise_Val = 7;
 	}
-	bank_bg(0);
-	//gray_line();
+
 	xy_split(scrollerPos, 210 + 5 - huita[eq_Noise_Val]/* - 2 - eq_Noise_Val*/);
 	
-	if (eq_Noise_Val)
+	if (eq_Noise_Val) {
 		--eq_Noise_Val;
+	}
 	scrollerPos = (scrollerPos + 1) & 511;
-
 
 }
 
@@ -785,7 +787,7 @@ const unsigned char krujAnimaFrame3[10] = {
 0,3,7, 9,10,    14,17,21, 23,24
 };
 
-const unsigned char krujCheck[2][2] = { {4,3}, {4,4} };
+const unsigned char krujCheck[2][2] = { {4,4}, {4,3} };
 
 const unsigned char kmfDir1[30] = {0xff,0xff, 0xfe,0xff, 0xfd,0xff, 0xfc,0xff, 0xff,0xfe, 0xfe,0xfe, 0xfd,0xfe, 0xfc,0xfe, 0xff,0xfd, 0xfe,0xfd, 0xfd,0xfd, 0xfc,0xfd, 0xff,0xfc, 0xfe,0xfc, 0xfd,0xfc };
 const unsigned char kmfDir2[30] = {0x4,0xff, 0x3,0xff, 0x2,0xff, 0x1,0xff, 0x4,0xfe, 0x3,0xfe, 0x2,0xfe, 0x1,0xfe, 0x4,0xfd, 0x3,0xfd, 0x2,0xfd, 0x1,0xfd, 0x3,0xfc, 0x2,0xfc, 0x1,0xfc };
@@ -802,11 +804,67 @@ void initBoss(void) {
 	restoreBossPalette();
 }
 
+void kmfPart0(void)
+{
+	spr = 4;
+	j = 0;
+	k = 0;
+	for (i = 15; i; --i) {
+		spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
+		spr = oam_spr(kmfList2[k++], kmfList2[k++], 0x01, 3, spr);
+	}
+	j = 0;
+	k = 0;
+	for (i = 10; i; --i) {
+		spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
+		spr = oam_spr(kmfList4[k++], kmfList4[k++], 0x01, 3, spr);
+	}
+}
+
+void kmfPart1(void)
+{
+	if (kmfStep) {
+		j = 29;
+		while (j) {
+			kmfList1[j] += kmfDir1[j--];
+		}
+		kmfList1[j] += kmfDir1[j];
+		j = 19;
+		while (j) {
+			kmfList3[j] += kmfDir3[j--];
+		}
+		kmfList3[j] += kmfDir3[j];
+	}
+}
+
+void kmfPart2(void) {
+	if (kmfStep) {
+		j = 29;
+		while (j) {
+			kmfList2[j] += kmfDir2[j--];
+		}
+		kmfList2[j] += kmfDir2[j];
+		j = 19;
+		while (j) {
+			kmfList4[j] += kmfDir4[j--];
+		}
+		kmfList4[j] += kmfDir4[j];
+		--kmfStep;
+	}
+}
+
+
 void fx_Krujeva(void)
 {
-	
-	isNtsc = ppu_system() == 0 ? 0 : 1;
-	pal_clear();
+
+	if (checkNtsc) {
+		while (kmfStep > 6) {
+			kmfPart1();
+			kmfPart2();
+		}
+	}
+
+	pal_bright(0);
 	pal_spr(krujSprPal);
 	pal_bg(krujBgPal);
 	cnrom_set_bank(1);
@@ -822,7 +880,7 @@ void fx_Krujeva(void)
 	pal_bright(4);
 	music_play(0);
 
-	while (krujFrm < (isNtsc ? 48 : 46)) //(isNtsc ? 48 : 46))
+	while (krujFrm < (checkNtsc ? 45 : 48))
 	{
 		++nesclock;
 		oam_spr(2, 118, 0xFF, 3 | OAM_BEHIND, 0); //253 244 219 210
@@ -839,7 +897,7 @@ void fx_Krujeva(void)
 		}
 
 		// krujeva 1
-		if (++krujWait >= krujCheck[isNtsc][krujCheckId]) {
+		if (++krujWait >= krujCheck[checkNtsc][krujCheckId]) {
 			krujWait = 0;
 			if (++krujPalId == 3) {
 				krujPalId = 0;
@@ -915,8 +973,6 @@ void fx_Krujeva(void)
 				++krujAnimaLenId3;
 			}
 		}
-		
-		
 
 		// fill bg attr
 		krujFill = 0;
@@ -941,48 +997,13 @@ void fx_Krujeva(void)
 		//mflogo
 		if (krujFrm > 43) {
 			if (krujWait == 0) {
-				spr = 4;
-				j = 0;
-				k = 0;
-				for (i = 15; i; --i) {
-					spr = oam_spr(kmfList1[j++], kmfList1[j++], 0x01, 3, spr);
-					spr = oam_spr(kmfList2[k++], kmfList2[k++], 0x01, 3, spr);
-				}
-				j = 0;
-				k = 0;
-				for (i = 10; i; --i) {
-					spr = oam_spr(kmfList3[j++], kmfList3[j++], 0x01, 3, spr);
-					spr = oam_spr(kmfList4[k++], kmfList4[k++], 0x01, 3, spr);
-				}
+				kmfPart0();
 			}
 			if (krujWait == 1) {
-				if (kmfStep) {
-					j = 29;
-					while (j) {
-						kmfList1[j] += kmfDir1[j--];
-					}
-					kmfList1[j] += kmfDir1[j];
-					j = 19;
-					while (j) {
-						kmfList3[j] += kmfDir3[j--];
-					}
-					kmfList3[j] += kmfDir3[j];
-				}
+				kmfPart1();
 			}
 			if (krujWait == 2) {
-				if (kmfStep) {
-					j = 29;
-					while (j) {
-						kmfList2[j] += kmfDir2[j--];
-					}
-					kmfList2[j] += kmfDir2[j];
-					j = 19;
-					while (j) {
-						kmfList4[j] += kmfDir4[j--];
-					}
-					kmfList4[j] += kmfDir4[j];
-					--kmfStep;
-				}
+				kmfPart2();
 			}
 		}
 
@@ -1894,8 +1915,14 @@ const char txt_winners_default[] = {
 
 void initMain(void) {
 
- 	ppu_off();
+	paletteId = 0;
+	pal_bright(0);
+	oam_clear();
+	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
+	ppu_wait_nmi();
+	ppu_off();
 	set_nmi_user_call_off();
+
 	cnrom_set_bank(1);
 	bank_bg(0);
 	bank_spr(1);
@@ -1903,9 +1930,6 @@ void initMain(void) {
  	chr_to_nametable(NAMETABLE_A, NAM_multi_logo_A);
 	vram_adr(NAMETABLE_B);
 	vram_unrle(NAM_multi_logo_B);
-
-	oam_clear();
-	oam_spr(255, 0, 0xFF, 3 | OAM_BEHIND, 0); //244 219 210
 
 	scrollerCharIndex = 0;
 	scrollpos = (sine_Table_Shake[logoPos]&0xfffe);
@@ -1915,19 +1939,17 @@ void initMain(void) {
 	pal_spr(palette_spr_init);	
 	cnrom_set_bank(0);
 
-	paletteId = 0;
-	pal_bright(0);
-
 	isinfo = 0;
 
 	ppu_on_all();
+	ppu_wait_nmi();
 }
 
 void initInfo(void)
 {
+	pal_bright(0);
+	ppu_wait_nmi();
 	ppu_off();
-	set_nmi_user_call_off();
-	oam_clear();
 
 	cnrom_set_bank(1);
 
@@ -1939,35 +1961,37 @@ void initInfo(void)
 	bank_spr(1);
 	
 	paletteId = 0;
-	pal_bright(0);
-	scroll(256-4, 0);
-	
+	scroll(256, 0);
+
 	iswinners = 0;
 	isinfo = 1;
-	
+
 	ppu_on_all();
+	ppu_wait_nmi();
+
 }
 
 
 void initWinners(void)
 {
-	
+
+	pal_bright(0);
+	oam_clear();
+	ppu_wait_nmi();
 	ppu_off();
 	set_nmi_user_call_off();
-	oam_clear();
 
 	cnrom_set_bank(1);
 
 	chr_to_nametable(NAMETABLE_A, NAM_bg_winners_A);
 	chr_to_nametable(NAMETABLE_B, NAM_bg_winners_A);
 
+	paletteId = 0;
+	scroll(256-4, 0);
+
 	cnrom_set_bank(0);
 	bank_bg(1);
 	bank_spr(1);
-
-	paletteId = 0;
-	pal_bright(0);
-	scroll(256-4, 0);
 
 	// recalc winner table
 	if (isgameover) {
@@ -2009,9 +2033,12 @@ void initWinners(void)
 			vram_put(zWinnersText[i*14 + 11 + j]);
 		}
 	}
+
 	winnersTime = WINNERS_TIME;
 	++iswinners;
+
 	ppu_on_all();
+	ppu_wait_nmi();
 }
 
 void fx_winners(void)
@@ -2025,6 +2052,7 @@ void fx_winners(void)
 		--winnersTime;
 	} else {
 		iswinners = 0;
+		sfx_play(SFX_TELEGA_OUT, 0);
 		initMain();
 	}
 }
@@ -2032,28 +2060,38 @@ void fx_winners(void)
 
 void initGameover(void)
 {
+	sfx_play(SFX_TELEGA_FLY, 0);
+	pal_bright(0);
+	oam_clear();
+	ppu_wait_nmi();
 	ppu_off();
 	set_nmi_user_call_off();
-	oam_clear();
+
 	cnrom_set_bank(1);
+
 	chr_to_nametable(NAMETABLE_A, NAM_gameover_A);
 	chr_to_nametable(NAMETABLE_B, NAM_gameover_A);
+
 	cnrom_set_bank(0);
 	bank_bg(1);
 	bank_spr(1);
+
 	++isgameover;
 
 	paletteId = 0;
-	pal_bright(0);
 	scroll(256-4, 0);
 
 	bossX = 0;
 	bossY = 0;
 	bossCovidX1 = 0;
-	ppu_on_all();
+
 	for (i = 0; i < 11; ++i) {
 		input_name[i] = 0xB0;
 	}
+
+	ppu_on_all();
+	ppu_wait_nmi();
+
 }
 
 void nameDelSym(void)
@@ -2142,6 +2180,8 @@ void main(void)
 	set_vram_buffer();
 	clear_vram_buffer();
 	
+	checkNtsc = ppu_system() == 0 ? 1 : 0;
+	
 	// default winners table
 	if (zWinnersHas == 0) {
 		zWinnersHas = 1;
@@ -2185,6 +2225,7 @@ void main(void)
 					if (points > zWinnersScore[8]) {
 						isgameover = 1;
 					} else {
+						sfx_play(SFX_BOSS_DEFEATED, 0); // not winner
 						iswinners = 1;
 					}
 				}
@@ -2194,13 +2235,14 @@ void main(void)
 		pad_prev = pad_trigger(0);
 		pad = pad_poll(0);
 		// Disable autopilot if any joypad button pressed
-		if (!isgameover && !iswinners && (pad_prev & PAD_START)) {
+		if (!isgameover && (pad_prev & PAD_START)) {
 			if (starship_state&STARSHIP_AUTOPILOT) {
 				sfx_play(SFX_TELEGA_FLY,0);
 			} else {
 				sfx_play(SFX_TELEGA_OUT,0);
 			}
-			if (isinfo) {
+			if (isinfo || iswinners) {
+				iswinners = 0;
 				initMain();
 			}
 			gameInit();
@@ -2208,6 +2250,7 @@ void main(void)
 		}
 		
 		if (!isgameover && (starship_state&STARSHIP_AUTOPILOT) && (pad_prev & PAD_SELECT)) {
+			sfx_play(SFX_TELEGA_OUT, 0);
 			if (isinfo) {
 				initMain();
 			} else {
@@ -2215,7 +2258,6 @@ void main(void)
 					initInfo();
 				} else {
 					iswinners = 1;
-					sfx_play(SFX_TELEGA_OUT,0);
 				}
 			}
 		}
@@ -2276,7 +2318,7 @@ void main(void)
 			pal_col(16+14, palSamolet[palSamoletId]);
 		}
 
-		// set defaulkt palette for main part
+		// set default palette for main part
 		pal_bg(palette);
 
 		// side spr - palette
