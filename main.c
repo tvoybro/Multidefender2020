@@ -101,9 +101,13 @@ unsigned int scrollerPos = 0;
 unsigned int scrollerAddr = 0;
 unsigned int scrollpos = 0;
 
-unsigned char superCovid = 0;
-unsigned char superCovidHp = 0;
+unsigned char superCovid;
+unsigned char superCovidHp;
 unsigned char superCovidDelay;
+unsigned char superCovidY;
+unsigned char superCovidX1;
+unsigned char superCovidX2;
+unsigned char superCovidX3;
 
 // Boss vars
 unsigned int bossIndex = 0;
@@ -118,8 +122,6 @@ unsigned char bossCovidX3;
 unsigned char bossX, bossY;
 unsigned char bossDefeatedCounter;
 unsigned char bossDefeatedPhase;
-
-unsigned char zzz_zeropage_end;
 
 #pragma bss-name (pop)
 
@@ -241,7 +243,7 @@ const unsigned char palRollList[48] = {
 };
 
 const unsigned char palette_spr_init[16]={
-	0x0f,0x00,0x06,0x10,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x14,0x24,0x30
+	0x0f,0x00,0x06,0x10,	0x0f,0x0f,0x16,0x30,	0x0f,0x0f,0x16,0x26,	0x21,0x16,0x24,0x30
 };
 
 const unsigned char palette_spr[5][4]={
@@ -375,81 +377,87 @@ const unsigned char* const seq_covid19[]={
 
 const unsigned char covid_explode_0_data[]={
 
-	  8,  8,0x7d,3,
+	  8,  8,0xf0,3,
 	128
 
 };
 
 const unsigned char covid_explode_1_data[]={
 
-	  4,  4,0xfe,3,
-	 12,  4,0xfe,3|OAM_FLIP_H,
-	  4, 12,0xfe,3|OAM_FLIP_V,
-	 12, 12,0xfe,3|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xf1,3,
+	 12,  4,0xf2,3,
+	  4, 12,0xf3,3,
+	 12, 12,0xf4,3,
 	128
 
 };
 
 const unsigned char covid_explode_2_data[]={
 
-	  4,  4,0xff,3,
-	 12,  4,0xf0,3,
-	  4, 12,0xf1,3,
-	 12, 12,0xf2,3,
+	  4,  4,0xf5,3,
+	 12,  4,0xf6,3,
+	  4, 12,0xf7,3,
+	 12, 12,0xf8,3,
 	128
 
 };
 
 const unsigned char covid_explode_3_data[]={
 
-	  4,  4,0xf3,3,
-	 12,  4,0xf4,3,
-	  4, 12,0xf5,3,
-	 12, 12,0xf6,3,
+	  4,  4,0xf9,3,
+	 12,  4,0xfa,3,
+	  4, 12,0xfb,3,
+	 12, 12,0xfc,3,
 	128
 
 };
 
 const unsigned char covid_explode_4_data[]={
 
-	  4,  4,0xf2,3|OAM_FLIP_H|OAM_FLIP_V,
-	 12,  4,0xf1,3|OAM_FLIP_H|OAM_FLIP_V,
-	  4, 12,0xf0,3|OAM_FLIP_H|OAM_FLIP_V,
-	 12, 12,0xff,3|OAM_FLIP_H|OAM_FLIP_V,
+	  4,  4,0xfd,3,
+	 12,  4,0xfe,3,
+	  4, 12,0xff,3,
+	 12, 12,0x7e,3,
 	128
 
 };
 
 const unsigned char covid_explode_5_data[]={
 
-	 12, 12,0xf3,3|OAM_FLIP_H|OAM_FLIP_V,
-	  4, 12,0xf4,3|OAM_FLIP_H|OAM_FLIP_V,
-	 12,  4,0xf5,3|OAM_FLIP_H|OAM_FLIP_V,
-	  4,  4,0xf6,3|OAM_FLIP_H|OAM_FLIP_V,
+	 12, 12,0xb4,3,
+	  4, 12,0xb3,3,
+	 12,  4,0x7d,3,
+	  4,  4,0x7c,3,
 	128
 
 };
 
 const unsigned char covid_explode_6_data[]={
 
-	  4,  4,0xf7,3,
-	 12,  4,0xf8,3,
-	  4, 12,0xf9,3,
-	 12, 12,0xfa,3,
+	  4,  4,0xb5,3,
+	 12,  4,0xb6,3,
+	  4, 12,0xb8,3,
+	 12, 12,0xb9,3,
 	128
 
 };
 
 const unsigned char covid_explode_7_data[]={
 
-	  8,  8,0xfb,3,
+	  4,  4,0xcb,3,
+	 12,  4,0xcc,3,
+	  4, 12,0xce,3,
+	 12, 12,0xcf,3,
 	128
 
 };
 
 const unsigned char covid_explode_8_data[]={
 
-	  8,  8,0xfc,3,
+	  3,  4,0xcb,3,
+	 13,  3,0xcc,3,
+	  3, 13,0xce,3,
+	 13, 13,0xcf,3,
 	128
 
 };
@@ -1171,6 +1179,7 @@ void covidsInit() {
 		}
 	}
 	superCovid = fxFaze & 3;
+	superCovidY = 200;
 	superCovidHp = 0;
 	superCovidDelay = (starship_protect ? 60 : 45) + (rand8()&31);
 	covidLiveQty = COVIDS_MAX;
@@ -1293,27 +1302,29 @@ void fx_Covid19(void) {
 
 	//super covid
 	if (!(starship_state & STARSHIP_AUTOPILOT)) {
+
 		if (covidLiveQty < 5) {
 			//new super covid
-			if (superCovid && bossCovidY >= 200 && superCovidHp == 0 && superCovidDelay == 0) {
+			if (superCovid && superCovidY >= 200 && superCovidHp == 0 && superCovidDelay == 0) {
 				sfx_play(SFX_BOSS_SPAWN, 0);
 				superCovidHp = SUPER_COVID_HP;
-				bossCovidY = 16;
-				bossCovidX1 = starship_x8 - 16;
-				bossCovidX2 = rand8() & 3;
-				bossCovidX3 = 3;
+				superCovidY = 16;
+				superCovidX1 = starship_x8 - 16;
+				superCovidX2 = rand8() & 3;
+				superCovidX3 = 3;
 				if (superCovid == 3) {
 					++superCovidHp;
-					bossCovidX3 = 1;
+					superCovidX3 = 1;
 				}
-				if (bossCovidX2 < 2) {
-					bossCovidX2 = starship_x8 > 128 ? 1 : 0;
-					bossCovidX3 = bossCovidX3 == 1 ? 1 : 2;
+				if (superCovidX2 < 2) {
+					superCovidX2 = starship_x8 > 128 ? 1 : 0;
+					superCovidX3 = superCovidX3 == 1 ? 1 : 2;
 				}
 				--superCovid;
 			}
 		}
 
+		// update super covids palette
 		if (superCovidHp != SUPER_COVID_HP) {
 			pal_col(25, 0x0f);
 			pal_col(26, 0x1a);
@@ -1324,25 +1335,28 @@ void fx_Covid19(void) {
 			pal_col(27, 0x26);
 		}
 
-		if (bossCovidY < 200) {
+		// covids on screen
+		if (superCovidY < 200) {
+			// covids fly
 			if (superCovidHp >= SUPER_COVID_HP) {
-				bossCovidY += bossCovidX3 + (bossCovidX3 == 1 ? nesclock&1 : 0);
-				switch (bossCovidX2) {
+				superCovidY += superCovidX3 + (superCovidX3 == 1 ? nesclock&1 : 0);
+				switch (superCovidX2) {
 					case 0:
-						++bossCovidX1;
+						++superCovidX1;
 						break;
 					case 1:
-						--bossCovidX1;
+						--superCovidX1;
 						break;
 				}
-				spr = oam_meta_spr(bossCovidX1, bossCovidY, spr, seq_covid19super[covid_frame]);
-				if (starship_y < bossCovidY + 24 && starship_y > bossCovidY) {
-					if (starship_x8 < bossCovidX1 + 24 && starship_x8 > bossCovidX1) {
+				spr = oam_meta_spr(superCovidX1, superCovidY, spr, seq_covid19super[covid_frame]);
+				if (starship_y < superCovidY + 24 && starship_y > superCovidY) {
+					if (starship_x8 < superCovidX1 + 24 && starship_x8 > superCovidX1) {
 						hitPlayer();
 					}
 				}
 			}
-			if (bullet_x > bossCovidX1 && bullet_x < bossCovidX1 + 24 && bullet_y > bossCovidY && bullet_y < bossCovidY + 24 && superCovidHp >= SUPER_COVID_HP) {
+			// super covid eleminated
+			if (bullet_x > superCovidX1 && bullet_x < superCovidX1 + 24 && bullet_y > superCovidY && bullet_y < superCovidY + 24 && superCovidHp >= SUPER_COVID_HP) {
 				superCovidHp--;
 				bullet_y = 0;
 				earnpoint(superCovidHp > SUPER_COVID_HP ? 3 : 2);
@@ -1353,11 +1367,12 @@ void fx_Covid19(void) {
 				}
 			}
 
+			// super covid explode
 			if (superCovidHp && superCovidHp < SUPER_COVID_HP) {
-				spr = oam_meta_spr(bossCovidX1, bossCovidY, spr, covid_explode[superCovidHp/4 <= 9 ? superCovidHp/4 : 9]);
+				spr = oam_meta_spr(superCovidX1, superCovidY, spr, covid_explode[superCovidHp/4 <= 9 ? superCovidHp/4 : 9]);
 				--superCovidHp;
 				if (!superCovidHp) {
-					bossCovidY = 200;
+					superCovidY = 200;
 					if (!superCovidDelay) {
 						superCovidDelay = (starship_protect ? 60 : 45) + (rand8()&31);
 					}
@@ -1412,7 +1427,7 @@ void fx_Covid19(void) {
 		}
 	}
 	
-	if (covids_hit == COVIDS_MAX && (starship_state & STARSHIP_AUTOPILOT || (!superCovid && (!superCovidHp || bossCovidY >= 200)))) {
+	if (covids_hit == COVIDS_MAX && (starship_state & STARSHIP_AUTOPILOT || (!superCovid && (!superCovidHp || superCovidY >= 200)))) {
 		covidsInit();
 		if (starship_state & STARSHIP_AUTOPILOT) {
 			pal_col(27, 0x04);
@@ -2194,8 +2209,8 @@ void main(void)
 		}
 	}
 
-	fx_NesDev();
-	fx_Krujeva();
+	//fx_NesDev();
+	//fx_Krujeva();
 
 	initMain();
 
@@ -2387,4 +2402,3 @@ void main(void)
 		oam_clear();
 	}
 }
-unsigned char zzz_ram_end;
