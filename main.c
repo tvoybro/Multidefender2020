@@ -58,8 +58,8 @@
 #define BOSS_ATTRACT_TIMER_PLAYER	60*60
 #define BOSS_HEALTH				10
 
-#define	PLAY_TIME				5
-//6*60-1
+#define	PLAY_TIME				6*60-1
+
 #define	WINNERS_TIME			15*60
 
 #define COVID_COLOR				0
@@ -2209,8 +2209,8 @@ void main(void)
 		}
 	}
 
-	//fx_NesDev();
-	//fx_Krujeva();
+	fx_NesDev();
+	fx_Krujeva();
 
 	initMain();
 
