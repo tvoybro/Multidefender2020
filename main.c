@@ -59,7 +59,6 @@
 #define BOSS_HEALTH				10
 
 #define	PLAY_TIME				6*60-1
-
 #define	WINNERS_TIME			15*60
 
 #define COVID_COLOR				0
@@ -2382,6 +2381,9 @@ void main(void)
 			pal_col(15, 0x22);
 			pal_col(14, 0x31);
 			pal_col(13, 0x13);
+			if (isgameover) {
+				pal_col(16+11, 0x2A);
+			}
 			if (isinfo) {
 				pal_col(10, 0x34);
 				pal_col(13, 0x34);
