@@ -14,6 +14,7 @@
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
 #include "Include/font4x4.h"
+#include "Include/mcs.h"
 
 
 #include "Include/NAM_multi_logo_B.h"
@@ -630,7 +631,7 @@ const unsigned char telegaPal[4] = {
 void fx_NesDev(void)
 {
 	//nesdev
-	pal_clear();
+	//pal_clear();
 	pal_bg(palNesdevBg);
 	pal_spr(telegaPal);
 	pal_bright(0);
@@ -1557,53 +1558,26 @@ const unsigned int sineTableTextBobbling[32] = {
 
 const char greets_list[] = {
 	"SHIRU   "
-	"NINTENDO"
-	"THESUPER"
 	"DEMARCHE"
 	"EXCESSTM"
-	"SANDS   "
+	"DUDE BFG"
+	" FENOMEN"
+	"   SANDS"
 
-	"KPACKU  "
-	"FENOMEN "
-	"MEGUS   "
-	"SERZHSFT"
-	"GEMBABOY"
-	" DR. MAX"
-
+	"NQ      "
 	"QUITE   "
-	"R.M.D.A "
 	"HOOYPROG"
-	"   VERVE"
+	" NESDOUG"
+	" DR. MAX"
+	"  NESDEV"
+
+	"BRADSMTH"
+	"MEGACATS"
+	"MCBRMK  "
 	"SPECCYPL"
-	"STARDUST"
+	" TEPPLES"
+	"   TITAN"
 
-	"TITAN   "
-	"ABYSS   "
-	"ERRORSFT"
-	"   BOOZE"
-	" LOONIES"
-	" KEWLERS"
-
-	"COCOON  "
-	"ATEBIT  "
-	"FAIRLGHT"
-	"SPACEBLS"
-	"ASD, LSD"
-	"MFX, TBL"
-
-	"RZR1911 "
-	"CNSPRCY "
-	"HAUJOBB "	
-	"  CENSOR"
-	" FRBRSCH"
-	"    CNCD"
-
-	"MAYHEM  "
-	"EPHIDRNA"
-	"LOGICOMA"
-	"BITFELLS"
-	" MERCURY"
-	"   ELUDE"
 };
 
 void fx_highscore(void)
@@ -1638,7 +1612,7 @@ void fx_highscore(void)
 	--highscore_timer;
 	if (!highscore_timer) {
 		hiPointer += 6 * 8;
-		if (hiPointer > 6 * 48)
+		if (hiPointer > 2 * 48)
 			hiPointer = 0;
 
 		pal_col(27, 0x26);
@@ -2207,6 +2181,37 @@ void main(void)
 			zWinnersScore[i] = 9 - i;
 		}
 	}
+
+	pal_bg(palNesdevBg);
+	pal_spr(telegaPal);
+	pal_bright(0);
+	cnrom_set_bank(1);
+	//bank_bg(0);
+
+	vram_adr(NAMETABLE_A);
+	vram_unrle(mcs);
+	
+	ppu_on_all();
+
+	i = 60;
+	while(i--)
+		ppu_wait_nmi();
+
+	for (i=0; i<5; ++i) {
+		pal_bright(i);
+		delay(2);
+	}
+
+	i = 60*3;
+	while(i--) 
+		ppu_wait_nmi();
+
+	for (i=4; i>0; i--) {
+		pal_bright(i);
+		delay(2);
+	}
+
+	ppu_off();
 
 	fx_NesDev();
 	fx_Krujeva();
