@@ -2162,31 +2162,12 @@ void fx_gameover(void)
 	}
 }
 
-void main(void)
-{
-	
-	set_vram_buffer();
-	clear_vram_buffer();
-	
-	checkNtsc = ppu_system() == 0 ? 1 : 0;
-	
-	// default winners table
-	if (zWinnersHas == 0) {
-		zWinnersHas = 1;
-		for (i = 0; i < 9; ++i) {
-			for (j = 0; j < 13; ++j) {
-				zWinnersText[i*14 + j] = txt_winners_default[j] + 144;
-			}
-			zWinnersText[i*14 + 13] = 0xC9 - i;
-			zWinnersScore[i] = 9 - i;
-		}
-	}
-
+void fx_MCS(void) {
 	pal_bg(palNesdevBg);
 	pal_spr(telegaPal);
 	pal_bright(0);
 	cnrom_set_bank(1);
-	//bank_bg(0);
+	bank_bg(0);
 
 	vram_adr(NAMETABLE_A);
 	vram_unrle(mcs);
@@ -2212,6 +2193,29 @@ void main(void)
 	}
 
 	ppu_off();
+}
+
+void main(void)
+{
+	
+	set_vram_buffer();
+	clear_vram_buffer();
+	
+	checkNtsc = ppu_system() == 0 ? 1 : 0;
+	
+	// default winners table
+	if (zWinnersHas == 0) {
+		zWinnersHas = 1;
+		for (i = 0; i < 9; ++i) {
+			for (j = 0; j < 13; ++j) {
+				zWinnersText[i*14 + j] = txt_winners_default[j] + 144;
+			}
+			zWinnersText[i*14 + 13] = 0xC9 - i;
+			zWinnersScore[i] = 9 - i;
+		}
+	}
+
+	fx_MCS();
 
 	fx_NesDev();
 	fx_Krujeva();
