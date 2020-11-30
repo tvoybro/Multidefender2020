@@ -277,7 +277,7 @@ sounds_data:
 	.incbin "NESst/chr_bank1_BigFont_logo_eq.chr"
 	
 .segment "CHR2"
-	.incbin "NESst/logo_chr.chr"
+	.incbin "NESst/logo_chr2.chr"
 _NAM_krujeva:
 	.incbin "Include/NAM_krujeva.nam"
 _NAM_multi_logo_A:

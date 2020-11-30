@@ -14,6 +14,7 @@
 #include "Include/neslib.h"
 #include "Include/nesdoug.h"
 #include "Include/font4x4.h"
+#include "Include/mcs.h"
 
 
 #include "Include/NAM_multi_logo_B.h"
@@ -630,7 +631,7 @@ const unsigned char telegaPal[4] = {
 void fx_NesDev(void)
 {
 	//nesdev
-	pal_clear();
+	//pal_clear();
 	pal_bg(palNesdevBg);
 	pal_spr(telegaPal);
 	pal_bright(0);
@@ -2188,6 +2189,40 @@ void fx_gameover(void)
 	}
 }
 
+/*void fx_MCS(void) {
+	pal_bg(palNesdevBg);
+	pal_spr(telegaPal);
+	pal_bright(0);
+	cnrom_set_bank(1);
+	bank_bg(0);
+
+	vram_adr(NAMETABLE_A);
+	vram_unrle(mcs);
+	
+	ppu_on_all();
+
+	i = 60;
+	while(i--)
+		ppu_wait_nmi();
+
+	for (i=0; i<5; ++i) {
+		pal_bright(i);
+		delay(2);
+	}
+
+	i = 60*3;
+	while(i--) 
+		ppu_wait_nmi();
+
+	for (i=4; i>0; i--) {
+		pal_bright(i);
+		delay(2);
+	}
+
+	ppu_off();
+}
+*/
+
 void main(void)
 {
 	
@@ -2207,6 +2242,8 @@ void main(void)
 			zWinnersScore[i] = 9 - i;
 		}
 	}
+
+	// fx_MCS();
 
 	fx_NesDev();
 	fx_Krujeva();

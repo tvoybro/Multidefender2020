@@ -1,6 +1,6 @@
 .PHONY: all clean run
 
-NAME = MultiVitro2020.nes
+NAME = MultiDefender2020.nes
 
 CFLAGS = -C cnrom_horz.cfg -t nes -Oisr
 CC = cl65
