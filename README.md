@@ -9,8 +9,7 @@ and also we hope you are still reading this. if so, press “start” to shoot
 the hell out of this fucking virus!
 and take care of yourself. and make more demos, ofcourse!
 
-  ░ S O U R C E S
-obsolete: https://gitlab.com/tvoybro/multimatograf2020/
+  ░ O T H E R S O U R C E S
 8bit workshop version: https://8bitworkshop.com/projects/?n=nes/mdf2020
 
 
