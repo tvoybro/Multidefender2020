@@ -10,7 +10,8 @@ the hell out of this fucking virus!
 and take care of yourself. and make more demos, ofcourse!
 
   ░ S O U R C E S
-https://gitlab.com/tvoybro/multimatograf2020/
+obsolete: https://gitlab.com/tvoybro/multimatograf2020/
+8bit workshop version: https://8bitworkshop.com/projects/?n=nes/mdf2020
 
 
    ░ I N V I T R O   M A D E   B Y
